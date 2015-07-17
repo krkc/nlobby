@@ -1,0 +1,24 @@
+{
+  "name": "nodegamelobby",
+  "version": "0.0.0",
+  "description": "game lobby in node",
+  "main": "server.js",
+  "moduleType": [
+    "node"
+  ],
+  "authors": [
+    "Christopher Kurek"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "ejs": "~1.0.0",
+    "bootstrap": "~3.3.5"
+  }
+}

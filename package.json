@@ -1,0 +1,23 @@
+{
+  "name": "nodegamelobby",
+  "version": "0.0.1",
+  "description": "game lobby written in node",
+  "main": "server.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "Christopher Kurek",
+  "license": "MIT",
+  "dependencies": {
+    "bower": "^1.4.1",
+    "connect-redis": "^2.3.0",
+    "cookie": "^0.1.3",
+    "express": "^4.13.0",
+    "express-session": "^1.11.3",
+    "hashids": "^1.0.1",
+    "jade": "^1.11.0",
+    "mocha": "^2.2.5",
+    "redis": "^0.12.1",
+    "socket.io": "^1.3.5"
+  }
+}

@@ -1,0 +1,25 @@
+extends layout
+
+block includedScripts
+	script(type='text/javascript', src='javascript/snake/snkMain.js')
+	script(type='text/javascript', src='javascript/snake/snkUtils.js')
+	script(type='text/javascript', src='javascript/snake/snkEntities.js')
+	script(type='text/javascript', src='javascript/gameScript.js')
+	body(style="height: 100%;", onload="init()")
+
+block bodyContent
+	meta(charset="UTF-8")
+	h1(style="text-align: center;")
+		| Chris' 2D Snake Game
+	h2(style="text-align: center;")
+		| Escape the snake! Arrow keys to move.
+	div(style="float: left; margin-left: 40%; height: 2em; width: 10%;") Score: 
+		span(id="scorespan") 0
+	div(style="float: right; height: 2em; width: 5em; margin-bottom: 1em; margin-right: 40%; background-color: #7777ff; color: #aaaaaa; text-align: center;")
+		a(href="javascript:stateReset();")
+			div(style="padding: .4em;") Reset
+	div(style="clear: both;")
+	div(id="canvWrapper", style="margin-left: 4%; width: 90%; height: 90%; float: left;")
+		canvas(id="canvbg", style="border: 1px solid #000000; position: absolute; z-index: 0")
+		canvas(id="canvfg", style="border: 1px solid #000000; position: absolute; z-index: 1")
+	div(style='clear: both; width: 100%; height: 2em;')
