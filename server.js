@@ -48,10 +48,9 @@ app.get('/', function (req, res) {
 	res.render('index', indexCon.getContent(sessionIDs));
 });
 
-app.get('/:id', function(req, res) {
+app.get('/snake', function(req, res) {
 	res.render('game', gameCon.getContent());
-	var playerIds = req.params.id.split('+');
-	activeGames.push({ hostPlayer: playerIds[0], enemyPlayer: playerIds[1] })
+	//activeGames.push({ hostPlayer: playerIds[0], enemyPlayer: playerIds[1] })
 	console.log('testing: ' + activeGames)
 });
 

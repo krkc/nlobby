@@ -1,8 +1,9 @@
 // Client-side script for the index.jade page (Game lobby)
 
-var socket = io('192.168.1.3:3000');
+var socket = io();
 
 window.addEventListener('beforeunload', onUserDisconnect);
+window.addEventListener('unload', onUserDisconnect);
 
 function onUserDisconnect() {
 	
@@ -19,7 +20,7 @@ socket.on('userJoined', function (newUserID) {
 	var usersDiv = document.getElementById('divUsers');
 	console.log('New User message received');
 	// Add new user link
-	usersDiv.innerHTML += "<a href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: " + newUserID + "' data-content=\"<a href='" + newUserID + "+" + myid + "'>Play Snake!</a>\" >" + newUserID +  "</a>";
+	usersDiv.innerHTML += "<a href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: " + newUserID + "' data-content=\"<a href='snake'>Play Snake!</a>\" >" + newUserID +  "</a>";
 	// Register the new popover element in JQuery
     $('[data-toggle="popover"]').popover({ html: true });
 });
@@ -31,7 +32,7 @@ socket.on('userLeft', function (userIDs) {
 	// Add updated users to div
 	for (var i=0; i<userIDs.length; i++) {
 		if (userIDs[i] != myid) {
-			usersDiv.innerHTML += "<a href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: " + userIDs[i] + "' data-content=\"<a href='" + userIDs[i] + "+" + myid + "'>Play Snake!</a>\" >" + userIDs[i] +  "</a>";
+			usersDiv.innerHTML += "<a href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: " + userIDs[i] + "' data-content=\"<a href='snake'>Play Snake!</a>\" >" + userIDs[i] +  "</a>";
 		}		
 	}
 	// Update JQuery popover element list

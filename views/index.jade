@@ -2,7 +2,27 @@ extends layout
 
 block includedScripts
 	script(type='text/javascript' src='javascript/script.js')
-block bodyTag
-	body
-		block bodyContent
+
+block bodyContent
+	body(style='height: 100%;')
+		div.container
+			nav(class="navbar navbar-default")
+				div(class="container-fluid")
+					div(class="navbar-header")
+						button(type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar")
+							span.sr-only Toggle navigation
+							span.icon-bar
+							span.icon-bar
+							span.icon-bar
+						a(class="navbar-brand" href="/") Game Lobby
+					div(id="navbar" class="navbar-collapse collapse")
+						ul(class="nav navbar-nav")
+							li(class="active")
+								a(href="#") Home
+							li
+								a(href="#") Page 1
+							li
+								a(href="#") Page 2
+							li
+								a(href="#") Page 3
 			include lobbyContent

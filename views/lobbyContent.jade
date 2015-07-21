@@ -1,8 +1,9 @@
-p YOUR user ID: #{userID}
+p YOUR user ID:
+	div.label.label-primary #{userID}
 
 p Connected Users:
 
-div#divUsers
+div#divUsers(style="height: 25em;")
 	- for (var i=0; i<bodyContent.length; i++)
 		if (bodyContent[i] != userID)
-			a(href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: #{bodyContent[i]}' data-content="<a href='#{bodyContent[i]}+#{userID}'>Play Snake!</a>") #{bodyContent[i]}
+			a(href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: #{bodyContent[i]}' data-content="<a href='snake'>Play Snake!</a>") #{bodyContent[i]}
