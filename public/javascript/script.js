@@ -1,10 +1,11 @@
 // Client-side script for the index.jade page (Game lobby)
 
-var socket = io();
+var socket = io();		/* Initiate Socket IO Connection with server */
 
 window.addEventListener('beforeunload', onUserDisconnect);
 window.addEventListener('unload', onUserDisconnect);
 
+// JS Event handler for user disconnecting from server
 function onUserDisconnect() {
 	
 	socket.emit('sessionDisconnect');
@@ -13,7 +14,6 @@ var myid;
 
 socket.on('createSession', function (sid) {
 	myid = sid.sessionID;
-	document.cookie = "sid=" + sid.sessionID;
 });
 
 socket.on('userJoined', function (newUserID) {	
