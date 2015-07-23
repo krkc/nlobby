@@ -44,8 +44,6 @@ var sessionNumber = 0;
 // -- Begin express code --
 
 app.get('/', function (req, res) {
-	//sessionIDs.push('TestUser1');
-	//sessionIDs.push('TestUser2');
 	sessionIDs.push(idGen.genuuid(sessionNumber += 1));
 	res.cookie('sid', sessionIDs[sessionIDs.length-1]);
 	res.render('index', indexCon.getContent(sessionIDs));
@@ -53,6 +51,7 @@ app.get('/', function (req, res) {
 
 app.get('/snake', function(req, res) {
 	res.render('game', gameCon.getContent());
+	io.sockets.emit('playerFinder', req.query.p2);
 });
 
 // -- End express code --

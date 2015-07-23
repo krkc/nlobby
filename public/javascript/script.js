@@ -20,7 +20,7 @@ socket.on('userJoined', function (newUserID) {
 	var usersDiv = document.getElementById('divUsers');
 	console.log('New User message received');
 	// Add new user link
-	usersDiv.innerHTML += "<a href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: " + newUserID + "' data-content=\"<a href='snake'>Play Snake!</a>\" >" + newUserID +  "</a>";
+	usersDiv.innerHTML += "<a href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: " + newUserID + "' data-content=\"<a href='snake?p1=" + myid + "&p2=" + newUserID + "'>Play Snake!</a>\" >" + newUserID +  "</a>";
 	// Register the new popover element in JQuery
     $('[data-toggle="popover"]').popover({ html: true });
 });
@@ -37,6 +37,12 @@ socket.on('userLeft', function (userIDs) {
 	}
 	// Update JQuery popover element list
     $('[data-toggle="popover"]').popover({ html: true });
+});
+
+socket.on('playerFinder', function(playerToFind) {
+	if (myid == playerToFind) {
+		window.location = 'snake';
+	}
 });
 
 // When page loads, register all popover elements in JQuery
