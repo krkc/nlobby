@@ -1,8 +1,9 @@
 // Client-side script for the game.jade page
 
-var socket = io('localhost:3000');		/* Initiate Socket IO Connection with server */
+var socket = io();		/* Initiate Socket IO Connection with server */
 
 window.addEventListener('beforeunload', onUserDisconnect);
+window.addEventListener('unload', onUserDisconnect);
 
 // JS Event handler for user disconnecting from server
 function onUserDisconnect() {
@@ -12,5 +13,5 @@ function onUserDisconnect() {
 
 // SocketIO event handler for session creation
 socket.on('createSession', function (sid) {
-	document.cookie = "sid=" + sid.sessionID;
+	
 });

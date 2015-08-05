@@ -1,7 +1,14 @@
 extends layout
 
 block includedScripts
+<<<<<<< HEAD
 	script(type='text/javascript' src='javascript/lobbyScript.js')
+block bodyTag
+	body
+		block bodyContent
+			include lobbyContent
+=======
+	script(type='text/javascript' src='javascript/script.js')
 
 block bodyContent
 	body(style='height: 100%;')
@@ -26,3 +33,4 @@ block bodyContent
 							li
 								a(href="#") Page 3
 			include lobbyContent
+>>>>>>> 791df6a0f3d035894b236e9294759d807686d34c

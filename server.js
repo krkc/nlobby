@@ -7,7 +7,8 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-var cookie = require('cookie');
+//var cookie = require('cookie');
+var cookieParser = require('socket.io-cookie-parser');
 
 // Required project modules:
 var indexCon = require('./controllers/index.js');		/* Controller data for index page */
@@ -27,6 +28,7 @@ server.listen(3000, function() {
 
 // Make public files visible to express routing
 app.use(express.static(__dirname + '/public'));
+io.use(cookieParser());
 
 // Set up templating environment
 app.set('views', './views');
@@ -44,17 +46,14 @@ var sessionNumber = 0;
 // -- Begin express code --
 
 app.get('/', function (req, res) {
-	//sessionIDs.push('TestUser1');
-	//sessionIDs.push('TestUser2');
 	sessionIDs.push(idGen.genuuid(sessionNumber += 1));
+	res.cookie('sid', sessionIDs[sessionIDs.length-1]);
 	res.render('index', indexCon.getContent(sessionIDs));
 });
 
-app.get('/:id', function(req, res) {
+app.get('/snake', function(req, res) {
 	res.render('game', gameCon.getContent());
-	var playerIds = req.params.id.split('+');
-	activeGames.push({ hostPlayer: playerIds[0], enemyPlayer: playerIds[1] })
-	console.log('testing: ' + activeGames)
+	io.sockets.emit('playerFinder', req.query.p2);
 });
 
 // -- End express code --
@@ -63,16 +62,20 @@ app.get('/:id', function(req, res) {
 // -- Begin socket.io code --
 
 io.on('connection', function (socket) {
+	
 	if (!socket.username) {
-		socket.username = sessionIDs[sessionIDs.length-1];
+		socket.username = socket.request.cookies.sid;
+		if (socket.request.cookies.sid) {
+			//activeGames.push({ PlayerOne: playerIds[0], PlayerTwo: playerIds[1] })
+			console.log('Cookie present');
+		}
 		console.log('New user has connected. Assigning ID...' + socket.username);
 	} else {
-		socket.username = sessionIDs[sessionIDs.length-1];
+		socket.username = socket.request.cookies.sid;
 		console.log('User \'' + socket.username + '\' has connected. ' + socket.username);
 	}
 
 	socket.broadcast.emit('userJoined', socket.username);
-	//console.log('User has connected. ' + socket.request.headers.cookie);
 
   	socket.emit('createSession', { sessionID: socket.username });
 
@@ -81,7 +84,9 @@ io.on('connection', function (socket) {
 		sessionIDs.splice(sessionIDs.indexOf(socket.username),1);
 		socket.broadcast.emit('userLeft', sessionIDs);
 		console.log('User \'' + socket.username + '\' has disconnected. ' + socket.username);
+
 	});
+
 });
 
 // -- End socket.io code --
