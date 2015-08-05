@@ -2,36 +2,38 @@
 // author: Christopher Kurek
 
 
-// Required modules:
+// Required framework modules:
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var cookie = require('cookie');
 
-
+// Required project modules:
 var indexCon = require('./controllers/index.js');		/* Controller data for index page */
 var idGen = require('./helpers/gensessionid.js');		/* Session ID generator */
 var gameCon = require('./controllers/game.js');			/* Controller data for game page */
 
 
+var host;	/* Hostname of the server */
+var port;	/* Port that the server is listening on */
 
-var host;
-var port;
-
+// Begin Express server
 server.listen(3000, function() {
 	host = server.address().address;
 	port = server.address().port;
 	console.log('HTTP server is listening on port ' + port);
 });
 
+// Make public files visible to express routing
 app.use(express.static(__dirname + '/public'));
 
-
+// Set up templating environment
 app.set('views', './views');
 app.set('view engine', 'jade');
 
-
+// Server session variables
+// (Will be moved to redis eventually)
 var sessionIDs = [];
 
 var activeGames = [];
