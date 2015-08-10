@@ -1,6 +1,6 @@
 //	-----------------------------------------------------
 //	Function:		init()
-//	Parameters:		None
+//	Parameters:		bool
 //	Return:			None
 //	Description:	Initialize the game environment prior
 //					to main game loop starting.
@@ -99,7 +99,7 @@ function main() {
 
 //	-----------------------------------------------------
 //	Function:		drawbg()
-//	Parameters:		None
+//	Parameters:		opengl context
 //	Return:			None
 //	Description:	Draw background elements within the
 //					canvas area.
@@ -133,7 +133,7 @@ function drawbg(glbgc) {
 
 //	-----------------------------------------------------
 //	Function:		drawfg()
-//	Parameters:		None
+//	Parameters:		opengl context
 //	Return:			None
 //	Description:	Draw elements within the canvas area.
 //	-----------------------------------------------------
@@ -177,7 +177,7 @@ function drawfg(glfgc) {
 
 /*
 	Function:     gameOver()
-	Parameters:		None
+	Parameters:		opengl context
 	Return:			  None
 	Description:	Game has ended.
 */
@@ -209,11 +209,12 @@ function stateReset()
 
 /*
 	Function:			onkeyDown()
-	Parameters:		None
+	Parameters:		event parameters
 	Return:				None
 	Description:	Handle keyboard keypress down event.
 */
-function onKeyDown(e) {
+function onKeyDown(e)
+{
 
 	// ---- Arrow Key --------------
 	if (e.keyCode == 38) {

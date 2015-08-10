@@ -37,14 +37,12 @@ app.set('view engine', 'jade');
 // Server session variables
 // (Will be moved to redis eventually)
 var sessionIDs = [];
-
 var activeGames = [];
-
 var sessionNumber = 0;
-
 
 // -- Begin express code --
 
+// Express routes
 app.get('/', function (req, res) {
 	sessionIDs.push(idGen.genuuid(sessionNumber += 1));
 	res.cookie('sid', sessionIDs[sessionIDs.length-1]);
@@ -53,7 +51,11 @@ app.get('/', function (req, res) {
 
 app.get('/snake', function(req, res) {
 	res.render('game', gameCon.getContent());
-	io.sockets.emit('playerFinder', req.query.p2);
+	if (req.query.p2) {
+		// Player has p2 parameter, so must be p1
+		io.sockets.emit('playerFinder', req.query.p2);
+	}
+
 });
 
 // -- End express code --
@@ -61,8 +63,9 @@ app.get('/snake', function(req, res) {
 
 // -- Begin socket.io code --
 
+// Socket.io default handler for new incoming connections
 io.on('connection', function (socket) {
-	
+
 	if (!socket.username) {
 		socket.username = socket.request.cookies.sid;
 		if (socket.request.cookies.sid) {
@@ -77,7 +80,7 @@ io.on('connection', function (socket) {
 
 	socket.broadcast.emit('userJoined', socket.username);
 
-  	socket.emit('createSession', { sessionID: socket.username });
+  socket.emit('createSession', { sessionID: socket.username });
 
 	socket.on('sessionDisconnect', function () {
 
@@ -88,5 +91,20 @@ io.on('connection', function (socket) {
 	});
 
 });
+
+// Game Room namespace (all players currently playing games)
+var grio = io.of('gameRoom');
+grio.on('connection', function (socket) {
+	socket.join('gameID');
+	console.log('User connected to game room.');
+
+	socket.emit('createSession', { sessionID: socket.username });
+
+	socket.on('sessionDisconnect', function () {
+		console.log('User has disconnected from game room.');
+	});
+});
+
+//grio.to('gameID').emit('some event');
 
 // -- End socket.io code --

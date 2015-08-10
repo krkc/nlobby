@@ -10,5 +10,5 @@ function getBody() {
 
 exports.getContent = function(sessionids) {
 
-	return { title: getTitle(), bodyContent: getBody()};
+	return { title: getTitle(), bodyContent: getBody(), gameRoom: 'test' + sessionids};
 }

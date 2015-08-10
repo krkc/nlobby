@@ -2,21 +2,26 @@
 
 var socket = io();		/* Initiate Socket IO Connection with server */
 
+// Register client event handlers
 window.addEventListener('beforeunload', onUserDisconnect);
 window.addEventListener('unload', onUserDisconnect);
 
 // JS Event handler for user disconnecting from server
 function onUserDisconnect() {
-	
+	// Alert server that client is leaving
 	socket.emit('sessionDisconnect');
 }
+
+// Store client's SID for this page
 var myid;
 
+// Acquire a SID for this page
 socket.on('createSession', function (sid) {
 	myid = sid.sessionID;
 });
 
-socket.on('userJoined', function (newUserID) {	
+// A new user has joined the socket.io lobby
+socket.on('userJoined', function (newUserID) {
 	var usersDiv = document.getElementById('divUsers');
 	console.log('New User message received');
 	// Add new user link
@@ -25,6 +30,7 @@ socket.on('userJoined', function (newUserID) {
     $('[data-toggle="popover"]').popover({ html: true });
 });
 
+// A user has left the socket.io lobby
 socket.on('userLeft', function (userIDs) {
 	var usersDiv = document.getElementById('divUsers');
 	// Clear out div contents
@@ -33,15 +39,19 @@ socket.on('userLeft', function (userIDs) {
 	for (var i=0; i<userIDs.length; i++) {
 		if (userIDs[i] != myid) {
 			usersDiv.innerHTML += "<a href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: " + userIDs[i] + "' data-content=\"<a href='snake'>Play Snake!</a>\" >" + userIDs[i] +  "</a>";
-		}		
+		}
 	}
 	// Update JQuery popover element list
     $('[data-toggle="popover"]').popover({ html: true });
 });
 
+// Another player initiates a game invite
 socket.on('playerFinder', function(playerToFind) {
 	if (myid == playerToFind) {
-		window.location = 'snake';
+		var r = confirm("A player wants to play a game, do you accept?");
+		if (r==true) {
+			window.location = 'snake';
+		}
 	}
 });
 
