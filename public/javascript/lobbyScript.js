@@ -1,10 +1,10 @@
 // Client-side script for the index.jade page (Game lobby)
 
-var socket = io();		/* Initiate Socket IO Connection with server */
+var socket = io('localhost:3000/gameLobby');		/* Initiate Socket IO Connection with server */
 
 // Register client event handlers
 window.addEventListener('beforeunload', onUserDisconnect);
-window.addEventListener('unload', onUserDisconnect);
+//window.addEventListener('unload', onUserDisconnect);
 
 // JS Event handler for user disconnecting from server
 function onUserDisconnect() {
