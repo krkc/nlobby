@@ -1,3 +1,14 @@
+/*
+			 _       _     _
+			| |     | |   | |
+ _ __ | | ___ | |__ | |__  _   _
+| '_ \| |/ _ \| '_ \| '_ \| | | |
+| | | | | (_) | |_) | |_) | |_| |
+|_| |_|_|\___/|_.__/|_.__/ \__, |
+													 __/ |
+													|___/
+										*/
+
 // project: nodegamelobby
 // author: Christopher Kurek
 
@@ -14,6 +25,9 @@ var indexCon = require('./controllers/index');		/* Controller data for index pag
 var idGen = require('./helpers/gensessionid');		/* Session ID generator */
 var gameCon = require('./controllers/game');			/* Controller data for game page */
 var activeGames = require('./helpers/ActiveGames');		/* Active games object */
+
+// Snake modules
+var snake = require('./game_files/snake/snkGame.js');		/* Modules for snake game */
 
 
 var host;	/* Hostname of the server */
@@ -118,11 +132,14 @@ grio.on('connection', function (socket) {
 	});
 
 	// SocketIO event handler for session creation
-	socket.on('dataToServer', function () {
+	socket.on('dataToServer', function (dataIn) {
+
+
 		console.log('Received data from client.');
 	});
 
-	socket.emit('dataToClient', { clientData: 'test data' });
+	// TODO: broadcast game data to game room, wrap in function
+	//socket.emit('dataToClient', { clientData: 'test data' });
 
 });
 

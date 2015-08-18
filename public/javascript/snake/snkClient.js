@@ -1,3 +1,7 @@
+// -- Client-side --
+
+var rcu = {};
+
 //	-----------------------------------------------------
 //	Function:		init()
 //	Parameters:		bool
@@ -6,10 +10,8 @@
 //					to main game loop starting.
 //	-----------------------------------------------------
 
-var rcux = [];
-var rcuy = [];
 
-function init(noreset) {
+function init(type) {
 
 	// -- Private data members --
 
@@ -19,7 +21,7 @@ function init(noreset) {
 	var canvfg = document.getElementById("canvfg");
 
 
-	if (!noreset) {
+	if (!type) {
 		// Register event listener for keypresses and touches.
 		window.addEventListener("keydown",onKeyDown,true);
 
@@ -50,17 +52,7 @@ function init(noreset) {
 	this.runningScore = 0;				/* Player score in memory */
 	scorespan.innerHTML = runningScore;
 
-	// Constants
-	this.gameSpeed = 200;					/* Game speed in milliseconds */
-
-	// Useful precomputed values.
-	this.cWidth = canvfg.clientWidth;						/* Canvas width */
-	this.cHeight = canvfg.clientHeight;					/* Canvas height*/
-
-	RCU(cHeight, cWidth);
-
-	this.snake = new Snake();			/* Snake object */
-	this.dot = {xLoc: rcux[Math.floor(Math.random() * 20) * 5], yLoc: rcuy[Math.floor(Math.random() * 20) * 5]};
+	rcu = RCU(canvfg.clientHeight, canvfg.clientWidth);
 
 	this.keyIsPressed = [false, false, false, false];			/* Flags for pressed keys: 38, 40, 37, 39 */
 	this.bgStateChanged = true;
@@ -69,8 +61,36 @@ function init(noreset) {
 		// When all assets are loaded, draw the background
 		//   and begin the game loop.
 		main();
-		this.mainloop = setInterval(main, gameSpeed);
+		//this.mainloop = setInterval(main, gameSpeed);
 	}
+
+}
+
+//	-----------------------------------------------------
+//	Function:		RCU()
+//	Parameters:		cHeight, cWidth
+//	Return:			JSON Object
+//	Description:	Defines units relative to the game
+//                canvas. (Relative Canvas Units)
+//	-----------------------------------------------------
+
+
+function RCU(cHeight, cWidth)
+{
+
+	var rcux = [];
+	var rcuy = [];
+
+  while (rcux.length > 0)
+    rcux.pop();
+  while (rcuy.length > 0)
+    rcuy.pop();
+
+  for (var i = 0; i <= 1.01; i += .01) {
+      rcux.push(Math.floor(cWidth * i));
+      rcuy.push(Math.floor(cHeight * i));
+  }
+	return { x: rcux, y: rcuy };
 
 }
 
@@ -82,7 +102,8 @@ function init(noreset) {
 //	Description:	Main loop for the game logic.
 //	-----------------------------------------------------
 
-function main() {
+function main()
+{
 
 	// Redraw scene if states changed.
 	if (bgStateChanged) {
@@ -104,27 +125,28 @@ function main() {
 //	Description:	Draw background elements within the
 //					canvas area.
 //	-----------------------------------------------------
-function drawbg(glbgc) {
+function drawbg(glbgc)
+{
 
 	// Paint background.
 
 	glbgc.font="20px Arial";
 	glbgc.fillStyle="#aaaaaa";
-	glbgc.fillRect(rcux[0], rcuy[0], rcux[100], rcuy[100]);	/* x,y,w,h */
+	glbgc.fillRect(rcu.x[0], rcu.y[0], rcu.x[100], rcu.y[100]);	/* x,y,w,h */
 
 
 	// Draw grid lines.
 
 	for (var x = 5; x < 100; x += 5) {
 		glbgc.beginPath();
-		glbgc.moveTo(rcux[x], rcuy[0]);
-		glbgc.lineTo(rcux[x], rcuy[100]);
+		glbgc.moveTo(rcu.x[x], rcu.y[0]);
+		glbgc.lineTo(rcu.x[x], rcu.y[100]);
 		glbgc.stroke();
 	}
 	for (var y = 5; y < 100; y += 5) {
 		glbgc.beginPath();
-		glbgc.moveTo(rcux[0], rcuy[y]);
-		glbgc.lineTo(rcux[100], rcuy[y]);
+		glbgc.moveTo(rcu.x[0], rcu.y[y]);
+		glbgc.lineTo(rcu.x[100], rcu.y[y]);
 		glbgc.stroke();
 	}
 
@@ -137,41 +159,27 @@ function drawbg(glbgc) {
 //	Return:			None
 //	Description:	Draw elements within the canvas area.
 //	-----------------------------------------------------
-function drawfg(glfgc) {
+function drawfg(glfgc)
+{
 
 	// Clear previously drawn player.
 	for (var i = 0; i < snake.xLoc.length; i++) {
-		glfgc.clearRect(snake.xLoc[i], snake.yLoc[i], rcux[5], rcuy[5]);
+		glfgc.clearRect(snake.xLoc[i], snake.yLoc[i], rcu.x[5], rcu.y[5]);
 	}
 
 	// Clear dot
-	glfgc.clearRect(dot.xLoc, dot.yLoc, rcux[5], rcuy[5]);
+	glfgc.clearRect(dot.xLoc, dot.yLoc, rcu.x[5], rcu.y[5]);
 
-	// Update snake location.
-	if (!snake.updateLoc()) {
-		// Snake died. Initiate game over.
-		gameOver(glfgc);
-	}
-
-	// Test if colliding with dot.
-	if (snake.isColliding(dot)) {
-		// Dot collision detected. Increase score and respawn dot.
-		runningScore += 10;
-		scorespan.innerHTML = runningScore;
-		snake.grow();
-		dot.xLoc = rcux[Math.floor(Math.random() * 20) * 5];
-		dot.yLoc = rcuy[Math.floor(Math.random() * 20) * 5];
-	}
 
 	// Draw new player position.
 	glfgc.fillStyle="#000000";
 	for (var i = 0; i < snake.xLoc.length; i++) {
-		glfgc.fillRect(snake.xLoc[i], snake.yLoc[i], rcux[5], rcuy[5]);			/* x,y,w,h */
+		glfgc.fillRect(snake.xLoc[i], snake.yLoc[i], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
 	}
 
 	// Redraw dot
 	glfgc.fillStyle="#000000";
-	glfgc.fillRect(dot.xLoc, dot.yLoc, rcux[5], rcuy[5]);			/* x,y,w,h */
+	glfgc.fillRect(dot.xLoc, dot.yLoc, rcu.x[5], rcu.y[5]);			/* x,y,w,h */
 }
 
 
@@ -189,7 +197,7 @@ function gameOver(glfgc)
 	// Display "Game Over".
 	glfgc.font = "2em Comic Sans MS";
 	glfgc.fillStyle="#FF5555";
-	glfgc.fillText("Game Over", rcux[45], rcuy[50]);
+	glfgc.fillText("Game Over", rcu.x[45], rcu.y[50]);
 }
 
 
@@ -251,5 +259,5 @@ function onResize()
 {
 
 	// Reinitialize scene.
-	init(true);
+	init('resize');
 }
