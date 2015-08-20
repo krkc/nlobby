@@ -1,16 +1,9 @@
-/*
-			 _       _     _
-			| |     | |   | |
- _ __ | | ___ | |__ | |__  _   _
-| '_ \| |/ _ \| '_ \| '_ \| | | |
-| | | | | (_) | |_) | |_) | |_| |
-|_| |_|_|\___/|_.__/|_.__/ \__, |
-													 __/ |
-													|___/
-										*/
-
-// project: nodegamelobby
-// author: Christopher Kurek
+/**
+ * @file node.js server for nlobby
+ * @author Christopher Kurek [cakurek1@gmail.com]
+ * @copyright Christopher Kurek 2015
+ * @license MIT
+ */
 
 
 // Required framework modules:
@@ -25,9 +18,6 @@ var indexCon = require('./controllers/index');		/* Controller data for index pag
 var idGen = require('./helpers/gensessionid');		/* Session ID generator */
 var gameCon = require('./controllers/game');			/* Controller data for game page */
 var activeGames = require('./helpers/ActiveGames');		/* Active games object */
-
-// Snake modules
-var snake = require('./game_files/snake/snkGame.js');		/* Modules for snake game */
 
 
 var host;	/* Hostname of the server */
@@ -71,7 +61,7 @@ app.get('/snake', function(req, res) {
 	res.render('game', gameCon.getContent());
 	if (req.query.p1) {
 		// Create new game session and add to list of active games
-		activeGames.newGame(req.query.p1, req.query.p2);
+		activeGames.newGame('snakegame', req.query.p1, req.query.p2);
 		// Player 1 broadcast invite to game lobby for Player 2
 		glio.emit('playerFinder', req.query.p2);
 	}

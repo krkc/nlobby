@@ -32,10 +32,10 @@ function init(type) {
 	}
 
 	// Specify canvas size based on window size.
-	canvbg.setAttribute('width', wWidth-Math.floor(wWidth * .1));
-	canvfg.setAttribute('width', wWidth-Math.floor(wWidth * .1));
-	canvbg.setAttribute('height', wHeight-Math.floor(wHeight * .1));
-	canvfg.setAttribute('height', wHeight-Math.floor(wHeight * .1));
+	canvbg.setAttribute('width', wWidth-Math.floor(wWidth * 0.1));
+	canvfg.setAttribute('width', wWidth-Math.floor(wWidth * 0.1));
+	canvbg.setAttribute('height', wHeight-Math.floor(wHeight * 0.1));
+	canvfg.setAttribute('height', wHeight-Math.floor(wHeight * 0.1));
 
 	// Establish a 2D drawing context.
 	try {
@@ -86,7 +86,7 @@ function RCU(cHeight, cWidth)
   while (rcuy.length > 0)
     rcuy.pop();
 
-  for (var i = 0; i <= 1.01; i += .01) {
+  for (var i = 0; i <= 1.01; i += 0.01) {
       rcux.push(Math.floor(cWidth * i));
       rcuy.push(Math.floor(cHeight * i));
   }
@@ -173,8 +173,8 @@ function drawfg(glfgc)
 
 	// Draw new player position.
 	glfgc.fillStyle="#000000";
-	for (var i = 0; i < snake.xLoc.length; i++) {
-		glfgc.fillRect(snake.xLoc[i], snake.yLoc[i], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
+	for (var j = 0; j < snake.xLoc.length; j++) {
+		glfgc.fillRect(snake.xLoc[j], snake.yLoc[j], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
 	}
 
 	// Redraw dot

@@ -28,3 +28,9 @@ node_modules
 
 # JSDoc output directory
 out
+
+# Redis dump file
+dump.rdb
+
+# JSHint runtime config file
+.jshintrc

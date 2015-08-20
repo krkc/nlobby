@@ -12,16 +12,32 @@
  * Represents an active game state
  * @class
  */
-var Game = function () {
+var Game = function (p1, p2) {
 
-  var entity = require('./snkEntities.js');   /* Entities module */
+  //var entity = require('./snkEntities.js');   /* Entities module */
 
   // Constants
   this.gameSpeed = 200;					/* Game speed in milliseconds */
 
+  this.GameID = p1.toString() + p2.toString();
+
+  this.PlayerOne = {
+    ID: p1,
+    XLoc: -1,
+    YLoc: -1,
+    Score: 0
+  };
+
+  this.PlayerTwo = {
+    ID: p2,
+    XLoc: -1,
+    YLoc: -1,
+    Score: 0
+  };
+
   /** @member snake */
-  this.snake;
-  this.dot;
+  //this.snake;
+  //this.dot;
 
 };
 
@@ -33,7 +49,8 @@ var Game = function () {
  */
 Game.prototype.init = function () {
   this.snake = new Snake();			/* Snake object */
-  this.dot = {xLoc: rcux[Math.floor(Math.random() * 20) * 5], yLoc: rcuy[Math.floor(Math.random() * 20) * 5]};
+  // Feed xLoc into rcu.x, and yLoc into rcu.y
+  this.dot = { xLoc: Math.floor(Math.random() * 20) * 5, yLoc: Math.floor(Math.random() * 20) * 5 };
 };
 
 /**
@@ -45,4 +62,4 @@ Game.prototype.reset = function () {
   // body...
 };
 
-module.exports = new Game();
+module.exports = Game;

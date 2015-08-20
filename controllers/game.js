@@ -15,7 +15,7 @@
  */
 function getTitle() {
 	return 'Playing Game...';
-};
+}
 
 /**
  * @function getBody
@@ -24,7 +24,7 @@ function getTitle() {
  */
 function getBody() {
 	return 'testBodytest';
-};
+}
 
 /**
  * @function getContent

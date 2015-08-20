@@ -25,7 +25,7 @@ socket.on('createGameSession', function (gid) {
 // JS Event handler for user disconnecting from server
 function onUserDisconnect() {
 	socket.emit('disconnectGameSession');
-};
+}
 
 /**
  * @function dataToServer
@@ -35,7 +35,7 @@ function onUserDisconnect() {
 function dataToServer(data) {
 	// Send data to SocketIO server
 	socket.emit('dataToServer', data);
-};
+}
 
 // SocketIO event handler for receiving game data
 socket.on('dataToClient', function (data) {

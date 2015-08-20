@@ -13,7 +13,8 @@
 
 var ActiveGames = function () {
 
-  // Private data members
+
+
   this.sessions = [];
 
 };
@@ -28,22 +29,12 @@ var ActiveGames = function () {
  * @return {Object} - Newly created game object.
  * @desc Create a new game session.
  */
-ActiveGames.prototype.newGame = function (p1, p2) {
-  this.sessions.push({
-    GameID: p1 + p2,   /* The Game ID. For now, simply both player ID strings combined */
-    PlayerOne: {
-      PlayerID: p1,
-      XLoc: -1,
-      YLoc: -1,
-      Score: 0
-    },
-    PlayerTwo: {
-      PlayerID: p2,
-      XLoc: -1,
-      YLoc: -1,
-      Score: 0
-    }
-  });
+ActiveGames.prototype.newGame = function (gametype, p1, p2) {
+  var game = require('../game_files/snake/snkGame'); /* Game state object */
+
+  this.sessions.push(
+    new game(p1, p2)
+  );
 
   return this.sessions[this.sessions.length-1];
 };
@@ -57,14 +48,16 @@ ActiveGames.prototype.newGame = function (p1, p2) {
  *  a given player ID.
  */
 ActiveGames.prototype.findGame = function (pid) {
+
   for (var game of this.sessions) {
-    // Check each game session for a matching player ID
-    if ((game.PlayerOne.PlayerID === pid) || (game.PlayerTwo.PlayerID === pid)) {
+    //Check each game session for a matching player ID
+    if ((game.PlayerOne.ID === pid) || (game.PlayerTwo.ID === pid)) {
       return game;
     } else {
       return 0;
     }
   }
+  
 };
 
 // Make class available to server.js
