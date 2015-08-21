@@ -6,14 +6,15 @@
 //	Return:			None
 //	Description:	Class representing Snake player.
 //	-----------------------------------------------------
-function Snake()
+var Snake = function ()
 {
 
-  var headx = 50;
-  var heady = 95;
+  // For a 20x20 map
+  var headx = 10;   /* Starting position on x-axis */
+  var heady = 19;   /* Starting position on y-axis */
 
-  this.xLoc = [rcux[headx],rcux[headx],rcux[headx],rcux[headx],rcux[headx]];
-  this.yLoc = [rcuy[heady],rcuy[heady]+rcuy[5],rcuy[heady]+rcuy[5],rcuy[heady]+rcuy[5],rcuy[heady]+rcuy[5]];
+  this.xLoc = [headx, headx, headx, headx, headx];
+  this.yLoc = [heady, heady, heady, heady, heady];
   this.movingLeft = false;
   this.movingRight = false;
   this.movingUp = false;
@@ -44,22 +45,22 @@ function Snake()
 
     // Move snake head block.
     if (direction == "up") {
-      if (snake.yLoc[0] > rcuy[0])
-        snake.yLoc[0] = rcuy[heady-=5];
+      if (snake.yLoc[0] > 0)
+        snake.yLoc[0] = heady-=5;
       snake.movingUp = true;
     }
     else if (direction == "down") {
-      if (snake.yLoc[0] < rcuy[95])
-        snake.yLoc[0] = rcuy[heady+=5];
+      if (snake.yLoc[0] < 95)
+        snake.yLoc[0] = heady+=5;
       snake.movingDown = true;
     }
     else if (direction == "left") {
-      if (snake.xLoc[0] > rcux[0])
-        snake.xLoc[0] = rcux[headx-=5];
+      if (snake.xLoc[0] > 0)
+        snake.xLoc[0] = headx-=5;
       snake.movingLeft = true;
     } else {
-      if (snake.xLoc[0] < rcux[95])
-        snake.xLoc[0] = rcux[headx+=5];
+      if (snake.xLoc[0] < 95)
+        snake.xLoc[0] = headx+=5;
       snake.movingRight = true;
     }
 
@@ -77,7 +78,7 @@ function Snake()
     var snklen = snake.xLoc.length;
 
     for (var i = 1; i <= snklen - 1; i++) {
-      if (rcux[headx] == snake.xLoc[i] && rcuy[heady] == snake.yLoc[i]) {
+      if (headx == snake.xLoc[i] && heady == snake.yLoc[i]) {
         return true;
       }
     }
@@ -88,46 +89,46 @@ function Snake()
 
   // -- Public methods -- //
 
-  /*
-    Function:     isColliding()
-    Parameters:		Foreign object to test
-    Return:			  bool - true for collision
-    Description:	Detects whether snake is colliding
-                  with dot.
+  /**
+    @function isColliding
+    @memberof Snake
+    @param {object} obj - Foreign object to test
+    @return {bool} true for collision
+    @desc Detects whether snake is colliding with dot.
   */
   this.isColliding = function(obj)
   {
     // If snake head is > dot x/y, or is < dot x/y + rcux/y[5]
     // then return true for colliding flag. else false.
-    if (rcux[headx] >= obj.xLoc && rcux[headx] <= (obj.xLoc + rcux[2]) && rcuy[heady] >= obj.yLoc && rcuy[heady] <= (obj.yLoc + rcuy[2])) {
+    if (headx >= obj.xLoc && headx <= (obj.xLoc + 2) && heady >= obj.yLoc && heady <= (obj.yLoc + 2)) {
       return true;
     } else {
       return false;
     }
-  }
+  };
 
 
-  /*
-    Function:     updateLoc()
-    Parameters:		None
-    Return:			  Bool - true for collision
-    Description:	Update snake location each tick.
+  /**
+    @function updateLoc
+    @memberof Snake
+    @return {bool} true for collision
+    @desc Update snake location each tick.
   */
   this.updateLoc = function()
   {
-    if (keyIsPressed[0] == true && !this.movingDown) {
+    if (keyIsPressed[0] === true && !this.movingDown) {
       // Move up
       moveSnake("up");
     }
-    else if (keyIsPressed[1] == true && !this.movingUp) {
+    else if (keyIsPressed[1] === true && !this.movingUp) {
       // Move down
       moveSnake("down");
     }
-    else if (keyIsPressed[2] == true && !this.movingRight) {
+    else if (keyIsPressed[2] === true && !this.movingRight) {
       // Move left
       moveSnake("left");
     }
-    else if (keyIsPressed[3] == true && !this.movingLeft) {
+    else if (keyIsPressed[3] === true && !this.movingLeft) {
       // Move right
       moveSnake("right");
     }
@@ -149,7 +150,7 @@ function Snake()
     keyIsPressed[3] = false;
 
     return !isEatingTail();
-  }
+  };
 
 
   /*
@@ -165,5 +166,7 @@ function Snake()
       snake.xLoc.push(snake.xLoc[lastBlock]);
       snake.yLoc.push(snake.yLoc[lastBlock]);
     }
-  }
-}
+  };
+};
+
+module.exports = new Snake();

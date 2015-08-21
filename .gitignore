@@ -34,3 +34,6 @@ dump.rdb
 
 # JSHint runtime config file
 .jshintrc
+
+# Node version manager config
+.nvmrc

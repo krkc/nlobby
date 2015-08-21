@@ -12,11 +12,7 @@
  */
 
 var ActiveGames = function () {
-
-
-
   this.sessions = [];
-
 };
 
 // Public methods
@@ -30,8 +26,14 @@ var ActiveGames = function () {
  * @desc Create a new game session.
  */
 ActiveGames.prototype.newGame = function (gametype, p1, p2) {
-  var game = require('../game_files/snake/snkGame'); /* Game state object */
+  var game;
 
+  if (gametype === 'snakegame') {
+    game = require('../game_files/snake/snkGame'); /* Game state module */
+  }
+
+  // Create new game state object and add to list
+  // Eventually move to redis
   this.sessions.push(
     new game(p1, p2)
   );
@@ -48,7 +50,6 @@ ActiveGames.prototype.newGame = function (gametype, p1, p2) {
  *  a given player ID.
  */
 ActiveGames.prototype.findGame = function (pid) {
-
   for (var game of this.sessions) {
     //Check each game session for a matching player ID
     if ((game.PlayerOne.ID === pid) || (game.PlayerTwo.ID === pid)) {
@@ -57,7 +58,17 @@ ActiveGames.prototype.findGame = function (pid) {
       return 0;
     }
   }
-  
+};
+
+/**
+ * @function removeGame
+ * @memberof ActiveGames
+ * @param {Object} pid - Player ID of Player 1.
+ * @return {Object} - Selected game object or NULL.
+ * @desc Remove a game from the list when no longer being played
+ */
+ActiveGames.prototype.removeGame = function (game) {
+  this.sessions.splice(this.sessions.indexOf(game),1);
 };
 
 // Make class available to server.js

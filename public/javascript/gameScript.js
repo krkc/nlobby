@@ -13,7 +13,7 @@ var socket = io('localhost:3000/gameRoom');		/* Initiate Socket IO Connection wi
 
 // Register client event handlers for socket.io disconnect
 window.addEventListener('beforeunload', onUserDisconnect);
-window.addEventListener('unload', onUserDisconnect);
+//window.addEventListener('unload', onUserDisconnect);
 
 var gameID;		/* ID of current game session */
 
