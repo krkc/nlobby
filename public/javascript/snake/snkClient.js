@@ -20,6 +20,8 @@ function init(type) {
 	var canvbg = document.getElementById("canvbg");		/* Page Canvas objects */
 	var canvfg = document.getElementById("canvfg");
 
+	var gameSpeed = 200;
+
 
 	if (!type) {
 		// Register event listener for keypresses and touches.
@@ -61,7 +63,7 @@ function init(type) {
 		// When all assets are loaded, draw the background
 		//   and begin the game loop.
 		main();
-		//this.mainloop = setInterval(main, gameSpeed);
+		this.mainloop = setInterval(main, gameSpeed);
 	}
 
 }
@@ -245,6 +247,7 @@ function onKeyDown(e)
 		// Toggle "move right" keypress state.
 		keyIsPressed[3] = true;
 	}
+	dataToServer(keyIsPressed);
 }
 
 

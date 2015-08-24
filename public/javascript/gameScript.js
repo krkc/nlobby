@@ -15,11 +15,15 @@ var socket = io('localhost:3000/gameRoom');		/* Initiate Socket IO Connection wi
 window.addEventListener('beforeunload', onUserDisconnect);
 //window.addEventListener('unload', onUserDisconnect);
 
+var myID;			/* ID of the current player */
 var gameID;		/* ID of current game session */
+var snake = { xLoc: [-1, -1, -1], yLoc: [-1, -1, -1] };
+var dot = { xLoc: -1, yLoc: -1 };
 
 // SocketIO event handler for session creation
-socket.on('createGameSession', function (gid) {
-	gameID = gid.gameID;
+socket.on('createGameSession', function (pid) {
+	myID = pid.ID;
+	gameID = pid.gameID;
 });
 
 // JS Event handler for user disconnecting from server
@@ -39,5 +43,9 @@ function dataToServer(data) {
 
 // SocketIO event handler for receiving game data
 socket.on('dataToClient', function (data) {
-	console.log('Received data from server.');
+	console.log('Client: Received data from server. ' + data.PlayerOne.xLoc);
+	snake.xLoc = data.PlayerOne.xLoc;
+	snake.yLoc = data.PlayerOne.yLoc;
+	dot.xLoc = data.PlayerTwo.xLoc;
+	dot.yLoc = data.PlayerTwo.yLoc;
 });

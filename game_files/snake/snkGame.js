@@ -14,7 +14,9 @@
  */
 var Game = function (p1, p2) {
 
-  var entity = require('./snkEntities.js');   /* Entities module */
+  var events = require('events');
+
+  this.eventEmitter = new events.EventEmitter();
 
   /**
    * @member gameSpeed
@@ -32,12 +34,9 @@ var Game = function (p1, p2) {
    * @member PlayerOne
    * @memberof Game
    */
-  this.PlayerOne = {
-    ID: p1,
-    XLoc: -1,
-    YLoc: -1,
-    Score: 0
-  };
+  this.PlayerOne = require('./snkSnake');
+  this.PlayerOne.ID = p1;
+  this.PlayerOne.Score = 0;
 
   /**
    * @member PlayerTwo
@@ -50,16 +49,16 @@ var Game = function (p1, p2) {
     Score: 0
   };
 
+
   /**
-   * @member Snake
+   * @function gameOver
    * @memberof Game
+   * @desc End gameplay round
    */
-  //this.Snake;
-  /**
-   * @member Dot
-   * @memberof Game
-   */
-  //this.Dot;
+  function gameOver()
+  {
+    // body...
+  }
 
   /**
    * @function reset
@@ -71,60 +70,66 @@ var Game = function (p1, p2) {
     // body...
   }
 
+  /**
+   * @function init
+   * @memberof Game
+   * @param {bool} noreset - Option to reset game or create new game
+   * @desc Initialize the game environment prior to the game loop starting.
+   */
+  Game.prototype.init = function () {
+    // // Feed xLoc into rcu.x, and yLoc into rcu.y
+    this.sendData({ test: 'test' });
+  };
+
+  /**
+   * @function sendData
+   * @memberof Game
+   * @param {Object} dataOut - Data going out to the client
+   * @desc Send outgoing data to the client player
+   */
+  Game.prototype.sendData = function (dataOut) {
+    this.eventEmitter.emit('dataFromServer', dataOut);
+    console.log('Game: sent data to server through eventEmitter.');
+  };
+
+  /**
+   * @function receiveData
+   * @memberof Game
+   * @param {Object} dataIn - Data coming in from the client
+   * @desc Receive and process incoming data sent from client player
+   */
+  Game.prototype.receiveData = function (dataIn) {
+    var keyIsPressed = dataIn;
+
+    // Update snake location.
+    if (!this.PlayerOne.updateLoc(keyIsPressed)) {
+      // Snake died. Initiate game over.
+      gameOver(glfgc);
+    }
+
+    // // Test if colliding with dot.
+    // if (PlayerOne.isColliding(PlayerTwo)) {
+    //   // Dot collision detected. Increase score and respawn dot.
+    //   PlayerOne.Score += 10;
+    //   PlayerOne.grow();
+    //   // TODO: Dot will be positioned next
+    // }
+
+    this.sendData({
+      PlayerOne: {
+        keyIsPressed: keyIsPressed,
+        xLoc: this.PlayerOne.XLoc(),
+        yLoc: this.PlayerOne.YLoc()
+      },
+      PlayerTwo: {
+        xLoc: this.PlayerTwo.XLoc,
+        yLoc: this.PlayerTwo.YLoc
+      }
+    });
+  };
+
 };
 
-/**
- * @function init
- * @memberof Game
- * @param {bool} noreset - Option to reset game or create new game
- * @desc Initialize the game environment prior to the game loop starting.
- */
-Game.prototype.init = function () {
-  this.snake = new Snake();			/* Snake object */
-  // Feed xLoc into rcu.x, and yLoc into rcu.y
-  this.dot = { xLoc: Math.floor(Math.random() * 20) * 5, yLoc: Math.floor(Math.random() * 20) * 5 };
-};
 
-/**
- * @function receiveData
- * @memberof Game
- * @param {Object} dataIn - Data coming in from the client
- * @desc Receive and process incoming data sent from client player
- */
-Game.prototype.receiveData = function (dataIn) {
-  // body...
-};
-
-/**
- * @function sendData
- * @memberof Game
- * @param {Object} dataOut - Data going out to the client
- * @desc Send outgoing data to the client player
- */
-Game.prototype.sendData = function (dataOut) {
-  // body...
-};
 
 module.exports = Game;
-
-// // TODO: Move this logic into Game's main loop
-// // Initialize the game environment
-// game.init();
-//
-// function main() {
-//   // Update snake location.
-//   if (!snake.updateLoc()) {
-//     // Snake died. Initiate game over.
-//     gameOver(glfgc);
-//   }
-//
-//   // Test if colliding with dot.
-//   if (snake.isColliding(dot)) {
-//     // Dot collision detected. Increase score and respawn dot.
-//     runningScore += 10;
-//     scorespan.innerHTML = runningScore;
-//     snake.grow();
-//     dot.xLoc = Math.floor(Math.random() * 20) * 5;
-//     dot.yLoc = Math.floor(Math.random() * 20) * 5;
-//   }
-// }

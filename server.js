@@ -7,7 +7,8 @@
 
 
 // Required framework modules:
-var eventEmitter = require('events').EventEmitter();
+//var events = require('events');
+//var eventEmitter = new events.EventEmitter();
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
@@ -30,6 +31,7 @@ server.listen(3000, function() {
 	port = server.address().port;
 	console.log('HTTP server is listening on port ' + port);
 });
+
 
 // Socket.io namespaces
 var glio = io.of('/gameLobby');		/* Game Lobby namespace (all players currently in lobby) */
@@ -133,13 +135,15 @@ grio.on('connection', function (socket) {
 		socket.currentGame = activeGames.findGame(socket.username);		/* Session game for player */
 
 		if (socket.currentGame) {
-				var gameID = socket.currentGame.GameID;		/* ID of the current game session */
+			socket.currentGame.init();
+			var gameID = socket.currentGame.GameID;		/* ID of the current game session */
 
-				socket.join(gameID);
-				console.log('User connected to game room ' + gameID + '. ' + activeGames.sessions.length + ' active games.');
+			//socket.join(gameID);
+			socket.join('gameID');
+			console.log('User connected to game room ' + gameID + '. ' + activeGames.sessions.length + ' active games.');
 
-				socket.emit('createGameSession', { gameID: gameID });
-			}
+			socket.emit('createGameSession', { ID: socket.username, gameID: gameID });
+		}
 	}
 
 	socket.on('disconnectGameSession', function () {
@@ -149,18 +153,30 @@ grio.on('connection', function (socket) {
 
 	// SocketIO event handler for session creation
 	socket.on('dataToServer', function (dataIn) {
-		socket.currentGame.receiveData(dataIn);
-		console.log('Received data from client.');
+		try {
+			socket.currentGame.receiveData(dataIn);
+		}
+
+		catch(err) {
+			console.log(err.message);
+		}
+
+		console.log('server: Received data from client.');
 	});
 
 	// Event handler for when game sends data to players
-	eventEmitter.on('dataFromServer', function (dataOut) {
+	socket.currentGame.eventEmitter.on('dataFromServer', function (dataOut) {
 		// Broadcast data to players in the current game room
-		grio.to(gameID).emit('dataToClient', { dataOut });
+
+		socket.broadcast.to('gameID').emit('dataToClient', dataOut);
+		console.log('server: Received data from game.');
 	});
 
 	// Send data to individual player
 	//socket.emit('dataToClient', { clientData: 'test data' });
+
+	// Broadcast to players in a given room
+	//grio.sockets.in('gameID').emit('dataToClient', dataOut);
 
 });
 
