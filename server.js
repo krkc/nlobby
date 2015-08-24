@@ -152,7 +152,7 @@ grio.on('connection', function (socket) {
 	});
 
 	// SocketIO event handler for session creation
-	socket.on('dataToServer', function (dataIn) {
+	socket.on('dataFromClient', function (dataIn) {
 		try {
 			socket.currentGame.receiveData(dataIn);
 		}

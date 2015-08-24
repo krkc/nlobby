@@ -18,11 +18,14 @@ var Game = function (p1, p2) {
 
   this.eventEmitter = new events.EventEmitter();
 
+  this.mainloop = null;
+  this.keyIsPressed = [false, false, false, false];
+
   /**
    * @member gameSpeed
    * @memberof Game
    */
-  this.gameSpeed = 200;					/* Game speed in milliseconds */
+  this.gameSpeed = 1000;					/* Game speed in milliseconds */
 
   /**
    * @member GameID
@@ -57,7 +60,7 @@ var Game = function (p1, p2) {
    */
   function gameOver()
   {
-    // body...
+    // Body...
   }
 
   /**
@@ -77,8 +80,49 @@ var Game = function (p1, p2) {
    * @desc Initialize the game environment prior to the game loop starting.
    */
   Game.prototype.init = function () {
-    // // Feed xLoc into rcu.x, and yLoc into rcu.y
-    this.sendData({ test: 'test' });
+    // 1. Player 2 chooses dot location.
+    // 2. Player 1 presses a key.
+    // 3. Main game loop begins.
+    if (this.mainloop === null) {
+      this.mainloop = setInterval(this.main.bind(this), this.gameSpeed);
+    }
+  };
+
+  /**
+   * @function main
+   * @memberof Game
+   * @desc Main server-side game loop.
+   */
+  Game.prototype.main = function () {
+    // Update snake location.
+    if (!this.PlayerOne.updateLoc(this.keyIsPressed)) {
+      // Snake died. Initiate game over.
+      console.log('Game: game over.');
+      gameOver();
+    } else {
+
+
+      // // Test if colliding with dot.
+      // if (PlayerOne.isColliding(PlayerTwo)) {
+      //   // Dot collision detected. Increase score and respawn dot.
+      //   PlayerOne.Score += 10;
+      //   PlayerOne.grow();
+      //   // TODO: Dot will be positioned next
+      // }
+
+      // Send outgoing packet with new coordinates to clients
+      this.sendData({
+        PlayerOne: {
+          keyIsPressed: this.keyIsPressed,
+          xLoc: this.PlayerOne.XLoc(),
+          yLoc: this.PlayerOne.YLoc()
+        },
+        PlayerTwo: {
+          xLoc: this.PlayerTwo.XLoc,
+          yLoc: this.PlayerTwo.YLoc
+        }
+      });
+    }
   };
 
   /**
@@ -99,35 +143,12 @@ var Game = function (p1, p2) {
    * @desc Receive and process incoming data sent from client player
    */
   Game.prototype.receiveData = function (dataIn) {
-    var keyIsPressed = dataIn;
+    // Initialize game loop
+    this.init();
 
-    // Update snake location.
-    if (!this.PlayerOne.updateLoc(keyIsPressed)) {
-      // Snake died. Initiate game over.
-      gameOver(glfgc);
-    }
-
-    // // Test if colliding with dot.
-    // if (PlayerOne.isColliding(PlayerTwo)) {
-    //   // Dot collision detected. Increase score and respawn dot.
-    //   PlayerOne.Score += 10;
-    //   PlayerOne.grow();
-    //   // TODO: Dot will be positioned next
-    // }
-
-    this.sendData({
-      PlayerOne: {
-        keyIsPressed: keyIsPressed,
-        xLoc: this.PlayerOne.XLoc(),
-        yLoc: this.PlayerOne.YLoc()
-      },
-      PlayerTwo: {
-        xLoc: this.PlayerTwo.XLoc,
-        yLoc: this.PlayerTwo.YLoc
-      }
-    });
+    // Update keyIsPressed with data from client
+    this.keyIsPressed = dataIn;
   };
-
 };
 
 

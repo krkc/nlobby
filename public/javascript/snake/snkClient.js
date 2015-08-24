@@ -56,7 +56,6 @@ function init(type) {
 
 	rcu = RCU(canvfg.clientHeight, canvfg.clientWidth);
 
-	this.keyIsPressed = [false, false, false, false];			/* Flags for pressed keys: 38, 40, 37, 39 */
 	this.bgStateChanged = true;
 
 	if (this.glfg && this.glbg) {
@@ -166,22 +165,22 @@ function drawfg(glfgc)
 
 	// Clear previously drawn player.
 	for (var i = 0; i < snake.xLoc.length; i++) {
-		glfgc.clearRect(snake.xLoc[i], snake.yLoc[i], rcu.x[5], rcu.y[5]);
+		glfgc.clearRect(rcu.x[snake.lastxLoc[i]], rcu.y[snake.lastyLoc[i]], rcu.x[5], rcu.y[5]);
 	}
 
 	// Clear dot
-	glfgc.clearRect(dot.xLoc, dot.yLoc, rcu.x[5], rcu.y[5]);
+	glfgc.clearRect(rcu.x[dot.lastxLoc], rcu.y[dot.lastyLoc], rcu.x[5], rcu.y[5]);
 
 
 	// Draw new player position.
 	glfgc.fillStyle="#000000";
 	for (var j = 0; j < snake.xLoc.length; j++) {
-		glfgc.fillRect(snake.xLoc[j], snake.yLoc[j], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
+		glfgc.fillRect(rcu.x[snake.xLoc[j]], rcu.y[snake.yLoc[j]], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
 	}
 
 	// Redraw dot
 	glfgc.fillStyle="#000000";
-	glfgc.fillRect(dot.xLoc, dot.yLoc, rcu.x[5], rcu.y[5]);			/* x,y,w,h */
+	glfgc.fillRect(rcu.x[dot.xLoc], rcu.x[dot.yLoc], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
 }
 
 
@@ -225,6 +224,7 @@ function stateReset()
 */
 function onKeyDown(e)
 {
+	var keyIsPressed = [false, false, false, false];			/* Flags for pressed keys: 38, 40, 37, 39 */
 
 	// ---- Arrow Key --------------
 	if (e.keyCode == 38) {

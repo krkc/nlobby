@@ -9,9 +9,9 @@
 var Snake = function ()
 {
 
-  // For a 20x20 map
-  var headx = 10;   /* Starting position on x-axis */
-  var heady = 19;   /* Starting position on y-axis */
+  // For a 100x100 map, each square is 5
+  var headx = 45;   /* Starting position on x-axis */
+  var heady = 95;   /* Starting position on y-axis */
 
   xLoc = [headx, headx, headx, headx, headx];
   yLoc = [heady, heady, heady, heady, heady];
@@ -116,6 +116,7 @@ var Snake = function ()
   */
   this.updateLoc = function(keyIsPressed)
   {
+    console.log('updateLoc: keyIsPressed: ' + keyIsPressed);
     if (keyIsPressed[0] === true && !movingDown) {
       // Move up
       moveSnake("up");
