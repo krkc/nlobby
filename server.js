@@ -135,7 +135,6 @@ grio.on('connection', function (socket) {
 		socket.currentGame = activeGames.findGame(socket.username);		/* Session game for player */
 
 		if (socket.currentGame) {
-			socket.currentGame.init();
 			var gameID = socket.currentGame.GameID;		/* ID of the current game session */
 
 			//socket.join(gameID);
@@ -148,6 +147,7 @@ grio.on('connection', function (socket) {
 
 	socket.on('disconnectGameSession', function () {
 		activeGames.removeGame(socket.currentGame);
+		socket.currentGame = null;
 		console.log('User has disconnected from game room. ' + activeGames.sessions.length + ' active games.');
 	});
 

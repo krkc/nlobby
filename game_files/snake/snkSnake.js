@@ -1,5 +1,13 @@
 // -- Server-side --
 
+/**
+ * @file Manages the snake object
+ * @author Christopher Kurek [cakurek1@gmail.com]
+ * @copyright Christopher Kurek 2015
+ * @license MIT
+ */
+
+
 //	-----------------------------------------------------
 //	Class:		Snake()
 //	Parameters:		None
@@ -100,7 +108,8 @@ var Snake = function ()
   {
     // If snake head is > dot x/y, or is < dot x/y + rcux/y[5]
     // then return true for colliding flag. else false.
-    if (headx >= obj.xLoc && headx <= (obj.xLoc + 2) && heady >= obj.yLoc && heady <= (obj.yLoc + 2)) {
+    //if ((headx >= obj.XLoc && headx <= (obj.XLoc + 2)) && (heady >= obj.YLoc && heady <= (obj.YLoc + 2))) {
+    if (headx == obj.XLoc && heady == obj.YLoc) {
       return true;
     } else {
       return false;
@@ -190,4 +199,4 @@ var Snake = function ()
   };
 };
 
-module.exports = new Snake();
+module.exports = Snake;

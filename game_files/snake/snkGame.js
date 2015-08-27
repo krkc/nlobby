@@ -18,14 +18,14 @@ var Game = function (p1, p2) {
 
   this.eventEmitter = new events.EventEmitter();
 
-  this.mainloop = null;
+  mainloop = null;
   this.keyIsPressed = [false, false, false, false];
 
   /**
    * @member gameSpeed
    * @memberof Game
    */
-  this.gameSpeed = 1000;					/* Game speed in milliseconds */
+  this.gameSpeed = 800;					/* Game speed in milliseconds */
 
   /**
    * @member GameID
@@ -37,7 +37,8 @@ var Game = function (p1, p2) {
    * @member PlayerOne
    * @memberof Game
    */
-  this.PlayerOne = require('./snkSnake');
+  var snake = require('./snkSnake');
+  this.PlayerOne = new snake();
   this.PlayerOne.ID = p1;
   this.PlayerOne.Score = 0;
 
@@ -47,8 +48,8 @@ var Game = function (p1, p2) {
    */
   this.PlayerTwo = {
     ID: p2,
-    XLoc: -1,
-    YLoc: -1,
+    XLoc: 50,
+    YLoc: 40,
     Score: 0
   };
 
@@ -60,7 +61,7 @@ var Game = function (p1, p2) {
    */
   function gameOver()
   {
-    // Body...
+    clearInterval(mainloop);
   }
 
   /**
@@ -83,8 +84,8 @@ var Game = function (p1, p2) {
     // 1. Player 2 chooses dot location.
     // 2. Player 1 presses a key.
     // 3. Main game loop begins.
-    if (this.mainloop === null) {
-      this.mainloop = setInterval(this.main.bind(this), this.gameSpeed);
+    if (mainloop === null) {
+      mainloop = setInterval(this.mainl.bind(this), this.gameSpeed);
     }
   };
 
@@ -93,7 +94,7 @@ var Game = function (p1, p2) {
    * @memberof Game
    * @desc Main server-side game loop.
    */
-  Game.prototype.main = function () {
+  Game.prototype.mainl = function () {
     // Update snake location.
     if (!this.PlayerOne.updateLoc(this.keyIsPressed)) {
       // Snake died. Initiate game over.
@@ -102,13 +103,13 @@ var Game = function (p1, p2) {
     } else {
 
 
-      // // Test if colliding with dot.
-      // if (PlayerOne.isColliding(PlayerTwo)) {
-      //   // Dot collision detected. Increase score and respawn dot.
-      //   PlayerOne.Score += 10;
-      //   PlayerOne.grow();
-      //   // TODO: Dot will be positioned next
-      // }
+      // Test if colliding with dot.
+      if (this.PlayerOne.isColliding(this.PlayerTwo)) {
+        // Dot collision detected. Increase score and respawn dot.
+        this.PlayerOne.Score += 10;
+        this.PlayerOne.grow();
+        // TODO: Dot will be positioned next
+      }
 
       // Send outgoing packet with new coordinates to clients
       this.sendData({
@@ -145,7 +146,7 @@ var Game = function (p1, p2) {
   Game.prototype.receiveData = function (dataIn) {
     // Initialize game loop
     this.init();
-
+    console.log('receiveData: keyIsPressed: ' + dataIn);
     // Update keyIsPressed with data from client
     this.keyIsPressed = dataIn;
   };

@@ -68,6 +68,9 @@ ActiveGames.prototype.findGame = function (pid) {
  * @desc Remove a game from the list when no longer being played
  */
 ActiveGames.prototype.removeGame = function (game) {
+  // Destroy the game object, but the array position still needs removed
+  this.sessions[this.sessions.indexOf(game)] = null;
+  // This removes the now empty array position
   this.sessions.splice(this.sessions.indexOf(game),1);
 };
 

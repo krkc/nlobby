@@ -1,5 +1,13 @@
 // -- Client-side --
 
+/**
+ * @file Client for snake game
+ * @author Christopher Kurek [cakurek1@gmail.com]
+ * @copyright Christopher Kurek 2015
+ * @license MIT
+ */
+
+
 var rcu = {};
 
 //	-----------------------------------------------------
@@ -180,7 +188,7 @@ function drawfg(glfgc)
 
 	// Redraw dot
 	glfgc.fillStyle="#000000";
-	glfgc.fillRect(rcu.x[dot.xLoc], rcu.x[dot.yLoc], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
+	glfgc.fillRect(rcu.x[dot.xLoc], rcu.y[dot.yLoc], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
 }
 
 
@@ -231,23 +239,26 @@ function onKeyDown(e)
 		e.preventDefault();
 		// Toggle "move up" keypress state.
 		keyIsPressed[0] = true;
+		dataToServer(keyIsPressed);
 	}
 	if (e.keyCode == 40) {
 		e.preventDefault();
 		// Toggle "move down" keypress state.
 		keyIsPressed[1] = true;
+		dataToServer(keyIsPressed);
 	}
 	if (e.keyCode == 37) {
 		e.preventDefault();
 		// Toggle "move left" keypress state.
 		keyIsPressed[2] = true;
+		dataToServer(keyIsPressed);
 	}
 	if (e.keyCode == 39) {
 		e.preventDefault();
 		// Toggle "move right" keypress state.
 		keyIsPressed[3] = true;
+		dataToServer(keyIsPressed);
 	}
-	dataToServer(keyIsPressed);
 }
 
 
