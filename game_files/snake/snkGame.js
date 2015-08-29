@@ -4,7 +4,7 @@
  * @file Manages the game state object
  * @author Christopher Kurek [cakurek1@gmail.com]
  * @copyright Christopher Kurek 2015
- * @license MIT
+ * @license GPLv3
  */
 
 
@@ -14,12 +14,14 @@
  */
 var Game = function (p1, p2) {
 
-  var events = require('events');
+  var events = require('events');   /* Events middleware module */
 
-  this.eventEmitter = new events.EventEmitter();
+  this.eventEmitter = new events.EventEmitter();  /* Event emitter object */
 
-  mainloop = null;
-  this.keyIsPressed = [false, false, false, false];
+  var mainloop = null;    /* ID for setInterval callback (this.mainl) */
+  var self = this;        /* Explicit reference to current context for calling setInterval */
+
+  this.keyIsPressed = [false, false, false, false];   /* Keypress flags */
 
   /**
    * @member gameSpeed
@@ -40,7 +42,6 @@ var Game = function (p1, p2) {
   var snake = require('./snkSnake');
   this.PlayerOne = new snake();
   this.PlayerOne.ID = p1;
-  this.PlayerOne.Score = 0;
 
   /**
    * @member PlayerTwo
@@ -61,7 +62,12 @@ var Game = function (p1, p2) {
    */
   function gameOver()
   {
-    clearInterval(mainloop);
+    try {
+      clearInterval(mainloop);
+    }
+    catch (e) {
+      console.log('clearInterval failed:' + e.message);
+    }
   }
 
   /**
@@ -85,7 +91,7 @@ var Game = function (p1, p2) {
     // 2. Player 1 presses a key.
     // 3. Main game loop begins.
     if (mainloop === null) {
-      mainloop = setInterval(this.mainl.bind(this), this.gameSpeed);
+      mainloop = setInterval(this.mainl, this.gameSpeed);
     }
   };
 
@@ -96,7 +102,7 @@ var Game = function (p1, p2) {
    */
   Game.prototype.mainl = function () {
     // Update snake location.
-    if (!this.PlayerOne.updateLoc(this.keyIsPressed)) {
+    if (!self.PlayerOne.updateLoc(self.keyIsPressed)) {
       // Snake died. Initiate game over.
       console.log('Game: game over.');
       gameOver();
@@ -104,23 +110,26 @@ var Game = function (p1, p2) {
 
 
       // Test if colliding with dot.
-      if (this.PlayerOne.isColliding(this.PlayerTwo)) {
+      if (self.PlayerOne.isColliding(self.PlayerTwo)) {
         // Dot collision detected. Increase score and respawn dot.
-        this.PlayerOne.Score += 10;
-        this.PlayerOne.grow();
+        self.PlayerOne.grow();
         // TODO: Dot will be positioned next
       }
 
       // Send outgoing packet with new coordinates to clients
-      this.sendData({
+      self.sendData({
         PlayerOne: {
-          keyIsPressed: this.keyIsPressed,
-          xLoc: this.PlayerOne.XLoc(),
-          yLoc: this.PlayerOne.YLoc()
+          keyIsPressed: self.keyIsPressed,
+          id: self.PlayerOne.ID,
+          xLoc: self.PlayerOne.XLoc(),
+          yLoc: self.PlayerOne.YLoc(),
+          score: self.PlayerOne.Score()
         },
         PlayerTwo: {
-          xLoc: this.PlayerTwo.XLoc,
-          yLoc: this.PlayerTwo.YLoc
+          id: self.PlayerTwo.ID,
+          xLoc: self.PlayerTwo.XLoc,
+          yLoc: self.PlayerTwo.YLoc,
+          score: self.PlayerTwo.Score
         }
       });
     }

@@ -4,7 +4,7 @@
  * @file Manages the snake object
  * @author Christopher Kurek [cakurek1@gmail.com]
  * @copyright Christopher Kurek 2015
- * @license MIT
+ * @license GPLv3
  */
 
 
@@ -21,12 +21,13 @@ var Snake = function ()
   var headx = 45;   /* Starting position on x-axis */
   var heady = 95;   /* Starting position on y-axis */
 
-  xLoc = [headx, headx, headx, headx, headx];
-  yLoc = [heady, heady, heady, heady, heady];
-  movingLeft = false;
-  movingRight = false;
-  movingUp = false;
-  movingDown = false;
+  var xLoc = [headx, headx, headx, headx, headx];
+  var yLoc = [heady, heady, heady, heady, heady];
+  var movingLeft = false;
+  var movingRight = false;
+  var movingUp = false;
+  var movingDown = false;
+  var score = 0;
 
   // -- Private methods -- //
 
@@ -163,11 +164,10 @@ var Snake = function ()
   };
 
 
-  /*
-    Function:     grow()
-    Parameters:		None
-    Return:			  None
-    Description:	Increase length of snake tail by 3.
+  /**
+   * @function grow
+   * @memberof Snake
+   * @desc Increase length of snake tail by 3.
   */
   this.grow = function ()
   {
@@ -176,6 +176,8 @@ var Snake = function ()
       xLoc.push(xLoc[lastBlock]);
       yLoc.push(yLoc[lastBlock]);
     }
+
+    score += 10;
   };
 
   /**
@@ -184,7 +186,8 @@ var Snake = function ()
    * @return {Array} - x-axis locations of snake blocks
    * @desc Getter for current snake x-axis location
    */
-  this.XLoc = function () {
+  this.XLoc = function ()
+  {
     return xLoc;
   };
 
@@ -194,9 +197,21 @@ var Snake = function ()
    * @return {Array} - y-axis locations of snake blocks
    * @desc Getter for current snake y-axis location
    */
-  this.YLoc = function() {
+  this.YLoc = function()
+  {
     return yLoc;
   };
+
+  /**
+   * @function Score
+   * @memberof Snake
+   * @return {Integer} - score of the current player
+   * @desc Getter for current player's running score
+   */
+   this.Score = function ()
+   {
+     return score;
+   };
 };
 
 module.exports = Snake;

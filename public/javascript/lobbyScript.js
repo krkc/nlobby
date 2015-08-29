@@ -1,6 +1,8 @@
 // Client-side script for the index.jade page (Game lobby)
 
-var socket = io('localhost:3000/gameLobby');		/* Initiate Socket IO Connection with server */
+//var socket = io('localhost:3000/gameLobby');		/* Initiate Socket IO Connection with server */
+var socket = io('192.168.1.7:3000/gameLobby');		/* Initiate Socket IO Connection with server */
+
 
 // Register client event handlers
 window.addEventListener('beforeunload', onUserDisconnect);
@@ -38,7 +40,7 @@ socket.on('userLeft', function (userIDs) {
 	// Add updated users to div
 	for (var i=0; i<userIDs.length; i++) {
 		if (userIDs[i] != myid) {
-			usersDiv.innerHTML += "<a href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: " + userIDs[i] + "' data-content=\"<a href='snake'>Play Snake!</a>\" >" + userIDs[i] +  "</a>";
+			usersDiv.innerHTML += "<a href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: " + userIDs[i] + "' data-content=\"<a href='snake?p1=" + myid + "&p2=" + userIDs[i] + "'>Play Snake!</a>\" >" + userIDs[i] +  "</a>";
 		}
 	}
 	// Update JQuery popover element list
@@ -49,7 +51,7 @@ socket.on('userLeft', function (userIDs) {
 socket.on('playerFinder', function(playerToFind) {
 	if (myid == playerToFind) {
 		var r = confirm("A player wants to play a game, do you accept?");
-		if (r==true) {
+		if (r === true) {
 			window.location = 'snake';
 		}
 	}

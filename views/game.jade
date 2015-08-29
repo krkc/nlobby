@@ -7,12 +7,13 @@ block includedScripts
 block bodyContent
 	body(style="height: 100%;", onload="init()")
 		div.jumbotron
-			h1(style="text-align: center;")
-				| Chris' 2D Snake Game
 			h2(style="text-align: center;")
 				| Escape the snake! Arrow keys to move.
-			div(style="float: left; margin-left: 40%; height: 2em; width: 10%;") Score: 
-				span(id="scorespan") 0
+			div(style="float: left; margin-left: 40%; height: 2em; width: 10%;")
+				| My Score: 
+				span(id="myscorespan") 0
+				| Opponent Score: 
+				span(id="oppscorespan") 0
 			div(style="float: right; height: 2em; width: 5em; margin-bottom: 1em; margin-right: 40%; background-color: #7777ff; color: #aaaaaa; text-align: center;")
 				a(href="javascript:stateReset();")
 					div(style="padding: .4em;") Reset

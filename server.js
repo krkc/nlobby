@@ -67,7 +67,7 @@ app.get('/snake', function(req, res) {
 		var p1Safe = req.query.p1.replace(/(<([^>]+)>)/ig,"");
 		var p2Safe = req.query.p2.replace(/(<([^>]+)>)/ig,"");
 		// Create new game session and add to list of active games
-		activeGames.newGame('snakegame', p1Safe, p2Safe);
+		console.log('PlayerOne.ID from the returned newGame() object: ' + activeGames.newGame('snakegame', p1Safe, p2Safe).PlayerOne.ID);
 		// Player 1 broadcast invite to game lobby for Player 2
 		glio.emit('playerFinder', p2Safe);
 
@@ -130,47 +130,46 @@ grio.on('connection', function (socket) {
 		if (socket.request.cookies.sid) {
 			socket.username = socket.request.cookies.sid;		/* Session username for player */
 		}
-
 		// Ensure player is registered to an active game and retrieve that game
 		socket.currentGame = activeGames.findGame(socket.username);		/* Session game for player */
 
 		if (socket.currentGame) {
 			var gameID = socket.currentGame.GameID;		/* ID of the current game session */
 
-			//socket.join(gameID);
-			socket.join('gameID');
+			socket.join(gameID);
 			console.log('User connected to game room ' + gameID + '. ' + activeGames.sessions.length + ' active games.');
 
 			socket.emit('createGameSession', { ID: socket.username, gameID: gameID });
+
+			// Event handler for when game sends data to players
+			socket.currentGame.eventEmitter.on('dataFromServer', function (dataOut) {
+				// Broadcast data to players in the current game room
+
+				socket.broadcast.to(gameID).emit('dataToClient', dataOut);
+				console.log('server: Received data from game.');
+			});
+
+			// Socket.io event handler for session destruction/removal
+			socket.on('disconnectGameSession', function () {
+				activeGames.removeGame(socket.currentGame);
+				socket.currentGame = null;
+				console.log('User has disconnected from game room. ' + activeGames.sessions.length + ' active games.');
+			});
+
+			// Socket.io event handler for session creation
+			socket.on('dataFromClient', function (dataIn) {
+				try {
+					socket.currentGame.receiveData(dataIn);
+				}
+
+				catch(err) {
+					console.log(err.message);
+				}
+
+				console.log('server: Received data from client.');
+			});
 		}
 	}
-
-	socket.on('disconnectGameSession', function () {
-		activeGames.removeGame(socket.currentGame);
-		socket.currentGame = null;
-		console.log('User has disconnected from game room. ' + activeGames.sessions.length + ' active games.');
-	});
-
-	// SocketIO event handler for session creation
-	socket.on('dataFromClient', function (dataIn) {
-		try {
-			socket.currentGame.receiveData(dataIn);
-		}
-
-		catch(err) {
-			console.log(err.message);
-		}
-
-		console.log('server: Received data from client.');
-	});
-
-	// Event handler for when game sends data to players
-	socket.currentGame.eventEmitter.on('dataFromServer', function (dataOut) {
-		// Broadcast data to players in the current game room
-
-		socket.broadcast.to('gameID').emit('dataToClient', dataOut);
-		console.log('server: Received data from game.');
-	});
 
 	// Send data to individual player
 	//socket.emit('dataToClient', { clientData: 'test data' });

@@ -9,7 +9,8 @@
  */
 
 
-var socket = io('localhost:3000/gameRoom');		/* Initiate Socket IO Connection with server */
+//var socket = io('localhost:3000/gameRoom');		/* Initiate Socket IO Connection with server */
+var socket = io('192.168.1.7:3000/gameRoom');		/* Initiate Socket IO Connection with server */
 
 // Register client event handlers for socket.io disconnect
 window.addEventListener('beforeunload', onUserDisconnect);
@@ -17,14 +18,6 @@ window.addEventListener('beforeunload', onUserDisconnect);
 
 var myID;			/* ID of the current player */
 var gameID;		/* ID of current game session */
-var snake = {
-	xLoc: [-1, -1, -1], yLoc: [-1, -1, -1],
-	lastxLoc: [-1, -1, -1], lastyLoc: [-1, -1, -1]
-};
-var dot = {
-	xLoc: -1, yLoc: -1,
-	lastxLoc: -1, lastyLoc: -1
-};
 
 // SocketIO event handler for session creation
 socket.on('createGameSession', function (pid) {
@@ -45,19 +38,11 @@ function onUserDisconnect() {
 function dataToServer(data) {
 	// Send data to SocketIO server
 	socket.emit('dataFromClient', data);
+	console.log('dataToServer: Sending data from client to server.');
 }
 
 // SocketIO event handler for receiving game data
 socket.on('dataToClient', function (data) {
-	console.log('Client: Received data from server. ' + data.PlayerOne.xLoc + ' : ' + data.PlayerOne.yLoc);
-
-	snake.lastxLoc = snake.xLoc;
-	snake.xLoc = data.PlayerOne.xLoc;
-	snake.lastyLoc = snake.yLoc;
-	snake.yLoc = data.PlayerOne.yLoc;
-
-	dot.lastxLoc = dot.xLoc;
-	dot.xLoc = data.PlayerTwo.xLoc;
-	dot.lastyLoc = dot.yLoc;
-	dot.yLoc = data.PlayerTwo.yLoc;
+	update(data);
+	console.log('Client: Received data from server.');
 });

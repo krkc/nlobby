@@ -4,11 +4,18 @@
  * @file Client for snake game
  * @author Christopher Kurek [cakurek1@gmail.com]
  * @copyright Christopher Kurek 2015
- * @license MIT
+ * @license GPLv3
  */
 
 
 var rcu = {};
+
+var snake = {};
+var dot = {};
+
+var myscorespan = null;
+var oppscorespan = null;
+
 
 //	-----------------------------------------------------
 //	Function:		init()
@@ -30,7 +37,6 @@ function init(type) {
 
 	var gameSpeed = 200;
 
-
 	if (!type) {
 		// Register event listener for keypresses and touches.
 		window.addEventListener("keydown",onKeyDown,true);
@@ -38,7 +44,8 @@ function init(type) {
 		// Register event listener for window resize.
 		window.addEventListener("resize", onResize, true);
 
-		this.scorespan = document.getElementById("scorespan");		/* Player Score html element */
+		myscorespan = document.getElementById("myscorespan");		/* Player 1 Score html element */
+		oppscorespan = document.getElementById("oppscorespan");		/* Player 2 Score html element */
 	}
 
 	// Specify canvas size based on window size.
@@ -56,11 +63,25 @@ function init(type) {
 		console.log("Error establishing drawing context.");
 	}
 
+	// Set the initial scoreboard
+	myscorespan.innerHTML = 0;
+	oppscorespan.innerHTML = 0;
 
-	// -- Public data members --
+	// Set the initial snake properties
+	snake = {
+		id: null,
+		xLoc: [-1, -1, -1], yLoc: [-1, -1, -1],
+		lastxLoc: [-1, -1, -1], lastyLoc: [-1, -1, -1],
+		score: 0
+	};
 
-	this.runningScore = 0;				/* Player score in memory */
-	scorespan.innerHTML = runningScore;
+	// Set the initial dot properties
+	dot = {
+		id: null,
+		xLoc: -1, yLoc: -1,
+		lastxLoc: -1, lastyLoc: -1,
+		score: 0
+	};
 
 	rcu = RCU(canvfg.clientHeight, canvfg.clientWidth);
 
@@ -191,6 +212,39 @@ function drawfg(glfgc)
 	glfgc.fillRect(rcu.x[dot.xLoc], rcu.y[dot.yLoc], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
 }
 
+/**
+ * @function update
+ * @param {Object} data - Incoming data from server to update
+ * @desc Update the screen with new server-side game state
+ */
+function update(data)
+{
+	// Update snake properties
+	snake.lastxLoc = snake.xLoc;
+	snake.xLoc = data.PlayerOne.xLoc;
+	snake.lastyLoc = snake.yLoc;
+	snake.yLoc = data.PlayerOne.yLoc;
+	// Update dot properties
+	dot.lastxLoc = dot.xLoc;
+	dot.xLoc = data.PlayerTwo.xLoc;
+	dot.lastyLoc = dot.yLoc;
+	dot.yLoc = data.PlayerTwo.yLoc;
+
+	// Update the scoreboard and player ids
+	if (myID === data.PlayerOne.id) {
+		snake.id = data.PlayerOne.id;
+		dot.id = data.PlayerTwo.id;
+	  console.log('my score update: ' + data.PlayerOne.score);
+		myscorespan.innerHTML = data.PlayerOne.score;
+		oppscorespan.innerHTML = data.PlayerTwo.score;
+	} else if (myID === data.PlayerTwo.id) {
+		snake.id = data.PlayerOne.id;
+		dot.id = data.PlayerTwo.id;
+		console.log('my score update: ' + data.PlayerTwo.score);
+		myscorespan.innerHTML = data.PlayerTwo.score;
+		oppscorespan.innerHTML = data.PlayerOne.score;
+	}
+}
 
 /*
 	Function:     gameOver()
@@ -218,7 +272,7 @@ function gameOver(glfgc)
 */
 function stateReset()
 {
-	init();
+	init('reset');
 }
 
 
