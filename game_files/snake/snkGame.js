@@ -51,8 +51,15 @@ var Game = function (p1, p2) {
     ID: p2,
     XLoc: 50,
     YLoc: 40,
-    Score: 0
+    Score: 0,
+    Set: false
   };
+
+  /**
+   * @member Message
+   * @memberof Game
+   */
+  this.Message = null;
 
 
   /**
@@ -129,7 +136,12 @@ var Game = function (p1, p2) {
           id: self.PlayerTwo.ID,
           xLoc: self.PlayerTwo.XLoc,
           yLoc: self.PlayerTwo.YLoc,
-          score: self.PlayerTwo.Score
+          score: self.PlayerTwo.Score,
+          set: self.PlayerTwo.Set
+        },
+        Msg: {
+          user: self.PlayerOne.ID,
+          msg: self.Message
         }
       });
     }

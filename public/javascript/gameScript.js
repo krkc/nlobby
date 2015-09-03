@@ -2,7 +2,7 @@
 
 
 /**
- * @file Client-side script for the game page
+ * @file Client-side script for the nlobby game page
  * @author Christopher Kurek [cakurek1@gmail.com]
  * @copyright Christopher Kurek 2015
  * @license MIT
@@ -11,6 +11,7 @@
 
 //var socket = io('localhost:3000/gameRoom');		/* Initiate Socket IO Connection with server */
 var socket = io('192.168.1.7:3000/gameRoom');		/* Initiate Socket IO Connection with server */
+
 
 // Register client event handlers for socket.io disconnect
 window.addEventListener('beforeunload', onUserDisconnect);
@@ -43,6 +44,11 @@ function dataToServer(data) {
 
 // SocketIO event handler for receiving game data
 socket.on('dataToClient', function (data) {
-	update(data);
 	console.log('Client: Received data from server.');
+	try {
+		dataToClient(data);
+	}
+	catch (e) {
+		console.log('gameScript: dataToClient() failed. ' + e.Message);
+	}
 });

@@ -39,6 +39,7 @@ var grio = io.of('/gameRoom');		/* Game Room namespace (all players currently pl
 
 // Make public files visible to express routing
 app.use(express.static(__dirname + '/public'));
+app.use('/bower',  express.static(__dirname + '/bower_components'));
 io.use(cookieParser());
 
 // Set up templating environment

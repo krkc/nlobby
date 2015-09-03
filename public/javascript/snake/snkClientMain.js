@@ -9,9 +9,8 @@
 
 
 var rcu = {};
-
-var snake = {};
-var dot = {};
+var mc = {};
+var client = {};
 
 var myscorespan = null;
 var oppscorespan = null;
@@ -28,18 +27,16 @@ var oppscorespan = null;
 
 function init(type) {
 
-	// -- Private data members --
-
 	var wWidth = window.innerWidth;										/* Window width */
 	var wHeight = window.innerHeight;									/* Window height */
 	var canvbg = document.getElementById("canvbg");		/* Page Canvas objects */
 	var canvfg = document.getElementById("canvfg");
 
-	var gameSpeed = 200;
 
 	if (!type) {
-		// Register event listener for keypresses and touches.
-		window.addEventListener("keydown",onKeyDown,true);
+		// Register event listener for keypresses, clicks, and touches.
+		window.addEventListener("keydown", onKeyDown, true);
+		canvfg.addEventListener("click", onClick, true);
 
 		// Register event listener for window resize.
 		window.addEventListener("resize", onResize, true);
@@ -67,60 +64,25 @@ function init(type) {
 	myscorespan.innerHTML = 0;
 	oppscorespan.innerHTML = 0;
 
-	// Set the initial snake properties
-	snake = {
-		id: null,
-		xLoc: [-1, -1, -1], yLoc: [-1, -1, -1],
-		lastxLoc: [-1, -1, -1], lastyLoc: [-1, -1, -1],
-		score: 0
-	};
+	mc = new Hammer(canvfg);
+	mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
 
-	// Set the initial dot properties
-	dot = {
-		id: null,
-		xLoc: -1, yLoc: -1,
-		lastxLoc: -1, lastyLoc: -1,
-		score: 0
-	};
+	// Hammerjs swipe event handler
+	mc.on("panleft panright panup pandown", onPan);
+
+	client = new GameClient();
+	client.init();
 
 	rcu = RCU(canvfg.clientHeight, canvfg.clientWidth);
 
-	this.bgStateChanged = true;
+	bgStateChanged = true;
 
 	if (this.glfg && this.glbg) {
 		// When all assets are loaded, draw the background
 		//   and begin the game loop.
 		main();
-		this.mainloop = setInterval(main, gameSpeed);
+		this.mainloop = setInterval(main, client.gameSpeed);
 	}
-
-}
-
-//	-----------------------------------------------------
-//	Function:		RCU()
-//	Parameters:		cHeight, cWidth
-//	Return:			JSON Object
-//	Description:	Defines units relative to the game
-//                canvas. (Relative Canvas Units)
-//	-----------------------------------------------------
-
-
-function RCU(cHeight, cWidth)
-{
-
-	var rcux = [];
-	var rcuy = [];
-
-  while (rcux.length > 0)
-    rcux.pop();
-  while (rcuy.length > 0)
-    rcuy.pop();
-
-  for (var i = 0; i <= 1.01; i += 0.01) {
-      rcux.push(Math.floor(cWidth * i));
-      rcuy.push(Math.floor(cHeight * i));
-  }
-	return { x: rcux, y: rcuy };
 
 }
 
@@ -193,98 +155,52 @@ function drawfg(glfgc)
 {
 
 	// Clear previously drawn player.
-	for (var i = 0; i < snake.xLoc.length; i++) {
-		glfgc.clearRect(rcu.x[snake.lastxLoc[i]], rcu.y[snake.lastyLoc[i]], rcu.x[5], rcu.y[5]);
+	for (var i = 0; i < client.snake.xLoc.length; i++) {
+		glfgc.clearRect(rcu.x[client.snake.lastxLoc[i]], rcu.y[client.snake.lastyLoc[i]], rcu.x[5], rcu.y[5]);
 	}
 
 	// Clear dot
-	glfgc.clearRect(rcu.x[dot.lastxLoc], rcu.y[dot.lastyLoc], rcu.x[5], rcu.y[5]);
+	glfgc.clearRect(rcu.x[client.dot.lastxLoc], rcu.y[client.dot.lastyLoc], rcu.x[5], rcu.y[5]);
 
 
 	// Draw new player position.
 	glfgc.fillStyle="#000000";
-	for (var j = 0; j < snake.xLoc.length; j++) {
-		glfgc.fillRect(rcu.x[snake.xLoc[j]], rcu.y[snake.yLoc[j]], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
+	for (var j = 0; j < client.snake.xLoc.length; j++) {
+		glfgc.fillRect(rcu.x[client.snake.xLoc[j]], rcu.y[client.snake.yLoc[j]], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
 	}
 
 	// Redraw dot
 	glfgc.fillStyle="#000000";
-	glfgc.fillRect(rcu.x[dot.xLoc], rcu.y[dot.yLoc], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
+	glfgc.fillRect(rcu.x[client.dot.xLoc], rcu.y[client.dot.yLoc], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
 }
+
 
 /**
- * @function update
- * @param {Object} data - Incoming data from server to update
- * @desc Update the screen with new server-side game state
+ * @function toastScreen
+ * @param {Object} user - Recipient of the message
+ * @param {Object} data - Message to send to screen
+ * @desc Draws a message box with a message on player's game canvas
  */
-function update(data)
+function toastScreen (msg)
 {
-	// Update snake properties
-	snake.lastxLoc = snake.xLoc;
-	snake.xLoc = data.PlayerOne.xLoc;
-	snake.lastyLoc = snake.yLoc;
-	snake.yLoc = data.PlayerOne.yLoc;
-	// Update dot properties
-	dot.lastxLoc = dot.xLoc;
-	dot.xLoc = data.PlayerTwo.xLoc;
-	dot.lastyLoc = dot.yLoc;
-	dot.yLoc = data.PlayerTwo.yLoc;
-
-	// Update the scoreboard and player ids
-	if (myID === data.PlayerOne.id) {
-		snake.id = data.PlayerOne.id;
-		dot.id = data.PlayerTwo.id;
-	  console.log('my score update: ' + data.PlayerOne.score);
-		myscorespan.innerHTML = data.PlayerOne.score;
-		oppscorespan.innerHTML = data.PlayerTwo.score;
-	} else if (myID === data.PlayerTwo.id) {
-		snake.id = data.PlayerOne.id;
-		dot.id = data.PlayerTwo.id;
-		console.log('my score update: ' + data.PlayerTwo.score);
-		myscorespan.innerHTML = data.PlayerTwo.score;
-		oppscorespan.innerHTML = data.PlayerOne.score;
+	if (msg.user === myID) {
+		this.glfg.font="20px Arial";
+		this.glfg.fillStyle="#888888";
+		this.glfg.fillRect(rcu.x[40], rcu.y[40], rcu.x[20], rcu.y[20]);	/* x,y,w,h */
+		// print msg for current player
+		this.glfg.fillText(msg.msg, rcu.x[45], rcu.y[50]);
 	}
-}
-
-/*
-	Function:     gameOver()
-	Parameters:		opengl context
-	Return:			  None
-	Description:	Game has ended.
-*/
-function gameOver(glfgc)
-{
-	// Stop game loop.
-	clearInterval(mainloop);
-
-	// Display "Game Over".
-	glfgc.font = "2em Comic Sans MS";
-	glfgc.fillStyle="#FF5555";
-	glfgc.fillText("Game Over", rcu.x[45], rcu.y[50]);
-}
-
-
-/*
-	Function:     stateReset()
-	Parameters:		None
-	Return:			  None
-	Description:	Reset game-state.
-*/
-function stateReset()
-{
-	init('reset');
 }
 
 
 // ----- JavaScript Client Events ----- //
 
-/*
-	Function:			onkeyDown()
-	Parameters:		event parameters
-	Return:				None
-	Description:	Handle keyboard keypress down event.
+/**
+ * @function onkeyDown
+ * @param {Event} e - Event object for keypress event
+ * @desc Handle keyboard keypress down event.
 */
-function onKeyDown(e)
+function onKeyDown (e)
 {
 	var keyIsPressed = [false, false, false, false];			/* Flags for pressed keys: 38, 40, 37, 39 */
 
@@ -316,16 +232,60 @@ function onKeyDown(e)
 }
 
 
-/*
-	Function:     onResize()
-	Parameters:		None
-	Return:			  None
-	Description:	Called upon window resize. Resizes and redraws
-								game canvas.
-*/
-function onResize()
+/**
+ * @function onClick
+ * @param {Event} e - Event object for onclick event
+ * @desc Handles client mouse click events
+ */
+function onClick (e)
 {
+	if (client.dot.set) {
+		var canvcoords = getMousePos(canvfg,e);
+		var percentx = canvcoords.x / clientX;
+		var percenty = canvcoords.y / clientY;
 
+		dataToServer({
+			dot: {
+				x: percentx,
+				y: percenty
+			}
+		});
+	}		// endif
+}
+
+
+/**
+ * @function onPan
+ */
+function onPan (evt)
+{
+	var keyIsPressed = [false, false, false, false];
+	dataToServer(keyIsPressed);
+}
+
+
+/**
+ * @function onResize
+ * @desc Called upon window resize. Resizes and redraws
+ *  game canvas.
+*/
+function onResize ()
+{
 	// Reinitialize scene.
 	init('resize');
+}
+
+/**
+ * @function dataToClient
+ * @param {Object} data - Data object to send to game client
+ * @desc Processes incoming data from server
+ */
+function dataToClient (data)
+{
+	// Check to see if server has sent a toast message
+	if (data.Msg) {
+		toastScreen(data.ID, data.Msg);
+	}
+	// Update game client with data from server
+	client.update(data);
 }
