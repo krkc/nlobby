@@ -66,7 +66,7 @@ var Game = function (p1, p2) {
    * @memberof Game
    * @desc End gameplay round
    */
-  function gameOver()
+  Game.prototype.gameOver = function ()
   {
     try {
       clearInterval(mainloop);
@@ -74,17 +74,19 @@ var Game = function (p1, p2) {
     catch (e) {
       console.log('clearInterval failed:' + e.message);
     }
-  }
+    // Inform clients that game has ended
+    this.sendData({ GameOver: true });
+  };
 
   /**
    * @function reset
    * @memberof Game
    * @desc Reset the game-state
    */
-  function reset()
+  Game.prototype.reset = function ()
   {
     // body...
-  }
+  };
 
   /**
    * @function init
@@ -113,7 +115,7 @@ var Game = function (p1, p2) {
     if (!self.PlayerOne.updateLoc(self.keyIsPressed)) {
       // Snake died. Initiate game over.
       console.log('Game: game over.');
-      gameOver();
+      self.gameOver();
     } else {
       // Send a standard game data message
       self.sendData();
@@ -206,7 +208,7 @@ var Game = function (p1, p2) {
 
           console.log('receiveData: keyIsPressed: ' + dataIn.snake.keyIsPressed);
           // Update keyIsPressed with data from client
-          this.keyIsPressed = dataIn;
+          this.keyIsPressed = dataIn.snake.keyIsPressed;
         }
       } else {
         console.log('Game.receiveData(): problem with dataIn');

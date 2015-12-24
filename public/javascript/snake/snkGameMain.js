@@ -16,32 +16,6 @@ function GameMain ()
   var snake = {};       /* Player 1 (Snake) object */
   var dot = {};         /* Player 2 (Dot) object */
 
-  // -- Public -- //
-  // /**
-  //  * @property Snake
-  //  * @memberof GameMain
-  //  * @desc Getter/Setter for current snake player object
-  //  * @public
-  //  */
-  // Object.defineProperty(GameMain, 'Snake', {
-  //   get: function() { return snake; },
-  //   set: function() { snake = value; },
-  //   enumerable: true,
-  //   configurable: true
-  // });
-  //
-  // /**
-  //  * @property Dot
-  //  * @memberof GameMain
-  //  * @desc Getter/Setter for current dot player object
-  //  * @public
-  //  */
-  // Object.defineProperty(GameMain, 'Dot', {
-  //   get: function() { return dot; },
-  //   set: function() { dot = value; },
-  //   enumerable: true,
-  //   configurable: true
-  // });
 
 
   this.init = function ()
@@ -76,12 +50,17 @@ function GameMain ()
    * @param {Object} mloop - Reference ID for main loop
    * @desc Game has ended
    */
-  function gameOver(mloop)
+  function gameOver()
   {
-  	// Stop game loop.
-  	clearInterval(mloop);
+
   	// Display "Game Over".
-  	toastScreen({ user: myID, msg: "Game Over."});
+    var toaster = new CustomEvent("toast", {
+      detail: {
+        user: "all",
+        msg: "Game Over."
+      }
+    });
+    dispatchEvent(toaster);
   }
 
 
@@ -104,32 +83,37 @@ function GameMain ()
    */
   this.update = function (data, myID)
   {
-  	// Update snake properties
-  	snake.lastxLoc = snake.xLoc;
-  	snake.xLoc = data.PlayerOne.xLoc;
-  	snake.lastyLoc = snake.yLoc;
-  	snake.yLoc = data.PlayerOne.yLoc;
-  	// Update dot properties
-  	dot.lastxLoc = dot.xLoc;
-  	dot.xLoc = data.PlayerTwo.xLoc;
-  	dot.lastyLoc = dot.yLoc;
-  	dot.yLoc = data.PlayerTwo.yLoc;
+    // Check if game has ended
+    if (data.GameOver) {
+      gameOver();
+    } else {
+      // Update snake properties
+    	snake.lastxLoc = snake.xLoc;
+    	snake.xLoc = data.PlayerOne.xLoc;
+    	snake.lastyLoc = snake.yLoc;
+    	snake.yLoc = data.PlayerOne.yLoc;
+    	// Update dot properties
+    	dot.lastxLoc = dot.xLoc;
+    	dot.xLoc = data.PlayerTwo.xLoc;
+    	dot.lastyLoc = dot.yLoc;
+    	dot.yLoc = data.PlayerTwo.yLoc;
 
-  	// Update the scoreboard and player ids
+    	// Update the scoreboard and player ids
 
-  	if (myID === data.PlayerOne.id) {
-  		snake.id = data.PlayerOne.id;
-  		dot.id = data.PlayerTwo.id;
-  		myscorespan.innerHTML = data.PlayerOne.score;
-  		oppscorespan.innerHTML = data.PlayerTwo.score;
-  	} else if (myID === data.PlayerTwo.id) {
-  		snake.id = data.PlayerOne.id;
-  		dot.id = data.PlayerTwo.id;
-  		myscorespan.innerHTML = data.PlayerTwo.score;
-  		oppscorespan.innerHTML = data.PlayerOne.score;
-  	} else {
-      // Something went wrong, print debug info
-      console.log("client.update():" + myID + " and " + data.PlayerOne.id + " and " + data.PlayerTwo.id);
+    	if (myID === data.PlayerOne.id) {
+    		snake.id = data.PlayerOne.id;
+    		dot.id = data.PlayerTwo.id;
+    		myscorespan.innerHTML = data.PlayerOne.score;
+    		oppscorespan.innerHTML = data.PlayerTwo.score;
+    	} else if (myID === data.PlayerTwo.id) {
+    		snake.id = data.PlayerOne.id;
+    		dot.id = data.PlayerTwo.id;
+    		myscorespan.innerHTML = data.PlayerTwo.score;
+    		oppscorespan.innerHTML = data.PlayerOne.score;
+    	} else {
+        // Something went wrong, print debug info
+        console.log("client.update():" + myID + " and " + data.PlayerOne.id + " and " + data.PlayerTwo.id);
+      }
     }
   };
 

@@ -21,12 +21,6 @@ function NgRoom (conn)
   var dataToGameEvent;
 
 
-  // -- Public -- //
-
-  //this.MyID = "";
-
-
-
 
   // -- Event Listeners / Handlers -- //
 

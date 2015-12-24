@@ -29,6 +29,7 @@ function GameClient ()
 	var canvfg = {};			/* Page canvas foreground object */
 	var glfg = {};		/* canvas foreground context object */
 	var glbg = {};		/* canvas background context object */
+	var toastMsg = null;		/* Message to toast on screen */
 
 	var mainloop = null;			/* id for the main loop */
 	var readyChecker = null;	/* id for the checkGameReady loop */
@@ -64,6 +65,7 @@ function GameClient ()
 			// Register event listener for window resize.
 			window.addEventListener("resize", onResize, true);
 
+			addEventListener('toast', onToast, true);
 			addEventListener('dataToGame', dataToGame, true);
 
 			myscorespan = document.getElementById("myscorespan");		/* Player 1 Score html element */
@@ -99,7 +101,6 @@ function GameClient ()
 
 		// Hammerjs swipe event handler
 		mc.on("panend", onPan);
-
 
 		snkgame = new GameMain();
 		snkgame.init();
@@ -234,24 +235,51 @@ function GameClient ()
 		// Redraw dot
 		glfgc.fillStyle="#000000";
 		glfgc.fillRect(rcu.x[dotCoords.xLoc], rcu.y[dotCoords.yLoc], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
+
+		if (toastMsg) {
+			// Draw the toast message on the canvas
+			glfgc.font="20px Arial";
+			glfgc.fillStyle="#888888";
+			glfgc.fillRect(rcu.x[40], rcu.y[40], rcu.x[20], rcu.y[20]);	/* x,y,w,h */
+			// print msg for current player
+			glfgc.fillStyle="#FF5555";
+			glfgc.fillText(toastMsg, rcu.x[45], rcu.y[50]);
+		}
 	}
 
 
 	/**
-	 * @function toastScreen
+	 * @function onToast
 	 * @param {Object} user - Recipient of the message
 	 * @param {Object} data - Message to send to screen
 	 * @desc Draws a message box with a message on player's game canvas
 	 */
-	function toastScreen (id, msg)
+	function onToast (evt)
 	{
-		if (id === ngroom.getMyID()) {
-			glfg.font="20px Arial";
-			glfg.fillStyle="#888888";
-			glfg.fillRect(rcu.x[40], rcu.y[40], rcu.x[20], rcu.y[20]);	/* x,y,w,h */
-			// print msg for current player
-			glfg.fillText(msg.msg, rcu.x[45], rcu.y[50]);
+		var targetID = evt.detail.user;
+		var msg = evt.detail.msg;
+
+		if (targetID === ngroom.getMyID() || targetID === "all") {
+			console.log("toastMsg: " + msg);
+			toastMsg = msg;
 		}
+
+		if (msg === "Game Over.") {
+			// Stop game loop.
+	  	//clearInterval(mainloop);
+		}
+
+		setTimeout(clearToast, 2500);
+	}
+
+	/**
+	 * @function clearToast
+	 *
+	 * @desc Clears the toast message from the screen
+	 */
+	function clearToast ()
+	{
+		toastMsg = null;
 	}
 
 	/**
@@ -263,6 +291,26 @@ function GameClient ()
 	{
 		// Reinitialize scene.
 		init('resize');
+
+		// TODO: enable reset button on page (reset event possibly)
+		// TODO: fix mobile resize when url bar hides
+		// credit for code below: http://stackoverflow.com/a/24297982
+		// var doit;
+    // function resizedw(appwidth){
+    //     var window_changed = $(window).width() != appwidth;
+    //     if ($(window).width() != appwidth){
+    //       ("body").append("did it"+appwidth+" ");
+    //     }
+    //     past_width = $(window).width();
+    // }
+		//
+    // var past_width = $(window).width();
+    // window.onresize = function() {
+    //   clearTimeout(doit);
+    //   doit = setTimeout(function() {
+    //       resizedw(past_width);
+    //   }, 100);
+    // };
 	}
 
 	/**
@@ -275,9 +323,10 @@ function GameClient ()
 		var data = e.detail;
 		// Check to see if server has sent a toast message
 		if (data.Msg) {
-			toastScreen(data.Msg.ID, data.Msg.msg);
+			if (data.Msg.msg) {
+				onToast({ detail: { user: data.Msg.ID, msg: data.Msg.msg } });
+			}
 		}
-
 		// Update game client with data from server
 		snkgame.update(data, ngroom.getMyID());
 	}
@@ -296,7 +345,6 @@ function GameClient ()
 				// Game object is ready
 				clientReadyFlag = true;
 				// Indicate to game server that the client is ready
-				console.log("MyID: " + ngroom.getMyID());
 				ngroom.dataToServer({ readyID: ngroom.getMyID() });
 				clearInterval(readyChecker);
 			}
@@ -344,9 +392,8 @@ function GameClient ()
 			// Toggle "move right" keypress state.
 			keyIsPressed[3] = true;
 		}
-		console.log("Test: myRole: " + snkgame.getRole(ngroom.getMyID()));
 		if (snkgame.getRole(ngroom.getMyID()) === 'snake') {
-			dataToServer({
+			ngroom.dataToServer({
 				snake: {
 					keyIsPressed: keyIsPressed
 				}
@@ -362,11 +409,10 @@ function GameClient ()
 	 */
 	function onClick (e)
 	{
-		console.log("onClick TEST: myRole: " + snkgame.getRole(ngroom.getMyID()));
 		if (snkgame.getRole(ngroom.getMyID()) == 'dot') {
 			var canvcoords = getMousePos(e);
 
-			dataToServer({
+			ngroom.dataToServer({
 				dot: {
 					x: canvcoords.x,
 					y: canvcoords.y
@@ -398,7 +444,7 @@ function GameClient ()
 		}
 
 		if (snkgame.getRole(ngroom.getMyID()) === 'snake') {
-			dataToServer({
+			ngroom.dataToServer({
 				snake: {
 					keyIsPressed: keyIsPressed
 				}
