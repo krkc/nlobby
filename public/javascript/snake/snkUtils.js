@@ -34,21 +34,3 @@ function RCU (cHeight, cWidth)
 	return { x: rcux, y: rcuy };
 
 }
-
-// The following function inspired by:
-// http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
-/**
- * @function getMousePos
- * @memberof Utils
- * @param {Object} canvas - Canvas object
- * @param {Object} evt - Event object
- * @desc Return the position of the mouse relative to the canvas
- */
-function getMousePos (canvas, evt)
-{
-  var rect = canvas.getBoundingClientRect();
-  return {
-    x: evt.clientX - rect.left,
-    y: evt.clientY - rect.top
-  };
-}

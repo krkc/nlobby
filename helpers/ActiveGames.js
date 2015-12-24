@@ -12,6 +12,8 @@
  */
 
 var ActiveGames = function () {
+  'use strict';
+  
   this.sessions = [];
 };
 

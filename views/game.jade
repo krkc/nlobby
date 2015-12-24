@@ -1,14 +1,14 @@
 extends layout
 
 block includedScripts
-	script(type='text/javascript', src='javascript/snake/snkGameClient.js')
-	script(type='text/javascript', src='javascript/snake/snkUtils.js')
+	script(type='text/javascript', src='javascript/snake/snkClient.js')
+	script(type='text/javascript', src='javascript/NgRoom.js')
 	script(type='text/javascript', src='bower/hammerjs/hammer.min.js')
-	script(type='text/javascript', src='javascript/snake/snkClientMain.js')
-	script(type='text/javascript', src='javascript/gameScript.js')
+	script(type='text/javascript', src='javascript/snake/snkGameMain.js')
+	script(type='text/javascript', src='javascript/snake/snkUtils.js')
 
 block bodyContent
-	body(style="height: 100%;", onload="init()")
+	body(style="height: 100%;", onload="GameClient()")
 		div.jumbotron
 			h2(style="text-align: center;")
 				| Escape the snake! Arrow keys to move.

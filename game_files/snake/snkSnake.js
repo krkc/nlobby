@@ -16,6 +16,7 @@
 //	-----------------------------------------------------
 var Snake = function ()
 {
+  'use strict';
 
   // For a 100x100 map, each square is 5
   var headx = 45;   /* Starting position on x-axis */

@@ -13,6 +13,7 @@
  * @class
  */
 var Game = function (p1, p2) {
+  'use strict';
 
   var events = require('events');   /* Events middleware module */
 
@@ -20,6 +21,8 @@ var Game = function (p1, p2) {
 
   var mainloop = null;    /* ID for setInterval callback (this.mainl) */
   var self = this;        /* Explicit reference to current context for calling setInterval */
+
+  var readyPlayers = 0;   /* Players that are ready for play */
 
   this.keyIsPressed = [false, false, false, false];   /* Keypress flags */
 
@@ -39,21 +42,17 @@ var Game = function (p1, p2) {
    * @member PlayerOne
    * @memberof Game
    */
-  var snake = require('./snkSnake');
-  this.PlayerOne = new snake();
+  var Snake = require('./snkSnake');
+  this.PlayerOne = new Snake();
   this.PlayerOne.ID = p1;
 
   /**
    * @member PlayerTwo
    * @memberof Game
    */
-  this.PlayerTwo = {
-    ID: p2,
-    XLoc: 50,
-    YLoc: 40,
-    Score: 0,
-    Set: false
-  };
+  var Dot = require('./snkDot');
+  this.PlayerTwo = new Dot();
+  this.PlayerTwo.ID = p2;
 
   /**
    * @member Message
@@ -93,7 +92,8 @@ var Game = function (p1, p2) {
    * @param {bool} noreset - Option to reset game or create new game
    * @desc Initialize the game environment prior to the game loop starting.
    */
-  Game.prototype.init = function () {
+  Game.prototype.init = function ()
+  {
     // 1. Player 2 chooses dot location.
     // 2. Player 1 presses a key.
     // 3. Main game loop begins.
@@ -107,24 +107,41 @@ var Game = function (p1, p2) {
    * @memberof Game
    * @desc Main server-side game loop.
    */
-  Game.prototype.mainl = function () {
+  Game.prototype.mainl = function ()
+  {
     // Update snake location.
     if (!self.PlayerOne.updateLoc(self.keyIsPressed)) {
       // Snake died. Initiate game over.
       console.log('Game: game over.');
       gameOver();
     } else {
-
+      // Send a standard game data message
+      self.sendData();
 
       // Test if colliding with dot.
       if (self.PlayerOne.isColliding(self.PlayerTwo)) {
         // Dot collision detected. Increase score and respawn dot.
         self.PlayerOne.grow();
-        // TODO: Dot will be positioned next
+        // TODO: Dot no longer set. Decrease dot score over time until reset.
       }
 
-      // Send outgoing packet with new coordinates to clients
-      self.sendData({
+    }
+  };
+
+  /**
+   * @function sendData
+   * @memberof Game
+   * @param {Object} dataOut - Data going out to the client (optional)
+   * @desc Send outgoing data to the client player
+   */
+  Game.prototype.sendData = function (dataOut)
+  {
+    // Send outgoing packet with new coordinates to clients
+    if (dataOut) {
+      this.eventEmitter.emit('dataFromGame', dataOut);
+      console.log('Game: sent custom game data to client.');
+    } else {
+      this.eventEmitter.emit('dataFromGame', {
         PlayerOne: {
           keyIsPressed: self.keyIsPressed,
           id: self.PlayerOne.ID,
@@ -137,25 +154,16 @@ var Game = function (p1, p2) {
           xLoc: self.PlayerTwo.XLoc,
           yLoc: self.PlayerTwo.YLoc,
           score: self.PlayerTwo.Score,
-          set: self.PlayerTwo.Set
+          set: self.PlayerTwo.isSet
         },
         Msg: {
           user: self.PlayerOne.ID,
           msg: self.Message
         }
       });
+      console.log('Game: sent standard game data to client.');
     }
-  };
 
-  /**
-   * @function sendData
-   * @memberof Game
-   * @param {Object} dataOut - Data going out to the client
-   * @desc Send outgoing data to the client player
-   */
-  Game.prototype.sendData = function (dataOut) {
-    this.eventEmitter.emit('dataFromServer', dataOut);
-    console.log('Game: sent data to server through eventEmitter.');
   };
 
   /**
@@ -165,14 +173,52 @@ var Game = function (p1, p2) {
    * @desc Receive and process incoming data sent from client player
    */
   Game.prototype.receiveData = function (dataIn) {
-    // Initialize game loop
-    this.init();
-    console.log('receiveData: keyIsPressed: ' + dataIn);
-    // Update keyIsPressed with data from client
-    this.keyIsPressed = dataIn;
-  };
-};
 
+    if (dataIn.readyID) {
+      // Game not yet ready, a player is ready to start game
+      readyPlayers += 1;
+
+      if (readyPlayers >= 2) {
+        // Reset signal
+        // Send updated data to clients
+        console.log('receiveData: Both players acknowledged, game is ready.');
+        this.sendData();
+      } else {
+        // Add player to count of ready players
+        console.log('receiveData: readyPlayers < 2');
+      }
+
+    } else if (readyPlayers >= 2){
+      // Game is ready or running
+
+      if (dataIn.dot) {
+        // Player two sent data
+        this.PlayerTwo.XLoc = dataIn.dot.x;
+        this.PlayerTwo.YLoc = dataIn.dot.y;
+        this.PlayerTwo.DotSet = true;
+        console.log('receiveData: click.');
+      } else if (dataIn.snake) {
+        // Player one sent data
+
+        if (this.PlayerTwo.DotSet) {
+          // Initialize game loop
+          this.init();
+
+          console.log('receiveData: keyIsPressed: ' + dataIn.snake.keyIsPressed);
+          // Update keyIsPressed with data from client
+          this.keyIsPressed = dataIn;
+        }
+      } else {
+        console.log('Game.receiveData(): problem with dataIn');
+        // this.sendData({
+        //   readyID: dataIn.readyID
+        // });
+      }
+    }
+
+  };
+
+};
 
 
 module.exports = Game;

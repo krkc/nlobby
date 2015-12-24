@@ -8,9 +8,9 @@ exports.genuuid = function(sessionNum) {
 	var hashedID = id + sessionNum;
 
 	return hashedID;
-}
+};
 
 
 exports.deleteSessionID = function(sessionNum) {
-	
-}
+
+};
