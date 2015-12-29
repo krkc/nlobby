@@ -8,12 +8,10 @@
  */
 
 
-//	-----------------------------------------------------
-//	Class:		Snake()
-//	Parameters:		None
-//	Return:			None
-//	Description:	Class representing Snake player.
-//	-----------------------------------------------------
+/**
+ * @class Dot
+ * @desc Class representing Dot player
+ */
 var Snake = function ()
 {
   'use strict';
@@ -29,6 +27,49 @@ var Snake = function ()
   var movingUp = false;
   var movingDown = false;
   var score = 0;
+
+
+  /**
+   * @property XLoc
+   * @memberof Snake
+   * @return {Array} - x-axis locations of snake blocks
+   * @desc Getter for current snake x-axis location
+   * @public
+   */
+  Object.defineProperty(this, 'XLoc', {
+    get: function() { return xLoc; },
+    enumerable: true,
+    configurable: true
+  });
+
+
+  /**
+   * @property YLoc
+   * @memberof Snake
+   * @return {Array} - y-axis locations of snake blocks
+   * @desc Getter for current snake y-axis location
+   * @public
+   */
+  Object.defineProperty(this, 'YLoc', {
+    get: function() { return yLoc; },
+    enumerable: true,
+    configurable: true
+  });
+
+
+  /**
+   * @property Score
+   * @memberof Snake
+   * @return {Integer} - score of the current snake player
+   * @desc Getter for current snake player's running score
+   * @public
+   */
+  Object.defineProperty(this, 'Score', {
+    get: function() { return score; },
+    enumerable: true,
+    configurable: true
+  });
+
 
   // -- Private methods -- //
 
@@ -181,39 +222,6 @@ var Snake = function ()
     score += 10;
   };
 
-  /**
-   * @function XLoc
-   * @memberof Snake
-   * @return {Array} - x-axis locations of snake blocks
-   * @desc Getter for current snake x-axis location
-   */
-  this.XLoc = function ()
-  {
-    return xLoc;
-  };
-
-
-  /**
-   * @function YLoc
-   * @memberof Snake
-   * @return {Array} - y-axis locations of snake blocks
-   * @desc Getter for current snake y-axis location
-   */
-  this.YLoc = function()
-  {
-    return yLoc;
-  };
-
-  /**
-   * @function Score
-   * @memberof Snake
-   * @return {Integer} - score of the current player
-   * @desc Getter for current player's running score
-   */
-   this.Score = function ()
-   {
-     return score;
-   };
 };
 
 module.exports = Snake;

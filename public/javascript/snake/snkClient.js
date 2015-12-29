@@ -145,8 +145,8 @@ function GameClient ()
 
 	  var rect = canvfg.getBoundingClientRect();
 	  return {
-	    x: (evt.clientX - rect.left) / canvfg.clientWidth,
-	    y: (evt.clientY - rect.top) / canvfg.clientHeight
+	    x: ( (evt.clientX - rect.left) / canvfg.clientWidth ) * 100,
+	    y: ( (evt.clientY - rect.top) / canvfg.clientHeight ) * 100
 	  };
 
 	}
@@ -238,8 +238,6 @@ function GameClient ()
 		// Redraw dot
 		glfgc.fillStyle="#000000";
 		glfgc.fillRect(rcu.x[dotCoords.xLoc], rcu.y[dotCoords.yLoc], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
-		console.log("TEst: dotCoords x: " + dotCoords.xLoc + ", and y: " + dotCoords.yLoc);
-		console.log("TEst: snkCoords x: " + snkCoords.xLoc[0] + ", and y: " + snkCoords.yLoc[0]);
 
 		if (toastMsg) {
 			// Draw the toast message on the canvas
@@ -276,7 +274,6 @@ function GameClient ()
 		var msg = evt.detail.msg;
 
 		if (targetID === ngroom.getMyID() || targetID === "all") {
-			console.log("toastMsg: " + msg);
 			toastMsg = msg;
 		}
 
@@ -409,16 +406,16 @@ function GameClient ()
 	 */
 	function onClick (e)
 	{
-		if (snkgame.getRole(ngroom.getMyID()) == 'dot') {
+		if (snkgame.getRole(ngroom.getMyID()) === 'dot') {
 			var canvcoords = getMousePos(e);
-			// Convert to percentages
-			canvcoords.x = canvcoords.x * 100;
-			canvcoords.y = canvcoords.y * 100;
+			// Clip click position to the upper-leftmost grid space
+			canvcoords.x = Math.floor( canvcoords.x / 5 ) * 5;
+			canvcoords.y = Math.floor( canvcoords.y / 5 ) * 5;
 
 			ngroom.dataToServer({
 				dot: {
-					x: Math.floor( canvcoords.x / 5 ) * 5,
-					y: Math.floor( canvcoords.y / 5 ) * 5
+					x: canvcoords.x,
+					y: canvcoords.y
 				}
 			});
 		}		// endif

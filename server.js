@@ -142,12 +142,12 @@ grio.on('connection', function (socket) {
 
 			socket.emit('createGameSession', { ID: socket.username, gameID: gameID });
 
-			// Event handler for when game sends data to players
+			// Event handler for when game instance relays data via server to players
 			socket.currentGame.eventEmitter.on('dataFromGame', function (dataOut) {
 				// Broadcast data to players in the current game room
 
 				socket.broadcast.to(gameID).emit('dataToClient', dataOut);
-				console.log('server: Received data from game.');
+				//console.log('server: Received data from game.');
 			});
 
 			// Socket.io event handler for session destruction/removal

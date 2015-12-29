@@ -100,7 +100,7 @@ function GameMain ()
     		oppscorespan.innerHTML = data.PlayerOne.score;
     	} else {
         // Something went wrong, print debug info
-        console.log("client.update():" + myID + " and " + data.PlayerOne.id + " and " + data.PlayerTwo.id);
+        console.log("Error in client.update():" + myID + " and " + data.PlayerOne.id + " and " + data.PlayerTwo.id);
       }
     }
   };
@@ -139,7 +139,6 @@ function GameMain ()
    */
   this.getRole = function (id)
   {
-    console.log("getRole id: " + id + ", and snake.id: " + snake.id + ", and dot.id: " + dot.id);
     if (snake.id === id) {
       // return snake
       return 'snake';
@@ -164,17 +163,17 @@ function GameMain ()
     }
   };
 
-  /**
-   * @property Snake
-   * @memberof GameMain
-   * @return {Array} - x-axis locations of dot
-   * @desc Getter for current dot x-axis location
-   * @public
-   */
-  Object.defineProperty(GameMain, 'Snake', {
-    get: function() { return snake; },
-    enumerable: true,
-    configurable: true
-  });
+  // /**
+  //  * @property Snake
+  //  * @memberof GameMain
+  //  * @return {Array} - x-axis locations of dot
+  //  * @desc Getter for current dot x-axis location
+  //  * @public
+  //  */
+  // Object.defineProperty(GameMain, 'Snake', {
+  //   get: function() { return snake; },
+  //   enumerable: true,
+  //   configurable: true
+  // });
 
 }

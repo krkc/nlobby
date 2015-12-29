@@ -80,6 +80,7 @@ var Game = function (p1, p2) {
     catch (e) {
       console.log('clearInterval failed:' + e.message);
     }
+    console.log('Game: game over.');
     // Inform clients that game has ended
     this.sendData({ GameOver: true });
   };
@@ -92,7 +93,7 @@ var Game = function (p1, p2) {
   Game.prototype.reset = function ()
   {
     // this.PlayerOne.setDefaults();
-    // this.PlayerTwo.setDefaults();
+    this.PlayerTwo.setDefault(0);
   };
 
   /**
@@ -121,19 +122,19 @@ var Game = function (p1, p2) {
     // Update snake location.
     if (!self.PlayerOne.updateLoc(self.keyIsPressed)) {
       // Snake died. Initiate game over.
-      console.log('Game: game over.');
       self.gameOver();
     } else {
-      // Send a standard game data message
-      self.sendData();
-
       // Test if colliding with dot.
       if (self.PlayerOne.isColliding(self.PlayerTwo)) {
         // Dot collision detected. Increase score and respawn dot.
         self.PlayerOne.grow();
         // TODO: Dot no longer set. Decrease dot score over time until reset.
+        self.PlayerTwo.setDefault();
       }
-
+      // Adjust dot score
+      self.PlayerTwo.dotCheck();
+      // Send a standard game data message
+      self.sendData();
     }
   };
 
@@ -154,16 +155,16 @@ var Game = function (p1, p2) {
         PlayerOne: {
           keyIsPressed: self.keyIsPressed,
           id: self.PlayerOne.ID,
-          xLoc: self.PlayerOne.XLoc(),
-          yLoc: self.PlayerOne.YLoc(),
-          score: self.PlayerOne.Score()
+          xLoc: self.PlayerOne.XLoc,
+          yLoc: self.PlayerOne.YLoc,
+          score: self.PlayerOne.Score
         },
         PlayerTwo: {
           id: self.PlayerTwo.ID,
           xLoc: self.PlayerTwo.XLoc,
           yLoc: self.PlayerTwo.YLoc,
           score: self.PlayerTwo.Score,
-          set: self.PlayerTwo.isSet
+          set: self.PlayerTwo.DotSet
         },
         Msg: {
           user: self.MsgTargetID,
@@ -172,7 +173,6 @@ var Game = function (p1, p2) {
       });
       self.MsgTargetID = null;
       self.Message = null;
-      console.log('Game: sent standard game data to client.');
     }
 
   };
@@ -206,22 +206,21 @@ var Game = function (p1, p2) {
 
       if (dataIn.dot && !this.PlayerTwo.DotSet) {
         // Player two sent data
-        this.PlayerTwo.XLoc = dataIn.dot.x;
-        this.PlayerTwo.YLoc = dataIn.dot.y;
-        this.PlayerTwo.DotSet = true;
-        this.sendData();
-        console.log('receiveData: click.');
+        this.PlayerTwo.setValue(dataIn.dot.x, dataIn.dot.y);
+        if (mainloop === null) {
+          this.sendData();
+        }
+        //console.log('receiveData: click.');
       } else if (dataIn.snake) {
         // Player one sent data
-
-        if (this.PlayerTwo.DotSet) {
+        if (mainloop === null) {
           // Initialize game loop
           this.init();
-
-          console.log('receiveData: keyIsPressed: ' + dataIn.snake.keyIsPressed);
-          // Update keyIsPressed with data from client
-          this.keyIsPressed = dataIn.snake.keyIsPressed;
         }
+
+        //console.log('receiveData: keyIsPressed: ' + dataIn.snake.keyIsPressed);
+        // Update keyIsPressed with data from client
+        this.keyIsPressed = dataIn.snake.keyIsPressed;
       } else {
         console.log('Game.receiveData(): problem with dataIn');
 
