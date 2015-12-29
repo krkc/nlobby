@@ -60,6 +60,12 @@ var Game = function (p1, p2) {
    */
   this.Message = null;
 
+  /**
+   * @member MsgTargetID
+   * @memberof Game
+   */
+  this.MsgTargetID = null;
+
 
   /**
    * @function gameOver
@@ -85,7 +91,8 @@ var Game = function (p1, p2) {
    */
   Game.prototype.reset = function ()
   {
-    // body...
+    // this.PlayerOne.setDefaults();
+    // this.PlayerTwo.setDefaults();
   };
 
   /**
@@ -159,10 +166,12 @@ var Game = function (p1, p2) {
           set: self.PlayerTwo.isSet
         },
         Msg: {
-          user: self.PlayerOne.ID,
+          user: self.MsgTargetID,
           msg: self.Message
         }
       });
+      self.MsgTargetID = null;
+      self.Message = null;
       console.log('Game: sent standard game data to client.');
     }
 
@@ -184,6 +193,8 @@ var Game = function (p1, p2) {
         // Reset signal
         // Send updated data to clients
         console.log('receiveData: Both players acknowledged, game is ready.');
+        this.Message = "Click or touch anywhere to place dot and begin game.";
+        this.MsgTargetID = this.PlayerTwo.ID;
         this.sendData();
       } else {
         // Add player to count of ready players
@@ -193,11 +204,12 @@ var Game = function (p1, p2) {
     } else if (readyPlayers >= 2){
       // Game is ready or running
 
-      if (dataIn.dot) {
+      if (dataIn.dot && !this.PlayerTwo.DotSet) {
         // Player two sent data
         this.PlayerTwo.XLoc = dataIn.dot.x;
         this.PlayerTwo.YLoc = dataIn.dot.y;
         this.PlayerTwo.DotSet = true;
+        this.sendData();
         console.log('receiveData: click.');
       } else if (dataIn.snake) {
         // Player one sent data
@@ -212,9 +224,7 @@ var Game = function (p1, p2) {
         }
       } else {
         console.log('Game.receiveData(): problem with dataIn');
-        // this.sendData({
-        //   readyID: dataIn.readyID
-        // });
+
       }
     }
 

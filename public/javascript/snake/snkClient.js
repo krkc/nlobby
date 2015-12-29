@@ -25,11 +25,13 @@ function GameClient ()
 	var clientReadyFlag = false;	/* indicates that game client is ready or not */
 	var wWidth = {};			/* Window width */
 	var wHeight = {};			/* Window height */
+	var existingWidth = {};		/* Last window width */
 	var canvbg = {};			/* Page canvas background object */
 	var canvfg = {};			/* Page canvas foreground object */
 	var glfg = {};		/* canvas foreground context object */
 	var glbg = {};		/* canvas background context object */
 	var toastMsg = null;		/* Message to toast on screen */
+	var clearToastMsg = false;	/* Flag for clearing toast msg from screen */
 
 	var mainloop = null;			/* id for the main loop */
 	var readyChecker = null;	/* id for the checkGameReady loop */
@@ -51,6 +53,7 @@ function GameClient ()
 
 		wWidth = window.innerWidth;										/* Window width */
 		wHeight = window.innerHeight;									/* Window height */
+		existingWidth = wWidth;
 		canvbg = document.getElementById("canvbg");		/* Page Canvas objects */
 		canvfg = document.getElementById("canvfg");
 
@@ -235,15 +238,28 @@ function GameClient ()
 		// Redraw dot
 		glfgc.fillStyle="#000000";
 		glfgc.fillRect(rcu.x[dotCoords.xLoc], rcu.y[dotCoords.yLoc], rcu.x[5], rcu.y[5]);			/* x,y,w,h */
+		console.log("TEst: dotCoords x: " + dotCoords.xLoc + ", and y: " + dotCoords.yLoc);
+		console.log("TEst: snkCoords x: " + snkCoords.xLoc[0] + ", and y: " + snkCoords.yLoc[0]);
 
 		if (toastMsg) {
 			// Draw the toast message on the canvas
-			glfgc.font="20px Arial";
-			glfgc.fillStyle="#888888";
-			glfgc.fillRect(rcu.x[40], rcu.y[40], rcu.x[20], rcu.y[20]);	/* x,y,w,h */
+			glfgc.font = "2.5em Arial";
+			glfgc.fillStyle = "#888888";
+			glfgc.fillRect(rcu.x[0], rcu.y[40], rcu.x[100], rcu.y[20]);	/* x,y,w,h */
 			// print msg for current player
-			glfgc.fillStyle="#FF5555";
-			glfgc.fillText(toastMsg, rcu.x[45], rcu.y[50]);
+			glfgc.fillStyle = "#FF5555";
+			glfgc.fillText(toastMsg, rcu.x[42], rcu.y[50]);	/* text, x, y, max width */
+			// // Draw ok button
+			// glfgc.fillStyle = "#DDDDDD";
+			// glfgc.fillRect(rcu.x[40], rcu.y[50], rcu.x[10], rcu.y[5]);
+			// // Draw ok button text
+			// glfgc.font = "1.5em Arial";
+			// glfgc.fillStyle = "#444444";
+			// glfgc.fillText("OK", rcu.x[41], rcu.y[56]);
+		}
+		if (clearToastMsg) {
+			glfgc.clearRect(rcu.x[0], rcu.y[40], rcu.x[100], rcu.y[20]);
+			clearToastMsg = false;
 		}
 	}
 
@@ -264,12 +280,10 @@ function GameClient ()
 			toastMsg = msg;
 		}
 
-		if (msg === "Game Over.") {
-			// Stop game loop.
-	  	//clearInterval(mainloop);
+		if (msg !== "Game Over.") {
+			setTimeout(clearToast, 2500);
 		}
 
-		setTimeout(clearToast, 2500);
 	}
 
 	/**
@@ -280,6 +294,7 @@ function GameClient ()
 	function clearToast ()
 	{
 		toastMsg = null;
+		clearToastMsg = true;
 	}
 
 	/**
@@ -289,28 +304,13 @@ function GameClient ()
 	*/
 	function onResize ()
 	{
-		// Reinitialize scene.
-		init('resize');
+		// Prevent vertical resizing (acts up on mobile)
+		if ( window.innerWidth != existingWidth ) {
+			// Reinitialize scene.
+			init('resize');
+		}
 
 		// TODO: enable reset button on page (reset event possibly)
-		// TODO: fix mobile resize when url bar hides
-		// credit for code below: http://stackoverflow.com/a/24297982
-		// var doit;
-    // function resizedw(appwidth){
-    //     var window_changed = $(window).width() != appwidth;
-    //     if ($(window).width() != appwidth){
-    //       ("body").append("did it"+appwidth+" ");
-    //     }
-    //     past_width = $(window).width();
-    // }
-		//
-    // var past_width = $(window).width();
-    // window.onresize = function() {
-    //   clearTimeout(doit);
-    //   doit = setTimeout(function() {
-    //       resizedw(past_width);
-    //   }, 100);
-    // };
 	}
 
 	/**
@@ -324,7 +324,7 @@ function GameClient ()
 		// Check to see if server has sent a toast message
 		if (data.Msg) {
 			if (data.Msg.msg) {
-				onToast({ detail: { user: data.Msg.ID, msg: data.Msg.msg } });
+				onToast({ detail: { user: data.Msg.user, msg: data.Msg.msg } });
 			}
 		}
 		// Update game client with data from server
@@ -411,11 +411,14 @@ function GameClient ()
 	{
 		if (snkgame.getRole(ngroom.getMyID()) == 'dot') {
 			var canvcoords = getMousePos(e);
+			// Convert to percentages
+			canvcoords.x = canvcoords.x * 100;
+			canvcoords.y = canvcoords.y * 100;
 
 			ngroom.dataToServer({
 				dot: {
-					x: canvcoords.x,
-					y: canvcoords.y
+					x: Math.floor( canvcoords.x / 5 ) * 5,
+					y: Math.floor( canvcoords.y / 5 ) * 5
 				}
 			});
 		}		// endif

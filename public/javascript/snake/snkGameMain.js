@@ -64,18 +64,6 @@ function GameMain ()
   }
 
 
-  /*
-  	Function:     stateReset()
-  	Parameters:		None
-  	Return:			  None
-  	Description:	Reset game-state.
-  */
-  function stateReset()
-  {
-  	init('reset');
-  }
-
-
   /**
    * @function update
    * @param {Object} data - Incoming data from server to update

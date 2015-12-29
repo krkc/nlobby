@@ -192,6 +192,7 @@ var Snake = function ()
     return xLoc;
   };
 
+
   /**
    * @function YLoc
    * @memberof Snake
