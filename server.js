@@ -16,10 +16,10 @@ var io = require('socket.io')(server);
 var cookieParser = require('socket.io-cookie-parser');
 
 // Required project modules:
-var indexCon = require('./controllers/index');		/* Controller data for index page */
-var idGen = require('./helpers/gensessionid');		/* Session ID generator */
-var gameCon = require('./controllers/game');			/* Controller data for game page */
-var activeGames = require('./helpers/ActiveGames');		/* Active games object */
+var indexCon = require('./helpers/index');		/* Controller data for index page */
+var nlUsers = require('./controllers/ActiveUsers');		/* Session ID generator */
+var gameCon = require('./helpers/game');			/* Controller data for game page */
+var activeGames = require('./controllers/ActiveGames');		/* Active games object */
 
 
 var host;	/* Hostname of the server */
@@ -56,9 +56,9 @@ var sessionNumber = 0;
 
 // Express routes
 app.get('/', function (req, res) {
-	sessionIDs.push(idGen.genuuid(sessionNumber += 1));
-	res.cookie('sid', sessionIDs[sessionIDs.length-1]);
-	res.render('index', indexCon.getContent(sessionIDs));
+	var createduser = nlUsers.newUser(sessionNumber += 1);
+	res.cookie('sid', createduser.Uuid_h);
+	res.render('index', indexCon.getContent(createduser, nlUsers.listUsers()));
 });
 
 app.get('/snake', function(req, res) {
@@ -76,12 +76,15 @@ app.get('/snake', function(req, res) {
 
 	if (req.headers.cookie) {
 		if (req.headers.cookie.search('sid') != -1) {
+			// User has an id
 			res.render('game', gameCon.getContent());
 		}
 		else {
+			// User needs an id, redirect to root
 			res.redirect('/');
 		}
 	} else {
+		// User has no cookies, redirect to root
 		res.redirect('/');
 	}
 
@@ -111,8 +114,8 @@ glio.on('connection', function (socket) {
 	// Socket.io handler for client browser 'unload' event
 	socket.on('sessionDisconnect', function () {
 
-		// Remove user's session ID from the list
-		sessionIDs.splice(sessionIDs.indexOf(socket.username),1);
+		// Remove the disconnecting user from the list
+		nlUsers.removeUser(nlUsers.findUser(socket.username));
 
 		// Broadcast to the lobby that user has disconnected
 		socket.broadcast.emit('userLeft', sessionIDs);

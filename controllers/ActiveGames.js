@@ -8,12 +8,12 @@
 
 /**
  * Represents an active game session.
- * @class
+ * @class ActiveGames
  */
 
 var ActiveGames = function () {
   'use strict';
-  
+
   this.sessions = [];
 };
 
