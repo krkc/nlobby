@@ -39,6 +39,8 @@ function NgLobby (conn)
   // Acquire a SID for this page
   socket.on('createSession', function (sid) {
   	myID = sid.sessionID;
+    var myLabel = document.getElementById('userLabel');
+    myLabel.innerHTML = myID;
   });
 
   // A new user has joined the socket.io lobby
@@ -53,6 +55,8 @@ function NgLobby (conn)
 
   // A user has left the socket.io lobby
   socket.on('userLeft', function (userIDs) {
+    console.log("[TEST]");
+    console.log(userIDs);
   	var usersDiv = document.getElementById('divUsers');
   	// Clear out div contents
   	usersDiv.innerHTML = "";

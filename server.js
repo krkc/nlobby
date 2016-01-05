@@ -50,9 +50,7 @@ var sessionNumber = 0;	/* current count of sessions started */
 
 // Express routes
 app.get('/', function (req, res) {
-	var createduser = nlUsers.newUser(sessionNumber += 1);
-	res.cookie('sid', createduser.Uuid_h);
-	res.render('index', indexCon.getContent(createduser, nlUsers.listUsers()));
+	res.render('index', indexCon.getContent("Loading...", []));
 });
 
 app.get('/snake', function(req, res) {
@@ -90,33 +88,16 @@ app.get('/snake', function(req, res) {
 
 // Socket.io event handler for Game Lobby connection
 glio.on('connection', function (socket) {
-
-	if (!socket.username) {
-		socket.username = socket.request.cookies.sid;
-		console.log('New user has connected to game lobby. Assigning ID...' + socket.username);
-	} else {
-		socket.username = socket.request.cookies.sid;
-		console.log('User \'' + socket.username + '\' has reconnected to game lobby. ');
-	}
-
-	// Broadcast to the lobby that user has connected
-	socket.broadcast.emit('userJoined', socket.username);
-
-  socket.emit('createSession', { sessionID: socket.username });
+	// Add user
+	nlUsers.newUser(sessionNumber += 1, socket);
+	// Retreive other users
+	nlUsers.listUsers(glio);
 
 	// Socket.io handler for client browser 'unload' event
 	socket.on('sessionDisconnect', function () {
-
-		// Remove the disconnecting user from the list
-		nlUsers.removeUser(nlUsers.findUser(socket.username));
-
-		// Broadcast to the lobby that user has disconnected
-		socket.broadcast.emit('userLeft', nlUsers.listUsers());
-		
-		console.log('User \'' + socket.username + '\' has disconnected from game lobby. ');
-
+		// Remove the disconnecting user from the list and broadcast update
+		nlUsers.removeUser(socket.username, glio);
 	});
-
 });
 
 // Socket.io event handler for Game Room connection

@@ -1,3 +1,6 @@
 {
-  "uuidsalt" : "salty"
+  "user" : {
+    "uuidsalt" : "salty",
+    "expireTime" : 300
+  }
 }
