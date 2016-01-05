@@ -7,20 +7,18 @@
 
 
 // Required framework modules:
-//var events = require('events');
-//var eventEmitter = new events.EventEmitter();
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var cookieParser = require('socket.io-cookie-parser');
 
-// Required project modules:
-var indexCon = require('./helpers/index');		/* Controller data for index page */
-var nlUsers = require('./controllers/ActiveUsers');		/* Session ID generator */
-var gameCon = require('./helpers/game');			/* Controller data for game page */
-var activeGames = require('./controllers/ActiveGames');		/* Active games object */
 
+// Required project modules:
+var indexCon = require('./helpers/index');		/* Helper functions for index page */
+var nlUsers = require('./controllers/ActiveUsers');		/* Active users object */
+var gameCon = require('./helpers/game');			/* Helper functions for game page */
+var activeGames = require('./controllers/ActiveGames');		/* Active games object */
 
 var host;	/* Hostname of the server */
 var port;	/* Port that the server is listening on */
@@ -46,11 +44,7 @@ io.use(cookieParser());
 app.set('views', './views');
 app.set('view engine', 'jade');
 
-// Server session variables
-// (Will be moved to redis eventually)
-var sessionIDs = [];
-//var activeGames = [];
-var sessionNumber = 0;
+var sessionNumber = 0;	/* current count of sessions started */
 
 // -- Begin express code --
 
@@ -62,16 +56,15 @@ app.get('/', function (req, res) {
 });
 
 app.get('/snake', function(req, res) {
-
 	if (req.query.p1) {
 		// Sterilize input to prevent XSS
 		var p1Safe = req.query.p1.replace(/(<([^>]+)>)/ig,"");
 		var p2Safe = req.query.p2.replace(/(<([^>]+)>)/ig,"");
 		// Create new game session and add to list of active games
-		console.log('PlayerOne.ID from the returned newGame() object: ' + activeGames.newGame('snakegame', p1Safe, p2Safe).PlayerOne.ID);
+		var createdGame = activeGames.newGame('snakegame', p1Safe, p2Safe);
+		console.log('PlayerOne.ID from the returned newGame() object: ' + createdGame.PlayerOne.ID);
 		// Player 1 broadcast invite to game lobby for Player 2
 		glio.emit('playerFinder', p2Safe);
-
 	}
 
 	if (req.headers.cookie) {
@@ -118,7 +111,8 @@ glio.on('connection', function (socket) {
 		nlUsers.removeUser(nlUsers.findUser(socket.username));
 
 		// Broadcast to the lobby that user has disconnected
-		socket.broadcast.emit('userLeft', sessionIDs);
+		socket.broadcast.emit('userLeft', nlUsers.listUsers());
+		
 		console.log('User \'' + socket.username + '\' has disconnected from game lobby. ');
 
 	});

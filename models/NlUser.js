@@ -11,14 +11,11 @@
  * @class NlUser
  */
 
-var NlUser = function (sessionNum, saltstr) {
+var NlUser = function (uuid_hIn) {
   'use strict';
 
-  var Hashids = require('hashids');		/* Hashed ID generator */
-  var uuid_h = 0;       /* Hashed user id */
+  var uuid_h = uuid_hIn;       /* Hashed user id */
   var lastActive = 0;   /* Time that the user was last active */
-
-  uuid_h = genUuid();
 
 
   // Public
@@ -35,24 +32,6 @@ var NlUser = function (sessionNum, saltstr) {
     enumerable: true,
     configurable: true
   });
-
-
-  /**
-	 * @function genuuid
-	 * @memberof NlUsers
-	 * @param {Int} sessionNum - Session number assigned to user
-	 * @return {String} - Generated user id
-	 * @desc Generates a new hashed user id
-	 */
-	function genUuid () {
-		// Create an object for generating IDs
-		var hashids = new Hashids(saltstr);
-		var d = new Date();
-		var currentTimeMs = d.getTime();
-		var hashedID = hashids.encode(sessionNum + currentTimeMs);
-
-		return hashedID;
-	}
 
 };
 

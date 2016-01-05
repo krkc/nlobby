@@ -1,7 +1,7 @@
 {
-  "name": "nodegamelobby",
-  "version": "0.0.0",
-  "description": "game lobby in node",
+  "name": "nlobby",
+  "version": "0.1.0",
+  "description": "game-lobby written in node",
   "main": "server.js",
   "moduleType": [
     "node"

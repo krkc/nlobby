@@ -18,6 +18,8 @@ var ActiveUsers = function () {
 	var nlConfig = require('../helpers/nLobby');	/* nLobby config file */
   var NlUser = require('../models/NlUser'); /* Game state module */
 
+  var Hashids = require('hashids');		/* Hashed ID generator */
+
 	this.users = [];
 
 
@@ -33,9 +35,10 @@ var ActiveUsers = function () {
 	 */
 	ActiveUsers.prototype.newUser = function (sessionNum) {
     // Create new game state object and add to list
-    // TODO: Eventually move persistent data to redis or sqlite
+    var uuid_h = genUuid(sessionNum);
+
     this.users.push(
-      new NlUser(sessionNum, nlConfig.uuidsalt)
+      new NlUser(uuid_h)
     );
     console.log('ActiveUsers.newUser:');
     for (var user of this.users) {
@@ -57,10 +60,10 @@ var ActiveUsers = function () {
       //Check each user session for a matching user ID
       if (user.Uuid_h === uuid) {
         return user;
-      } else {
-        console.log('findUser failed: uuid: ' + uuid);
       }
     }
+    console.log('findUser failed: uuid: ' + uuid);
+    return null;
   };
 
   /**
@@ -71,11 +74,12 @@ var ActiveUsers = function () {
    * @desc Remove a game from the list when no longer being played
    */
   ActiveUsers.prototype.removeUser = function (user) {
-    if (this.users[this.users.indexOf(user)]) {
+    var userIndex = this.users.indexOf(user);
+    if (this.users[userIndex]) {
       // Destroy the game object, but the array position still needs removed
-      this.users[this.users.indexOf(user)] = null;
+      this.users[userIndex] = null;
       // This removes the now empty array position
-      this.users.splice(this.users.indexOf(user),1);
+      this.users.splice(userIndex,1);
     }
   };
 
@@ -100,13 +104,12 @@ var ActiveUsers = function () {
   };
 
 	/**
-	 * @function genuuid
+	 * @function genUuid
 	 * @memberof ActiveUsers
-	 * @param {Int} sessionNum - Session number assigned to user
 	 * @return {String} - Generated user id
 	 * @desc Generates a new hashed user id
 	 */
-	ActiveUsers.prototype.genuuid = function(sessionNum) {
+	function genUuid (sessionNum) {
 		// Create an object for generating IDs
 		var hashids = new Hashids(nlConfig.uuidsalt);
 		var d = new Date();
@@ -114,7 +117,7 @@ var ActiveUsers = function () {
 		var hashedID = hashids.encode(sessionNum + currentTimeMs);
 
 		return hashedID;
-	};
+	}
 
 };
 

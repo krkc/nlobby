@@ -128,7 +128,6 @@ var Dot = function ()
       score -= 2;
     } else if (set) {
       score += 1;
-      console.log("[TEST] dot score increase: " + score);
     }
   };
 
