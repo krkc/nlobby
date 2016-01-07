@@ -2,9 +2,9 @@ extends layout
 
 block includedScripts
 	script(type='text/javascript' src='javascript/NgLobby.js')
-
+	link(rel='stylesheet', href='stylesheets/lobby.css')
 block bodyContent
-	body(style='height: 100%;', onload="NgLobby(':3000')")
+	body(style='height: 100%;', onload="NgLobby(':8080')")
 		div.container
 			nav(class="navbar navbar-default")
 				div(class="container-fluid")
@@ -25,4 +25,9 @@ block bodyContent
 								a(href="#") Page 2
 							li
 								a(href="#") Page 3
-			include lobbyContent
+			h3.page-header YOUR user ID:
+			div#userLabel.label.label-primary #{userID}
+			h3.page-header Connected Users:
+			div.panel.panel-default.divUsers
+				div#divUsers.panel-body
+			include partials/_footer

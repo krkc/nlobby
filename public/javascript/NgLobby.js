@@ -39,6 +39,7 @@ function NgLobby (conn)
   // Acquire a SID for this page
   socket.on('createSession', function (sid) {
   	myID = sid.sessionID;
+    document.cookie = "sid=" + myID;
     var myLabel = document.getElementById('userLabel');
     myLabel.innerHTML = myID;
   });

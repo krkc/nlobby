@@ -124,7 +124,6 @@ var ActiveUsers = function () {
         }
       });
     }).then(function(reply) {
-      console.log('User \'' + username + '\' has disconnected from game lobby. ');
       // User removal complete, update everyone's user lists
       self.listUsers(roomsocket);
     });

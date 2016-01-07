@@ -76,15 +76,31 @@ function GameMain ()
       gameOver();
     } else {
       // Update snake properties
-    	snake.lastxLoc = snake.xLoc;
-    	snake.xLoc = data.PlayerOne.xLoc;
-    	snake.lastyLoc = snake.yLoc;
-    	snake.yLoc = data.PlayerOne.yLoc;
+
+
+      if (snake.lastxLoc.length !== snake.xLoc.length) {
+        // Reconnect arrays if needed
+        snake.lastxLoc = null;
+        snake.lastyLoc = null;
+        snake.lastxLoc = snake.xLoc;
+        snake.lastyLoc = snake.yLoc;
+      }
+      // Make a deep copy of arrays if needed
+      if (snake.lastxLoc.length !== data.PlayerOne.xLoc.length) {
+        snake.lastxLoc = deepCopy(snake.xLoc);
+        snake.lastyLoc = deepCopy(snake.yLoc);
+      }
+
+      snake.xLoc = data.PlayerOne.xLoc;
+      snake.yLoc = data.PlayerOne.yLoc;
+
+      snake.score = data.PlayerOne.score;
     	// Update dot properties
     	dot.lastxLoc = dot.xLoc;
     	dot.xLoc = data.PlayerTwo.xLoc;
     	dot.lastyLoc = dot.yLoc;
     	dot.yLoc = data.PlayerTwo.yLoc;
+      dot.score = data.PlayerTwo.score;
 
     	// Update the scoreboard and player ids
 
@@ -104,6 +120,15 @@ function GameMain ()
       }
     }
   };
+
+  function deepCopy (arrIn)
+  {
+    var newArr = [];
+    for (var i = 0; i < arrIn.length; i++) {
+      newArr.push(arrIn[i]);
+    }
+    return newArr;
+  }
 
 
   /**
@@ -150,7 +175,7 @@ function GameMain ()
 
   /**
    * @function ready
-   * @memberof GameClient
+   * @memberof GameMain
    * @return {Boolean} - Ready status of game client
    * @desc Returns the ready status of the game client
    */
@@ -162,18 +187,5 @@ function GameMain ()
       return false;
     }
   };
-
-  // /**
-  //  * @property Snake
-  //  * @memberof GameMain
-  //  * @return {Array} - x-axis locations of dot
-  //  * @desc Getter for current dot x-axis location
-  //  * @public
-  //  */
-  // Object.defineProperty(GameMain, 'Snake', {
-  //   get: function() { return snake; },
-  //   enumerable: true,
-  //   configurable: true
-  // });
 
 }

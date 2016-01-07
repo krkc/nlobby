@@ -9,6 +9,7 @@
  */
 
 
+
 function GameClient ()
 {
 
@@ -25,7 +26,7 @@ function GameClient ()
 	var clientReadyFlag = false;	/* indicates that game client is ready or not */
 	var wWidth = {};			/* Window width */
 	var wHeight = {};			/* Window height */
-	var existingWidth = {};		/* Last window width */
+	var existingWidth = {};		/* Last window width- used for preventing vertical resizing */
 	var canvbg = {};			/* Page canvas background object */
 	var canvfg = {};			/* Page canvas foreground object */
 	var glfg = {};		/* canvas foreground context object */
@@ -48,25 +49,28 @@ function GameClient ()
 	 * @desc Initializes the canvas and game client prior to game loop starting
 	 * @public
 	 */
-	function init (reset)
+	function init (action)
 	{
 
 		wWidth = window.innerWidth;										/* Window width */
 		wHeight = window.innerHeight;									/* Window height */
-		existingWidth = wWidth;
+		existingWidth = wWidth;												/* Previous window width */
 		canvbg = document.getElementById("canvbg");		/* Page Canvas objects */
 		canvfg = document.getElementById("canvfg");
 
 
-		if (!reset) {
-			ngroom = new NgRoom(':3000');
+		if (!action) {
+			// Initial start only
+
+			ngroom = new NgRoom(':8080');
 
 			// Register event listener for keypresses, clicks, and touches.
 			window.addEventListener("keydown", onKeyDown, true);
 			canvfg.addEventListener("click", onClick, true);
 
-			// Register event listener for window resize.
+			// Register event listener for window resize and reset.
 			window.addEventListener("resize", onResize, true);
+			document.getElementById("resetBtn").addEventListener("click", gameReset, true);
 
 			addEventListener('toast', onToast, true);
 			addEventListener('dataToGame', dataToGame, true);
@@ -78,8 +82,8 @@ function GameClient ()
 		// Specify canvas size based on window size.
 		canvbg.setAttribute('width', (wWidth - Math.floor(wWidth * 0.1)) );
 		canvfg.setAttribute('width', (wWidth - Math.floor(wWidth * 0.1)) );
-		canvbg.setAttribute('height', (wHeight - Math.floor(wHeight * 0.1)) );
-		canvfg.setAttribute('height', (wHeight - Math.floor(wHeight * 0.1)) );
+		canvbg.setAttribute('height', (wHeight - Math.floor(wHeight * 0.2)) );
+		canvfg.setAttribute('height', (wHeight - Math.floor(wHeight * 0.2)) );
 
 		// Establish a 2D drawing context.
 		try {
@@ -115,7 +119,12 @@ function GameClient ()
 		if (glfg && glbg) {
 			// When all assets are loaded, draw the background
 			//   and begin the game loop.
-			if (!reset) {
+			if (!action) {
+				// Initial start only
+
+				$('html,body').delay(1000).animate({
+		          scrollTop: $(document).height()
+		        }, 1000);
 				main();
 				// Poll for client ready status
 				var date = new Date();
@@ -126,6 +135,14 @@ function GameClient ()
 			}
 		}
 
+	}
+
+	function gameReset ()
+	{
+		// Game data sent to server indicating reset request
+		ngroom.dataToServer( {
+			ResetRequest : true,
+		});
 	}
 
 
@@ -221,9 +238,10 @@ function GameClient ()
 		var snkCoords = snkgame.getCoords('snake');
 		var dotCoords = snkgame.getCoords('dot');
 		// Clear previously drawn player.
-		for (var i = 0; i < snkCoords.xLoc.length; i++) {
-			glfgc.clearRect(rcu.x[snkCoords.lastxLoc[i]], rcu.y[snkCoords.lastyLoc[i]], rcu.x[5], rcu.y[5]);
-		}
+		// for (var i = 0; i < snkCoords.lastxLoc.length; i++) {
+		// 	glfgc.clearRect(rcu.x[snkCoords.lastxLoc[i]], rcu.y[snkCoords.lastyLoc[i]], rcu.x[5], rcu.y[5]);
+		// }
+		glfgc.clearRect(rcu.x[0], rcu.y[0], rcu.x[100], rcu.y[100]);
 
 		// Clear dot
 		glfgc.clearRect(rcu.x[dotCoords.lastxLoc], rcu.y[dotCoords.lastyLoc], rcu.x[5], rcu.y[5]);
@@ -318,6 +336,7 @@ function GameClient ()
 	function dataToGame (e)
 	{
 		var data = e.detail;
+
 		// Check to see if server has sent a toast message
 		if (data.Msg) {
 			if (data.Msg.msg) {
@@ -326,6 +345,7 @@ function GameClient ()
 		}
 		// Update game client with data from server
 		snkgame.update(data, ngroom.getMyID());
+
 	}
 
 	/**
@@ -452,4 +472,4 @@ function GameClient ()
 		}	// endif
 	}
 
-}
+}	// End GameClient

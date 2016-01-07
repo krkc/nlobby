@@ -33,6 +33,12 @@ var Game = function (p1, p2) {
   this.gameSpeed = 800;					/* Game speed in milliseconds */
 
   /**
+   * @member gameRunning
+   * @memberof Game
+   */
+  this.gameRunning = false;					/* Game running status */
+
+  /**
    * @member GameID
    * @memberof Game
    */
@@ -76,6 +82,7 @@ var Game = function (p1, p2) {
   {
     try {
       clearInterval(mainloop);
+      mainloop = null;
     }
     catch (e) {
       console.log('clearInterval failed:' + e.message);
@@ -92,8 +99,17 @@ var Game = function (p1, p2) {
    */
   Game.prototype.reset = function ()
   {
-    // this.PlayerOne.setDefaults();
-    this.PlayerTwo.setDefault(0);
+    try {
+      clearInterval(mainloop);
+      mainloop = null;
+    }
+    catch (e) {
+      console.log('clearInterval failed:' + e.message);
+    }
+    this.gameRunning = false;
+    this.PlayerOne.setDefaults();
+    this.PlayerTwo.setDefault();
+    this.sendData();
   };
 
   /**
@@ -128,7 +144,7 @@ var Game = function (p1, p2) {
       if (self.PlayerOne.isColliding(self.PlayerTwo)) {
         // Dot collision detected. Increase score and respawn dot.
         self.PlayerOne.grow();
-        // TODO: Dot no longer set. Decrease dot score over time until reset.
+        // Clear dot position until reset
         self.PlayerTwo.setDefault();
       }
       // Adjust dot score
@@ -204,32 +220,45 @@ var Game = function (p1, p2) {
     } else if (readyPlayers >= 2){
       // Game is ready or running
 
-      if (dataIn.dot && !this.PlayerTwo.DotSet) {
-        // Player two sent data
-        this.PlayerTwo.setValue(dataIn.dot.x, dataIn.dot.y);
-        if (mainloop === null) {
-          this.sendData();
-        }
-        //console.log('receiveData: click.');
-      } else if (dataIn.snake) {
-        // Player one sent data
-        if (mainloop === null) {
-          // Initialize game loop
-          this.init();
-        }
+      if (dataIn.ResetRequest) {
+        // Perform reset
 
-        //console.log('receiveData: keyIsPressed: ' + dataIn.snake.keyIsPressed);
-        // Update keyIsPressed with data from client
-        this.keyIsPressed = dataIn.snake.keyIsPressed;
+        this.reset();
       } else {
-        console.log('Game.receiveData(): problem with dataIn');
+        // Process user input
+        console.log("[TEST1]");
+        if (dataIn.dot && !this.PlayerTwo.DotSet) {
+          console.log("[TEST2]");
+          // Player two(dot) sent data
+          this.PlayerTwo.setValue(dataIn.dot.x, dataIn.dot.y);
+          if (mainloop === null) {
+            this.sendData();
+          }
+          if (!this.gameRunning) {
+            this.gameRunning = true;
+          }
+          //console.log('receiveData: click.');
+        } else if (dataIn.snake && this.gameRunning) {
+          // Player one(snake) sent data
+          if (mainloop === null) {
+            // Initialize game loop
+            this.init();
+          }
 
+          //console.log('receiveData: keyIsPressed: ' + dataIn.snake.keyIsPressed);
+
+          // Update keyIsPressed with data from client
+          this.keyIsPressed = dataIn.snake.keyIsPressed;
+        } else {
+          console.log('Game.receiveData(): problem with dataIn');
+
+        }
       }
     }
 
-  };
+  };  // End receiveData
 
-};
+};  // End Game
 
 
 module.exports = Game;

@@ -24,7 +24,7 @@ var host;	/* Hostname of the server */
 var port;	/* Port that the server is listening on */
 
 // Begin Express server
-server.listen(3000, function() {
+server.listen(8080, function() {
 	host = server.address().address;
 	port = server.address().port;
 	console.log('HTTP server is listening on port ' + port);
@@ -50,7 +50,7 @@ var sessionNumber = 0;	/* current count of sessions started */
 
 // Express routes
 app.get('/', function (req, res) {
-	res.render('index', indexCon.getContent("Loading...", []));
+	res.render('index', indexCon.getContent("Loading..."));
 });
 
 app.get('/snake', function(req, res) {
@@ -102,7 +102,7 @@ glio.on('connection', function (socket) {
 
 // Socket.io event handler for Game Room connection
 grio.on('connection', function (socket) {
-
+	console.log("[TEST] " + socket.username);
 	// Check if user is currently in a game session
 	if (!socket.currentGame) {
 		// Perform game and player session setup if newly joined
@@ -142,9 +142,6 @@ grio.on('connection', function (socket) {
 			});
 		}
 	}
-
-	// Send data to individual player
-	//socket.emit('dataToClient', { clientData: 'test data' });
 
 	// Broadcast to players in a given room
 	//grio.sockets.in('gameID').emit('dataToClient', dataOut);

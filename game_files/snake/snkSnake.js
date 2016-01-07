@@ -16,17 +16,21 @@ var Snake = function ()
 {
   'use strict';
 
-  // For a 100x100 map, each square is 5
-  var headx = 45;   /* Starting position on x-axis */
-  var heady = 95;   /* Starting position on y-axis */
+  var headx;   /* Starting position on x-axis */
+  var heady;   /* Starting position on y-axis */
 
-  var xLoc = [headx, headx, headx, headx, headx];
-  var yLoc = [heady, heady, heady, heady, heady];
-  var movingLeft = false;
-  var movingRight = false;
-  var movingUp = false;
-  var movingDown = false;
-  var score = 0;
+  var xLoc = [];  /* Array of snake x-axis coordinates */
+  var yLoc = [];  /* Array of snake y-axis coordinates */
+  var movingLeft;   /* Movement status flags */
+  var movingRight;
+  var movingUp;
+  var movingDown;
+
+  var score;    /* Player score */
+
+  // Initialize player data
+  initData();
+
 
 
   /**
@@ -72,6 +76,28 @@ var Snake = function ()
 
 
   // -- Private methods -- //
+
+  /**
+   * @function initData
+   *
+   * @desc Initializes default snake player data
+   */
+  function initData()
+  {
+    // For a 100x100 map, each square is 5
+    headx = 45;   /* Starting position on x-axis */
+    heady = 95;   /* Starting position on y-axis */
+
+    xLoc = [headx, headx, headx, headx, headx];
+    yLoc = [heady, heady, heady, heady, heady];
+    movingLeft = false;
+    movingRight = false;
+    movingUp = false;
+    movingDown = false;
+
+    score = 0;
+  }
+
 
   /*
     Function:     moveSnake()
@@ -220,6 +246,24 @@ var Snake = function ()
     }
 
     score += 10;
+  };
+
+
+  /**
+   * @function setDefaults
+   * @memberof Snake
+   * @param {Int} scoreIn - New score to set (optional)
+   *
+   * @desc Clear all player data to defaults
+  */
+  this.setDefaults = function (scoreIn)
+  {
+    // Set location/movement data to defaults
+    initData();
+    // Set score
+    if (scoreIn) {
+      score = scoreIn;
+    }
   };
 
 };

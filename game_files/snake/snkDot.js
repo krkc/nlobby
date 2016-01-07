@@ -110,10 +110,12 @@ var Dot = function ()
   {
     xLoc = -1;
     yLoc = -1;
+    set = false;
+
+    score = 0;
     if (scoreIn) {
       score = scoreIn;
     }
-    set = false;
   };
 
   /**

@@ -1,9 +1,0 @@
-p YOUR user ID:
-	div#userLabel.label.label-primary #{userID}
-
-p Connected Users:
-
-div#divUsers(style="height: 25em;")
-	- for (var i=0; i<bodyContent.length; i++)
-		if (bodyContent[i] != userID)
-			a(href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: #{bodyContent[i]}' data-content="<a href='snake?p1=#{userID}&p2=#{bodyContent[i]}'>Play Snake!</a>") #{bodyContent[i]}
