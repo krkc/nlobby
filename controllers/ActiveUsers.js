@@ -59,23 +59,18 @@ var ActiveUsers = function () {
    *
 	 * @desc Create a new user session using redis-store
 	 */
-	ActiveUsers.prototype.newUser = function (sessionNum, socket) {
+	ActiveUsers.prototype.newUser = function (sessionNum, emitToLobbyCB) {
     // Create hashed user id and assign to the current user's socket
     var uuid_h = genUuid(sessionNum);
-    socket.username = uuid_h;
-
-    // Add user to redis and promise to emit over socket
-    var prom = new Promise(function (resolve, reject) {
-      // Add a new user to set of users, set to expire after 2 minutes
-      rClient.set("user_" + uuid_h, uuid_h, function (err, reply) {
-        if (err) console.log(err);
+    // Add a new user to set of users, set to expire after 2 minutes
+    rClient.set("user_" + uuid_h, uuid_h, function (err, reply) {
+      if (err) {
+        emitToLobbyCB(err, null);
+      } else {
         rClient.expire("user_" + uuid_h, nlConfig.user.expireTime);
-        resolve(reply);
-      });
-    }).then(function(val) {
-      socket.emit('createSession', { sessionID: socket.username });
-      // Broadcast to the lobby that user has connected
-      socket.broadcast.emit('userJoined', socket.username);
+        // Callback to server.js for emitting to the lobby
+        emitToLobbyCB(null, uuid_h);
+      }
     });
 	};
 
@@ -87,17 +82,15 @@ var ActiveUsers = function () {
    *
    * @desc Search for a specific user session in the redis-store
    */
-  ActiveUsers.prototype.findUser = function (uuid) {
-    // Get user from redis and promise to emit over socket
-    var p1 = new Promise(function(resolve, reject) {
-      // Get the specified user
+  ActiveUsers.prototype.findUser = function (uuid, findUserCB) {
+      // Get the specified user from redis
       rClient.get("user_" + uuid, function(err, reply) {
-        resolve(reply);
+        if (err) {
+          findUserCB(err, null);
+        } else {
+          findUserCB(null, reply);
+        }
       });
-    }).then(function(reply) {
-      // User found
-      console.log("[TEST] User Found: " + reply);
-    });
   };
 
 
@@ -109,25 +102,15 @@ var ActiveUsers = function () {
    *
    * @desc Remove a user from the redis-store
    */
-  ActiveUsers.prototype.removeUser = function (username, roomsocket) {
-    // Remove user from redis and promise to emit over socket
-    var p1 = new Promise(function(resolve, reject) {
-      // Remove the specified user
-      rClient.del("user_" + username, function (err, reply) {
-        if (err) console.log(err);
-        if (reply) {
-          // User was successfully removed
-          resolve(reply);
-        } else {
-          // User was not found
-          console.log("User to be removed was not found");
-        }
-      });
-    }).then(function(reply) {
-      // User removal complete, update everyone's user lists
-      self.listUsers(roomsocket);
+  ActiveUsers.prototype.removeUser = function (username, removeUserCB) {
+    // Remove the specified user
+    rClient.del("user_" + username, function (err, status) {
+      if (err) {
+        removeUserCB(err, null);
+      } else {
+        removeUserCB(null, status);
+      }
     });
-
   };
 
   /**
@@ -137,25 +120,28 @@ var ActiveUsers = function () {
    *
    * @desc Return a list of user ids
    */
-  ActiveUsers.prototype.listUsers = function (socket) {
+  ActiveUsers.prototype.listUsers = function (listUsersCB) {
     // Get all users from redis and promise to emit over socket
     var p1 = new Promise(function(resolve, reject) {
       // Get all user keys
       rClient.keys("user*", function (err, users) {
         if (err) console.log(err);
-        resolve(users);
+        rClient.mget(users, function (err, usersFound) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(usersFound);
+          }
+        });
       });
-    }).then(function(userKeysFound) {
-      // Use keys to get all user values (hashed ids)
-      rClient.mget(userKeysFound, function (err, usersFound) {
-        if (usersFound) {
-  				// Broadcast to the lobby that user has disconnected
-          socket.emit('userLeft', usersFound);
-  			} else {
-  				// No users found, send an empty array
-  				socket.emit('userLeft', []);
-  			}
-      });
+    });
+
+    p1.then(function(val) {
+      listUsersCB(null, val);
+    });
+
+    p1.catch(function(val) {
+      listUsersCB(val, null);
     });
   };
 };

@@ -237,14 +237,23 @@ function GameClient ()
 
 		var snkCoords = snkgame.getCoords('snake');
 		var dotCoords = snkgame.getCoords('dot');
+
+		// TODO
+		// Determine if player data has been sent recently
+		if (0 === 1) {
+			// If not, calculate next snake position
+			
+		}
+
 		// Clear previously drawn player.
 		// for (var i = 0; i < snkCoords.lastxLoc.length; i++) {
 		// 	glfgc.clearRect(rcu.x[snkCoords.lastxLoc[i]], rcu.y[snkCoords.lastyLoc[i]], rcu.x[5], rcu.y[5]);
 		// }
+		// Clear foreground
 		glfgc.clearRect(rcu.x[0], rcu.y[0], rcu.x[100], rcu.y[100]);
 
 		// Clear dot
-		glfgc.clearRect(rcu.x[dotCoords.lastxLoc], rcu.y[dotCoords.lastyLoc], rcu.x[5], rcu.y[5]);
+		//glfgc.clearRect(rcu.x[dotCoords.lastxLoc], rcu.y[dotCoords.lastyLoc], rcu.x[5], rcu.y[5]);
 
 
 		// Draw new player position.

@@ -89,14 +89,33 @@ app.get('/snake', function(req, res) {
 // Socket.io event handler for Game Lobby connection
 glio.on('connection', function (socket) {
 	// Add user
-	nlUsers.newUser(sessionNumber += 1, socket);
+	nlUsers.newUser(sessionNumber += 1, function (err, newUuid) {
+		if (err) console.log(err);
+		socket.username = newUuid;
+		socket.emit('createSession', { sessionID: socket.username });
+		// Broadcast to the lobby that user has connected
+		socket.broadcast.emit('userJoined', socket.username);
+	});
 	// Retreive other users
-	nlUsers.listUsers(glio);
+	nlUsers.listUsers(function (err, userList) {
+		if (err) console.log(err);
+		// Broadcast to the lobby that user has disconnected
+		glio.emit('userLeft', userList);
+	});
 
 	// Socket.io handler for client browser 'unload' event
 	socket.on('sessionDisconnect', function () {
 		// Remove the disconnecting user from the list and broadcast update
-		nlUsers.removeUser(socket.username, glio);
+		nlUsers.removeUser(socket.username, function (err, status) {
+			if (err) console.log(err);
+			if (status) {
+				nlUsers.listUsers(function (err, userList) {
+					if (err) console.log(err);
+					// Broadcast to the lobby that user has disconnected
+					glio.emit('userLeft', userList);
+				});
+			}
+		});
 	});
 });
 
