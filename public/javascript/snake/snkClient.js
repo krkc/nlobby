@@ -10,7 +10,7 @@
 
 
 
-function GameClient ()
+function GameClient (conn)
 {
 
 	'use strict';
@@ -62,7 +62,7 @@ function GameClient ()
 		if (!action) {
 			// Initial start only
 
-			ngroom = new NgRoom(':8080');
+			ngroom = new NgRoom(conn);
 
 			// Register event listener for keypresses, clicks, and touches.
 			window.addEventListener("keydown", onKeyDown, true);
@@ -242,7 +242,7 @@ function GameClient ()
 		// Determine if player data has been sent recently
 		if (0 === 1) {
 			// If not, calculate next snake position
-			
+
 		}
 
 		// Clear previously drawn player.

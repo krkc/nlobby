@@ -14,17 +14,19 @@ var io = require('socket.io')(server);
 var cookieParser = require('socket.io-cookie-parser');
 
 
-// Required project modules:
+// Required project modules / configs:
 var indexCon = require('./helpers/index');		/* Helper functions for index page */
 var nlUsers = require('./controllers/ActiveUsers');		/* Active users object */
 var gameCon = require('./helpers/game');			/* Helper functions for game page */
 var activeGames = require('./controllers/ActiveGames');		/* Active games object */
+var nlConfig = require('./helpers/nLobby');	/* nLobby config file */
+
 
 var host;	/* Hostname of the server */
 var port;	/* Port that the server is listening on */
 
 // Begin Express server
-server.listen(8080, function() {
+server.listen(nlConfig.connection.port, function() {
 	host = server.address().address;
 	port = server.address().port;
 	console.log('HTTP server is listening on port ' + port);
@@ -50,7 +52,7 @@ var sessionNumber = 0;	/* current count of sessions started */
 
 // Express routes
 app.get('/', function (req, res) {
-	res.render('index', indexCon.getContent("Loading..."));
+	res.render('index', indexCon.getContent("Loading...", nlConfig.connection.port));
 });
 
 app.get('/snake', function(req, res) {
@@ -68,7 +70,7 @@ app.get('/snake', function(req, res) {
 	if (req.headers.cookie) {
 		if (req.headers.cookie.search('sid') != -1) {
 			// User has an id
-			res.render('game', gameCon.getContent());
+			res.render('game', gameCon.getContent(nlConfig.connection.port));
 		}
 		else {
 			// User needs an id, redirect to root
@@ -143,7 +145,7 @@ grio.on('connection', function (socket) {
 			socket.currentGame.eventEmitter.on('dataFromGame', function (dataOut) {
 				// Broadcast data to players in the current game room
 
-				socket.broadcast.to(gameID).emit('dataToClient', dataOut);
+				socket.broadcast.to(gameID).emit('serverToClient', dataOut);
 				//console.log('server: Received data from game.');
 			});
 
@@ -155,8 +157,8 @@ grio.on('connection', function (socket) {
 			});
 
 			// Socket.io event handler for session creation
-			socket.on('dataFromClient', function (dataIn) {
-				socket.currentGame.receiveData(dataIn);
+			socket.on('clientToServer', function (dataIn) {
+				socket.currentGame.runData(dataIn);
 				console.log('server: Received data from client.');
 			});
 		}

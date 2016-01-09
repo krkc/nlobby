@@ -18,7 +18,6 @@ function NgRoom (conn)
 	var gameID;		/* ID of current game session */
 	var readyID;	/* ID of ready client */
   var socket = io(conn + '/gameRoom');   /* Socket.io connection object */
-  var dataToGameEvent;
 
 
 
@@ -40,11 +39,10 @@ function NgRoom (conn)
   }
 
   // SocketIO event handler for receiving game data
-	socket.on('dataToClient', function (data) {
+	socket.on('serverToClient', function (data) {
 		console.log('Client: Received data from server.');
 		//Process incoming data
-    dataToGameEvent = new CustomEvent("dataToGame", { detail : data });
-    dispatchEvent(dataToGameEvent);
+    dispatchEvent(new CustomEvent('dataToGame', { detail: data }));
 	});
 
 
@@ -59,7 +57,7 @@ function NgRoom (conn)
 	this.dataToServer = function (data)
 	{
 		// Send data to SocketIO server
-		socket.emit('dataFromClient', data);
+		socket.emit('clientToServer', data);
 		console.log('dataToServer: Sending data from client to server.');
 	};
 

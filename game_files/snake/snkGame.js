@@ -16,13 +16,13 @@ var Game = function (p1, p2) {
   'use strict';
 
   var events = require('events');   /* Events middleware module */
-
-  this.eventEmitter = new events.EventEmitter();  /* Event emitter object */
-
   var mainloop = null;    /* ID for setInterval callback (this.mainl) */
   var self = this;        /* Explicit reference to current context for calling setInterval */
-
   var readyPlayers = 0;   /* Players that are ready for play */
+
+
+
+  this.eventEmitter = new events.EventEmitter();  /* Event emitter object */
 
   this.keyIsPressed = [false, false, false, false];   /* Keypress flags */
 
@@ -194,12 +194,12 @@ var Game = function (p1, p2) {
   };
 
   /**
-   * @function receiveData
+   * @function runData
    * @memberof Game
    * @param {Object} dataIn - Data coming in from the client
    * @desc Receive and process incoming data sent from client player
    */
-  Game.prototype.receiveData = function (dataIn) {
+  Game.prototype.runData = function (dataIn) {
 
     if (dataIn.readyID) {
       // Game not yet ready, a player is ready to start game
@@ -208,13 +208,13 @@ var Game = function (p1, p2) {
       if (readyPlayers >= 2) {
         // Reset signal
         // Send updated data to clients
-        console.log('receiveData: Both players acknowledged, game is ready.');
+        console.log('runData: Both players acknowledged, game is ready.');
         this.Message = "Click or touch anywhere to place dot and begin game.";
         this.MsgTargetID = this.PlayerTwo.ID;
         this.sendData();
       } else {
         // Add player to count of ready players
-        console.log('receiveData: readyPlayers < 2');
+        console.log('runData: readyPlayers < 2');
       }
 
     } else if (readyPlayers >= 2){
@@ -237,7 +237,7 @@ var Game = function (p1, p2) {
           if (!this.gameRunning) {
             this.gameRunning = true;
           }
-          //console.log('receiveData: click.');
+          //console.log('runData: click.');
         } else if (dataIn.snake && this.gameRunning) {
           // Player one(snake) sent data
           if (mainloop === null) {
@@ -245,18 +245,18 @@ var Game = function (p1, p2) {
             this.init();
           }
 
-          //console.log('receiveData: keyIsPressed: ' + dataIn.snake.keyIsPressed);
+          //console.log('runData: keyIsPressed: ' + dataIn.snake.keyIsPressed);
 
           // Update keyIsPressed with data from client
           this.keyIsPressed = dataIn.snake.keyIsPressed;
         } else {
-          console.log('Game.receiveData(): problem with dataIn');
+          console.log('Game.runData(): problem with dataIn');
 
         }
       }
     }
 
-  };  // End receiveData
+  };  // End runData
 
 };  // End Game
 

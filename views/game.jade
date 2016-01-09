@@ -8,7 +8,7 @@ block includedScripts
 	script(type='text/javascript', src='javascript/snake/snkUtils.js')
 	link(rel='stylesheet', href='stylesheets/snake/snake.css')
 block bodyContent
-	body(style="height: 100%;", onload="GameClient()")
+	body(style="height: 100%;", onload="GameClient('#{connStr}')")
 		h2.page-header(style="text-align: center;")
 			| Escape the snake! Arrow keys to move.
 		div.container

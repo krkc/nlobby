@@ -35,17 +35,15 @@ ActiveGames.prototype.newGame = function (gametype, p1, p2) {
     game = require('../game_files/snake/snkGame'); /* Game state module */
   }
 
-  // Create new game state object and add to list
-  // TODO: Eventually move persistent data to redis or sqlite
-  this.sessions.push(
-    new game(p1, p2)
-  );
-  console.log('ActiveGames.newGame:');
-  for (var gamesession of this.sessions) {
-    console.log('game: ' + gamesession.GameID);
-  }
+  if (game) {
+    // Create new game state object and add to list
+    // TODO: Eventually move persistent data to redis or sqlite
+    this.sessions.push(
+      new game(p1, p2)
+    );
 
-  return this.sessions[this.sessions.length-1];
+    return this.sessions[this.sessions.length-1];
+  }
 };
 
 /**
@@ -62,7 +60,7 @@ ActiveGames.prototype.findGame = function (pid) {
     if ((game.PlayerOne.ID === pid) || (game.PlayerTwo.ID === pid)) {
       return game;
     } else {
-      console.log('findGame: GameID: ' + game.GameID + ', P1.ID: ' + game.PlayerOne.ID + ', P2.ID: ' + game.PlayerTwo.ID);
+      return null;
     }
   }
 };
@@ -80,9 +78,10 @@ ActiveGames.prototype.removeGame = function (game) {
     this.sessions[this.sessions.indexOf(game)].eventEmitter.removeListener('dataFromServer', function () {
       console.log('ActiveGames.removeGame: event listener removed');
     });
-    this.sessions[this.sessions.indexOf(game)] = null;
+    var gameToRemove = this.sessions[this.sessions.indexOf(game)];
     // This removes the now empty array position
-    this.sessions.splice(this.sessions.indexOf(game),1);
+    this.sessions.splice(gameToRemove,1);
+    gameToRemove = null;
   }
 };
 

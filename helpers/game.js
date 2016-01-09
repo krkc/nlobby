@@ -30,6 +30,11 @@ function getBody() {
  * @function getContent
  * @return {Object} A JSON object containing data for the current view
  */
-exports.getContent = function() {
-	return { title: getTitle(), bodyContent: getBody(), gameRoom: 'test'};
+exports.getContent = function(pNum) {
+	return {
+		title: getTitle(),
+		bodyContent: getBody(),
+		connStr: ':' + pNum,
+		gameRoom: 'test'
+	};
 };
