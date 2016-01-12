@@ -5,3 +5,17 @@
 #oppscorespan {
   font-weight: bold;
 }
+
+#toast {
+  display: none;
+  visibility: hidden;
+}
+
+.ontop {
+  position: absolute;
+  top: 40%;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  text-align: center;
+}

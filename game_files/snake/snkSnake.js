@@ -194,7 +194,6 @@ var Snake = function ()
   */
   this.updateLoc = function(keyIsPressed)
   {
-    console.log('updateLoc: keyIsPressed: ' + keyIsPressed);
     if (keyIsPressed[0] === true && !movingDown) {
       // Move up
       moveSnake("up");

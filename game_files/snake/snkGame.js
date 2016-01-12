@@ -89,10 +89,10 @@ var Game = function (p1, p2) {
     }
     this.gameRunning = false;
     // Inform clients that game has ended
+    this.Message = "Round Over";
     this.sendData({
       GameOver: true,
       Toast: {
-        id: this.MsgTargetID,
         msg: this.Message
       }
     });
@@ -225,7 +225,7 @@ var Game = function (p1, p2) {
             }
           },
           Toast: {
-            id: this.MsgTargetID,
+            pid: this.MsgTargetID,
             msg: this.Message
           }
         });
@@ -239,10 +239,12 @@ var Game = function (p1, p2) {
     // -- Server message: 'Input' -- //
     if (dataIn.Input){
       if (dataIn.Input.keybd) {
-        if (dataIn.Input.pid === this.PlayerOne.ID && this.PlayerTwo.DotSet) {
-          this.keyIsPressed = dataIn.Input.keybd.keys;
-          if (!this.gameRunning) {
+        if (dataIn.Input.pid === this.PlayerOne.ID) {
+          if (!this.gameRunning && this.PlayerTwo.DotSet) {
             this.gameRunning = true;
+          }
+          if (this.gameRunning) {
+            this.keyIsPressed = dataIn.Input.keybd.keys;
           }
         }
       }
@@ -253,11 +255,12 @@ var Game = function (p1, p2) {
         }
       }
       if (dataIn.Input.touch) {
-        if (dataIn.Input.pid === this.PlayerOne.ID && this.PlayerTwo.DotSet) {
-          this.keyIsPressed = dataIn.Input.touch.pan.direction;
-          console.log('[TEST] Swipe. Game running?');
-          if (!this.gameRunning) {
+        if (dataIn.Input.pid === this.PlayerOne.ID) {
+          if (!this.gameRunning && this.PlayerTwo.DotSet) {
             this.gameRunning = true;
+          }
+          if (this.gameRunning) {
+            this.keyIsPressed = dataIn.Input.touch.pan.direction;
           }
         }
       }

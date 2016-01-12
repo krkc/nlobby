@@ -35,6 +35,6 @@ exports.getContent = function(pNum) {
 		title: getTitle(),
 		bodyContent: getBody(),
 		connStr: ':' + pNum,
-		gameRoom: 'test'
+		toastMsg: 'Toast Test'
 	};
 };

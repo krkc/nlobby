@@ -31,5 +31,7 @@ block bodyContent
 			canvas#canvbg(style="border: 1px solid #000000; position: absolute; z-index: 0")
 			canvas#canvfg(style="border: 1px solid #000000; position: absolute; z-index: 1")
 		div(style='clear: both; width: 100%;')
-		hidden#gameRoom(value='#{gameRoom}')
+		div#toast.container.ontop
+			div.alert.alert-success
+				h1(value='#{toastMsg}')
 			

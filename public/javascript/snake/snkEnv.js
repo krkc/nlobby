@@ -21,6 +21,7 @@ function SnkEnvironment ()
   var resetBtn;     /* Game Reset button DOM object */
   var myScoreSpan;  /* Player Score DOM object */
   var oppScoreSpan; /* Opponent Score DOM object */
+	var toastDiv;			/* Toast message div DOM object */
 	var snkDot;				/* Texture for Dot player */
 
 	var wWidth;				/* Window width */
@@ -49,6 +50,7 @@ function SnkEnvironment ()
     resetBtn = document.getElementById("resetBtn");
     myScoreSpan = document.getElementById("myscorespan");
     oppScoreSpan = document.getElementById("oppscorespan");
+		toastDiv = document.getElementById("toast");
   }
 
 	/**
@@ -205,6 +207,32 @@ function SnkEnvironment ()
 	 */
 	Object.defineProperty(this, 'ResetBtn', {
 		get: function() { return resetBtn; },
+		enumerable: true,
+		configurable: true
+	});
+
+	/**
+	 * @property ToastDiv
+	 * @memberof SnkEnvironment
+	 * @return {Object} - DOM object
+	 *
+	 * @desc Getter/Setter for player's score span DOM object
+	 * @public
+	 */
+	Object.defineProperty(this, 'ToastDiv', {
+		get: function() { return toastDiv; },
+		set: function(msg) {
+			// set innerhtml as toast message and make it visible
+			toastDiv.firstChild.firstChild.innerHTML = msg;
+			toastDiv.style.display = "block";
+			toastDiv.style.visibility = "visible";
+			// start timer
+			setTimeout(function () {
+				toastDiv.style.display = "none";
+				toastDiv.style.visibility = "hidden";
+			}, 2500);
+			// make it hidden again after timer
+		},
 		enumerable: true,
 		configurable: true
 	});

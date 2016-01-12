@@ -79,7 +79,7 @@ function GameClient (conn)
 	function setPageListeners()
 	{
 		// Register event listener for keypresses, clicks, and touches.
-		snkEnv.Foreground.canvas.addEventListener('keydown', onKeyDown, true);
+		window.addEventListener('keydown', onKeyDown, true);
 		snkEnv.Foreground.canvas.addEventListener('click', onClick, true);
 		// Initialize Hammer touch events
 		var options = {
@@ -207,43 +207,52 @@ function GameClient (conn)
 	*/
 	function onKeyDown (e)
 	{
-		var keyIsPressed = [false, false, false, false];			/* Flags for pressed keys: 38, 40, 37, 39 */
-		var validKey = false;
-		// ---- Arrow Key --------------
-		if (e.keyCode == 38) {
-			e.preventDefault();
-			// Toggle "move up" keypress state.
-			keyIsPressed[0] = true;
-			validKey = true;
-		}
-		if (e.keyCode == 40) {
-			e.preventDefault();
-			// Toggle "move down" keypress state.
-			keyIsPressed[1] = true;
-			validKey = true;
-		}
-		if (e.keyCode == 37) {
-			e.preventDefault();
-			// Toggle "move left" keypress state.
-			keyIsPressed[2] = true;
-			validKey = true;
-		}
-		if (e.keyCode == 39) {
-			e.preventDefault();
-			// Toggle "move right" keypress state.
-			keyIsPressed[3] = true;
-			validKey = true;
-		}
-		if (validKey) {
-			// Send input data to server
-			ngRoom.dataToServer({
-				Input: {
-					pid: ngRoom.getMyID(),
-					keybd: {
-						keys: keyIsPressed
-					}
+		var d = new Date();
+		console.log('onKeyDown, time: ' + d.getTime());
+		if (ngRoom.getMyID() === snake.ID) {
+			if (!gameRunning && dot.Set) {
+				gameRunning = true;
+			}
+			if (gameRunning) {
+				var keyIsPressed = [false, false, false, false];			/* Flags for pressed keys: 38, 40, 37, 39 */
+				var validKey = false;
+				// ---- Arrow Key --------------
+				if (e.keyCode == 38) {
+					e.preventDefault();
+					// Toggle "move up" keypress state.
+					keyIsPressed[0] = true;
+					validKey = true;
 				}
-			});	// End dataToServer
+				if (e.keyCode == 40) {
+					e.preventDefault();
+					// Toggle "move down" keypress state.
+					keyIsPressed[1] = true;
+					validKey = true;
+				}
+				if (e.keyCode == 37) {
+					e.preventDefault();
+					// Toggle "move left" keypress state.
+					keyIsPressed[2] = true;
+					validKey = true;
+				}
+				if (e.keyCode == 39) {
+					e.preventDefault();
+					// Toggle "move right" keypress state.
+					keyIsPressed[3] = true;
+					validKey = true;
+				}
+				if (validKey) {
+					// Send input data to server
+					ngRoom.dataToServer({
+						Input: {
+							pid: ngRoom.getMyID(),
+							keybd: {
+								keys: keyIsPressed
+							}
+						}
+					});	// End dataToServer
+				}
+			}
 		}
 	}	// End onKeyDown
 
@@ -283,38 +292,43 @@ function GameClient (conn)
 	 */
 	function onPan (evt)
 	{
-		if (ngRoom.getMyID() === snake.ID && dot.Set) {
-			var keyIsPressed = [false, false, false, false];			/* Flags for pressed keys: 38, 40, 37, 39 */
-			var validSwipe = false;
-			if (evt.direction === 8) {
-				// Swipe up
-				keyIsPressed[0] = true;
-				validSwipe = true;
-			} else if (evt.direction === 16) {
-				// Swipe down
-				keyIsPressed[1] = true;
-				validSwipe = true;
-			} else if (evt.direction === 2) {
-				// Swipe left
-				keyIsPressed[2] = true;
-				validSwipe = true;
-			} else if (evt.direction === 4) {
-				// Swipe right
-				keyIsPressed[3] = true;
-				validSwipe = true;
+		if (ngRoom.getMyID() === snake.ID) {
+			if (!gameRunning && dot.Set) {
+				gameRunning = true;
 			}
-			if (validSwipe) {
-				// Send input data to server
-				ngRoom.dataToServer({
-					Input: {
-						pid: ngRoom.getMyID(),
-						touch: {
-							pan: {
-								direction: keyIsPressed
+			if (gameRunning) {
+				var keyIsPressed = [false, false, false, false];			/* Flags for pressed keys: 38, 40, 37, 39 */
+				var validSwipe = false;
+				if (evt.direction === 8) {
+					// Swipe up
+					keyIsPressed[0] = true;
+					validSwipe = true;
+				} else if (evt.direction === 16) {
+					// Swipe down
+					keyIsPressed[1] = true;
+					validSwipe = true;
+				} else if (evt.direction === 2) {
+					// Swipe left
+					keyIsPressed[2] = true;
+					validSwipe = true;
+				} else if (evt.direction === 4) {
+					// Swipe right
+					keyIsPressed[3] = true;
+					validSwipe = true;
+				}
+				if (validSwipe) {
+					// Send input data to server
+					ngRoom.dataToServer({
+						Input: {
+							pid: ngRoom.getMyID(),
+							touch: {
+								pan: {
+									direction: keyIsPressed
+								}
 							}
 						}
-					}
-				});	// End dataToServer
+					});	// End dataToServer
+				}
 			}
 		}
 	}	// End onPan
@@ -440,9 +454,8 @@ function GameClient (conn)
 	function onToast(e)
 	{
 		var toastData = e.detail;
-		// Make hidden toast div in jadefile
-		// set innerhtml as toast message and make it visible
-		// start timer
-		// make it hidden again after timer
+		if (ngRoom.getMyID() === toastData.pid || !toastData.pid) {
+			snkEnv.ToastDiv = toastData.msg;
+		}
 	}
 }
