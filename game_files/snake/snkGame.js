@@ -87,9 +87,15 @@ var Game = function (p1, p2) {
     catch (e) {
       console.log('clearInterval failed:' + e.message);
     }
-    console.log('Game: game over.');
+    this.gameRunning = false;
     // Inform clients that game has ended
-    this.sendData({ GameOver: true });
+    this.sendData({
+      GameOver: true,
+      Toast: {
+        id: this.MsgTargetID,
+        msg: this.Message
+      }
+    });
   };
 
   /**
@@ -109,7 +115,9 @@ var Game = function (p1, p2) {
     this.gameRunning = false;
     this.PlayerOne.setDefaults();
     this.PlayerTwo.setDefault();
-    this.sendData();
+    this.sendData({
+      ResetAck: true
+    });
   };
 
   /**
@@ -135,24 +143,26 @@ var Game = function (p1, p2) {
    */
   Game.prototype.mainl = function ()
   {
-    // Update snake location.
-    if (!self.PlayerOne.updateLoc(self.keyIsPressed)) {
-      // Snake died. Initiate game over.
-      self.gameOver();
-    } else {
-      // Test if colliding with dot.
-      if (self.PlayerOne.isColliding(self.PlayerTwo)) {
-        // Dot collision detected. Increase score and respawn dot.
-        self.PlayerOne.grow();
-        // Clear dot position until reset
-        self.PlayerTwo.setDefault();
+    if (self.gameRunning) {
+      // Update snake location.
+      if (!self.PlayerOne.updateLoc(self.keyIsPressed)) {
+        // Snake died. Initiate game over.
+        self.gameOver();
+      } else {
+        // Test if colliding with dot.
+        if (self.PlayerOne.isColliding(self.PlayerTwo)) {
+          // Dot collision detected. Increase score and respawn dot.
+          self.PlayerOne.grow();
+          // Clear dot position until reset
+          self.PlayerTwo.setDefault();
+        }
+        // Adjust dot score
+        self.PlayerTwo.dotCheck();
+        // Send 'StateUpdate' message to client
+        self.sendData();
       }
-      // Adjust dot score
-      self.PlayerTwo.dotCheck();
-      // Send a standard game data message
-      self.sendData();
     }
-  };
+  };  // End mainl
 
   /**
    * @function sendData
@@ -164,34 +174,30 @@ var Game = function (p1, p2) {
   {
     // Send outgoing packet with new coordinates to clients
     if (dataOut) {
+      // A non-standard message is being sent
       this.eventEmitter.emit('dataFromGame', dataOut);
-      console.log('Game: sent custom game data to client.');
     } else {
+      // A standard game-state message is being sent
       this.eventEmitter.emit('dataFromGame', {
-        PlayerOne: {
-          keyIsPressed: self.keyIsPressed,
-          id: self.PlayerOne.ID,
-          xLoc: self.PlayerOne.XLoc,
-          yLoc: self.PlayerOne.YLoc,
-          score: self.PlayerOne.Score
-        },
-        PlayerTwo: {
-          id: self.PlayerTwo.ID,
-          xLoc: self.PlayerTwo.XLoc,
-          yLoc: self.PlayerTwo.YLoc,
-          score: self.PlayerTwo.Score,
-          set: self.PlayerTwo.DotSet
-        },
-        Msg: {
-          user: self.MsgTargetID,
-          msg: self.Message
+        StateUpdate: {
+          playerone: {
+            pid: self.PlayerOne.ID,
+            xloc: self.PlayerOne.XLoc,
+            yloc: self.PlayerOne.YLoc,
+            score: self.PlayerOne.Score,
+            direction: self.PlayerOne.Direction
+          },
+          playertwo: {
+            pid: self.PlayerTwo.ID,
+            xloc: self.PlayerTwo.XLoc,
+            yloc: self.PlayerTwo.YLoc,
+            score: self.PlayerTwo.Score,
+            set: self.PlayerTwo.DotSet
+          }
         }
-      });
-      self.MsgTargetID = null;
-      self.Message = null;
+      }); // End eventemiiter
     }
-
-  };
+  };  // End sendData
 
   /**
    * @function runData
@@ -200,64 +206,63 @@ var Game = function (p1, p2) {
    * @desc Receive and process incoming data sent from client player
    */
   Game.prototype.runData = function (dataIn) {
-
-    if (dataIn.readyID) {
-      // Game not yet ready, a player is ready to start game
-      readyPlayers += 1;
-
-      if (readyPlayers >= 2) {
-        // Reset signal
+    // -- Server message: 'PlayerReady' -- //
+    if (dataIn.PlayerReady) {
+      // A player is ready, increment readyPlayer counter
+      if (++readyPlayers >= 2) {
+        // Start game
+        this.init();
         // Send updated data to clients
-        console.log('runData: Both players acknowledged, game is ready.');
         this.Message = "Click or touch anywhere to place dot and begin game.";
         this.MsgTargetID = this.PlayerTwo.ID;
-        this.sendData();
-      } else {
-        // Add player to count of ready players
-        console.log('runData: readyPlayers < 2');
-      }
-
-    } else if (readyPlayers >= 2){
-      // Game is ready or running
-
-      if (dataIn.ResetRequest) {
-        // Perform reset
-
-        this.reset();
-      } else {
-        // Process user input
-        console.log("[TEST1]");
-        if (dataIn.dot && !this.PlayerTwo.DotSet) {
-          console.log("[TEST2]");
-          // Player two(dot) sent data
-          this.PlayerTwo.setValue(dataIn.dot.x, dataIn.dot.y);
-          if (mainloop === null) {
-            this.sendData();
+        this.sendData({
+          GameReady: {
+            playerone: {
+              pid: this.PlayerOne.ID
+            },
+            playertwo: {
+              pid: this.PlayerTwo.ID
+            }
+          },
+          Toast: {
+            id: this.MsgTargetID,
+            msg: this.Message
           }
+        });
+      }
+    }
+    // -- Server message: 'ResetRequest' -- //
+    if (dataIn.ResetRequest) {
+      // Perform reset
+      this.reset();
+    }
+    // -- Server message: 'Input' -- //
+    if (dataIn.Input){
+      if (dataIn.Input.keybd) {
+        if (dataIn.Input.pid === this.PlayerOne.ID && this.PlayerTwo.DotSet) {
+          this.keyIsPressed = dataIn.Input.keybd.keys;
           if (!this.gameRunning) {
             this.gameRunning = true;
           }
-          //console.log('runData: click.');
-        } else if (dataIn.snake && this.gameRunning) {
-          // Player one(snake) sent data
-          if (mainloop === null) {
-            // Initialize game loop
-            this.init();
+        }
+      }
+      if (dataIn.Input.mouse) {
+        if (dataIn.Input.pid === this.PlayerTwo.ID) {
+          this.PlayerTwo.setValue(dataIn.Input.mouse.x, dataIn.Input.mouse.y);
+          this.sendData();
+        }
+      }
+      if (dataIn.Input.touch) {
+        if (dataIn.Input.pid === this.PlayerOne.ID && this.PlayerTwo.DotSet) {
+          this.keyIsPressed = dataIn.Input.touch.pan.direction;
+          console.log('[TEST] Swipe. Game running?');
+          if (!this.gameRunning) {
+            this.gameRunning = true;
           }
-
-          //console.log('runData: keyIsPressed: ' + dataIn.snake.keyIsPressed);
-
-          // Update keyIsPressed with data from client
-          this.keyIsPressed = dataIn.snake.keyIsPressed;
-        } else {
-          console.log('Game.runData(): problem with dataIn');
-
         }
       }
     }
-
   };  // End runData
-
 };  // End Game
 
 

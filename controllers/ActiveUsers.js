@@ -126,15 +126,19 @@ var ActiveUsers = function () {
       // Get all user keys
       rClient.keys("user*", function (err, users) {
         if (err) console.log(err);
-        rClient.mget(users, function (err, usersFound) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(usersFound);
-          }
-        });
-      });
-    });
+        if (users.length > 0) {
+          rClient.mget(users, function (err, usersFound) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(usersFound);
+            }
+          }); // End rClient.mget
+        } else {
+          resolve([]);
+        }
+      }); // End rClient.keys
+    }); // End promise
 
     p1.then(function(val) {
       listUsersCB(null, val);

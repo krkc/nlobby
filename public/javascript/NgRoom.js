@@ -40,9 +40,27 @@ function NgRoom (conn)
 
   // SocketIO event handler for receiving game data
 	socket.on('serverToClient', function (data) {
-		console.log('Client: Received data from server.');
 		//Process incoming data
-    dispatchEvent(new CustomEvent('dataToGame', { detail: data }));
+    if (data.GameReady) {
+      console.log('Client: Received GameReady from server.');
+      dispatchEvent(new CustomEvent('onGameStart', { detail: data.GameReady }));
+    }
+    if (data.StateUpdate) {
+      console.log('Client: Received StateUpdate from server.');
+      dispatchEvent(new CustomEvent('onState', { detail: data.StateUpdate }));
+    }
+    if (data.Toast) {
+      console.log('Client: Received Toast from server.');
+      dispatchEvent(new CustomEvent('onToast', { detail: data.Toast }));
+    }
+    if (data.ResetAck) {
+      console.log('Client: Received ResetAck from server.');
+      dispatchEvent(new CustomEvent('onReset', { detail: data.ResetAck }));
+    }
+    if (data.GameOver) {
+      console.log('Client: Received GameOver from server.');
+      // TODO: Stop client-side snake movement / gamerunning is false
+    }
 	});
 
 

@@ -62,7 +62,6 @@ app.get('/snake', function(req, res) {
 		var p2Safe = req.query.p2.replace(/(<([^>]+)>)/ig,"");
 		// Create new game session and add to list of active games
 		var createdGame = activeGames.newGame('snakegame', p1Safe, p2Safe);
-		console.log('PlayerOne.ID from the returned newGame() object: ' + createdGame.PlayerOne.ID);
 		// Player 1 broadcast invite to game lobby for Player 2
 		glio.emit('playerFinder', p2Safe);
 	}
@@ -123,7 +122,6 @@ glio.on('connection', function (socket) {
 
 // Socket.io event handler for Game Room connection
 grio.on('connection', function (socket) {
-	console.log("[TEST] " + socket.username);
 	// Check if user is currently in a game session
 	if (!socket.currentGame) {
 		// Perform game and player session setup if newly joined
@@ -132,7 +130,6 @@ grio.on('connection', function (socket) {
 		}
 		// Ensure player is registered to an active game and retrieve that game
 		socket.currentGame = activeGames.findGame(socket.username);		/* Session game for player */
-
 		if (socket.currentGame) {
 			var gameID = socket.currentGame.GameID;		/* ID of the current game session */
 
@@ -158,8 +155,8 @@ grio.on('connection', function (socket) {
 
 			// Socket.io event handler for session creation
 			socket.on('clientToServer', function (dataIn) {
-				socket.currentGame.runData(dataIn);
 				console.log('server: Received data from client.');
+				socket.currentGame.runData(dataIn);
 			});
 		}
 	}

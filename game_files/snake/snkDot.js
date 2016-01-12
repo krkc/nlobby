@@ -94,9 +94,12 @@ var Dot = function ()
    */
   Dot.prototype.setValue = function (x, y)
   {
-    xLoc = x;
-    yLoc = y;
-    set = true;
+    if (!set) {
+      // Dot is not yet set; set the dot
+      xLoc = x;
+      yLoc = y;
+      set = true;
+    }
   };
 
   /**
