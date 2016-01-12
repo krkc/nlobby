@@ -1,7 +1,7 @@
 extends layout
 
 block includedScripts
-	script(type='text/javascript' src='javascript/NgLobby.js')
+	script(src='javascript/NgLobby.js')
 	link(rel='stylesheet', href='stylesheets/lobby.css')
 block bodyContent
 	body(style='height: 100%;', onload="NgLobby('#{connStr}')")

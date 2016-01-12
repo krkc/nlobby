@@ -306,7 +306,7 @@ function CSnake ()
    *
    * @desc Updates the dot player's current state
    */
-  CSnake.prototype.prototype.stateUpdate = function (p1Data)
+  CSnake.prototype.stateUpdate = function (p1Data)
   {
     // Update snake player id
     pid = p1Data.pid;

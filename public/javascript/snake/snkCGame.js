@@ -54,7 +54,7 @@ function GameClient (conn)
 			// Send 'PlayerReady' message to server
 			ngRoom.dataToServer({
 				PlayerReady: {
-					id: ngRoom.getMyID()
+					pid: ngRoom.getMyID()
 				}
 			});
 		});
@@ -84,7 +84,6 @@ function GameClient (conn)
 		snkEnv.ResetBtn.addEventListener('click', onGameReset, true);
 		// Register custom event listeners
 		addEventListener('onGameStart', onGameStart, true);
-		addEventListener('onToast', onToast, true);
 		addEventListener('onState', onState, true);
 	}
 
@@ -402,20 +401,6 @@ function GameClient (conn)
 		} else if (ngRoom.getMyID() === stateData.playertwo.pid) {
 			snkEnv.MyScoreSpan = stateData.playertwo.score;
 			snkEnv.OppScoreSpan = stateData.playerone.score;
-		}
-	}
-
-	/**
-		* @function onToast
-		* @memberof SnkClient
-		*
-		* @desc Handler for 'Toast' server event
-	*/
-	function onToast(e)
-	{
-		var toastData = e.detail;
-		if (ngRoom.getMyID() === toastData.pid || !toastData.pid) {
-			snkEnv.ToastDiv = toastData.msg;
 		}
 	}
 }

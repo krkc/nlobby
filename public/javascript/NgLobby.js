@@ -49,7 +49,7 @@ function NgLobby (conn)
   	var usersDiv = document.getElementById('divUsers');
   	console.log('New User message received');
   	// Add new user link
-  	usersDiv.innerHTML += "<a href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: " + newUserID + "' data-content=\"<a href='snake?p1=" + myID + "&p2=" + newUserID + "'>Play Snake!</a>\" >" + newUserID +  "</a>";
+  	usersDiv.innerHTML += "<a href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: " + newUserID + "' data-content=\"<a href='snake?p1=" + myID + "&p2=" + newUserID + "'>Play Snake!</a>\" >" + newUserID +  "</a>&nbsp;";
   	// Register the new popover element in JQuery
       $('[data-toggle="popover"]').popover({ html: true });
   });
@@ -64,7 +64,7 @@ function NgLobby (conn)
   	// Add updated users to div
   	for (var i=0; i<userIDs.length; i++) {
   		if (userIDs[i] != myID) {
-  			usersDiv.innerHTML += "<a href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: " + userIDs[i] + "' data-content=\"<a href='snake?p1=" + myID + "&p2=" + userIDs[i] + "'>Play Snake!</a>\" >" + userIDs[i] +  "</a>";
+  			usersDiv.innerHTML += "<a href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: " + userIDs[i] + "' data-content=\"<a href='snake?p1=" + myID + "&p2=" + userIDs[i] + "'>Play Snake!</a>\" >" + userIDs[i] +  "</a>&nbsp;";
   		}
   	}
   	// Update JQuery popover element list

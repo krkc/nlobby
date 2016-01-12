@@ -18,6 +18,8 @@ function NgRoom (conn)
 	var gameID;		/* ID of current game session */
 	var readyID;	/* ID of ready client */
   var socket = io(conn + '/gameRoom');   /* Socket.io connection object */
+  var toastDiv;			/* Toast message div DOM object */
+  toastDiv = document.getElementById("toast");
 
 
 
@@ -26,6 +28,7 @@ function NgRoom (conn)
   // Register client event handlers for socket.io disconnect
   window.addEventListener('beforeunload', function() { onUserDisconnect(socket); });
   //window.addEventListener('unload', onUserDisconnect);
+	addEventListener('onToast', onToast, true);
 
   // SocketIO event handler for session creation
   socket.on('createGameSession', function (pid) {
@@ -91,5 +94,28 @@ function NgRoom (conn)
 	{
 		return myID;
 	};
+
+  /**
+   * @method onToast
+   * @memberof nglobby
+   *
+   * @desc Handler for 'Toast' server event
+   */
+  function onToast (e)
+  {
+    var toastData = e.detail;
+    if (myID === toastData.pid || !toastData.pid) {
+      // set innerhtml as toast message and make it visible
+      toastDiv.firstChild.firstChild.innerHTML = toastData.msg;
+      toastDiv.style.display = "block";
+      toastDiv.style.visibility = "visible";
+      // start timer
+      setTimeout(function () {
+        toastDiv.style.display = "none";
+        toastDiv.style.visibility = "hidden";
+      }, 2500);
+      // make it hidden again after timer
+    }
+  }
 
 }

@@ -44,10 +44,11 @@ and CTRL+C to stop.
 
 ### Future TODOs
 
-- [ ] Address network latency lag in snake movement
+- [x] Address network latency lag in snake movement
 - [x] Move user object to redis-store
 - [ ] Move game object to redis-store or sqlite
 - [x] Implement message toasting in jade file
+- [ ] Finish game 'reset' functionality
 - [ ] Move snake game into separate repo
 
 License
