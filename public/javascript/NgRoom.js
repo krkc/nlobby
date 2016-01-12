@@ -74,8 +74,6 @@ function NgRoom (conn)
 	 */
 	this.dataToServer = function (data)
 	{
-    var d = new Date();
-    console.log('dataToServer event, time: ' + d.getTime());
 		// Send data to SocketIO server
 		socket.emit('clientToServer', data);
 		//console.log('dataToServer: Sending data from client to server.');

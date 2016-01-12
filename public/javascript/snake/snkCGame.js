@@ -24,6 +24,7 @@ function GameClient (conn)
 	var bgStateChanged = true;	/* Flag if background needs updated */
 	var snake;							/* Snake player object */
 	var dot;								/* Dot player object */
+	var keyIsPressed = [false, false, false, false];	/* Keypress/swipe data */
 	var gameLoopID = null;	/* setInterval ID for the game loop */
 	var gameRunning;				/* Game running flag */
 	var paused = false;			/* Game pause switch */
@@ -46,21 +47,10 @@ function GameClient (conn)
 		snkEnv.init(function () {
 			// Register all event listeners for the page
 			setPageListeners();
-			// Set the initial snake properties
-	    snake = {
-	      ID: null,
-	      XLoc: [45, 45, 45], YLoc: [95, 95, 95],
-	      LastXLoc: [45, 45, 45], LastYLoc: [95, 95, 95],
-	      Score: 0
-	    };
-	    // Set the initial dot properties
-	    dot = {
-	      ID: null,
-	      XLoc: -1, YLoc: -1,
-	      LastXLoc: -1, LastYLoc: -1,
-	      Score: 0,
-				Set: false
-	    };
+			// // Set the initial snake properties
+			snake = new CSnake();
+	    // // Set the initial dot properties
+			dot = new CDot();
 			// Send 'PlayerReady' message to server
 			ngRoom.dataToServer({
 				PlayerReady: {
@@ -106,7 +96,17 @@ function GameClient (conn)
   */
   function gameLoop()
   {
-		// Check if game is paused
+		if (gameRunning) {
+			if (snake.updateLoc(keyIsPressed)) {
+				if (snake.isColliding(dot)) {
+					// Dot collision detected. Increase score and respawn dot.
+					snake.grow();
+					// Clear dot position until reset
+					dot.setDefault();
+				}
+			}
+		}
+		// Check if screen is paused
 		if (!paused) {
 			// Redraw scene if states changed.
 			if (bgStateChanged) {
@@ -180,23 +180,6 @@ function GameClient (conn)
 		glfgc.drawImage(snkEnv.DotSkin, snkEnv.RCU.x[dot.XLoc], snkEnv.RCU.y[dot.YLoc], snkEnv.RCU.x[5], snkEnv.RCU.y[5]);
 	}
 
-	/**
-	 * @function deepCopy
-	 * @memberof SnkClient
-	 * @param {Array} arrIn - Original array to copy
-	 * @return {Array} - Deep copy
-	 *
-	 * @desc Makes a deep copy of an array
-	 */
-	function deepCopy (arrIn)
-  {
-    var newArr = [];
-    for (var i = 0; i < arrIn.length; i++) {
-      newArr.push(arrIn[i]);
-    }
-    return newArr;
-  }
-
 
 	// ----- SnkClient JavaScript Events ----- //
 
@@ -207,14 +190,12 @@ function GameClient (conn)
 	*/
 	function onKeyDown (e)
 	{
-		var d = new Date();
-		console.log('onKeyDown, time: ' + d.getTime());
 		if (ngRoom.getMyID() === snake.ID) {
-			if (!gameRunning && dot.Set) {
+			if (!gameRunning && dot.DotSet) {
 				gameRunning = true;
 			}
 			if (gameRunning) {
-				var keyIsPressed = [false, false, false, false];			/* Flags for pressed keys: 38, 40, 37, 39 */
+				keyIsPressed = [false, false, false, false];			/* Flags for pressed keys: 38, 40, 37, 39 */
 				var validKey = false;
 				// ---- Arrow Key --------------
 				if (e.keyCode == 38) {
@@ -264,15 +245,15 @@ function GameClient (conn)
 	 */
 	function onClick (e)
 	{
-		if (ngRoom.getMyID() === dot.ID && !dot.Set) {
+		console.log('test1');
+		if (ngRoom.getMyID() === dot.ID && !dot.DotSet) {
+			console.log('test2');
 			var canvcoords = snkEnv.getMousePos(e.clientX, e.clientY);
 			// Clip click position to the upper-leftmost grid space
 			canvcoords.x = Math.floor( canvcoords.x / 5 ) * 5;
 			canvcoords.y = Math.floor( canvcoords.y / 5 ) * 5;
 			// Update local state
-			dot.XLoc = canvcoords.x;
-			dot.YLoc = canvcoords.y;
-			dot.Set = true;
+			dot.setValue(canvcoords.x, canvcoords.y);
 			// Send input data to server
 			ngRoom.dataToServer({
 				Input: {
@@ -293,11 +274,11 @@ function GameClient (conn)
 	function onPan (evt)
 	{
 		if (ngRoom.getMyID() === snake.ID) {
-			if (!gameRunning && dot.Set) {
+			if (!gameRunning && dot.DotSet) {
 				gameRunning = true;
 			}
 			if (gameRunning) {
-				var keyIsPressed = [false, false, false, false];			/* Flags for pressed keys: 38, 40, 37, 39 */
+				keyIsPressed = [false, false, false, false];			/* Flags for pressed keys: 38, 40, 37, 39 */
 				var validSwipe = false;
 				if (evt.direction === 8) {
 					// Swipe up
@@ -393,7 +374,7 @@ function GameClient (conn)
 	function onGameStart(e)
 	{
 		var readyData = e.detail;
-		// Assign player ids to roles
+		// Assign players to roles
 		snake.ID = readyData.playerone.pid;
 		dot.ID = readyData.playertwo.pid;
 		// Start game loop
@@ -410,31 +391,10 @@ function GameClient (conn)
 	function onState(e)
 	{
 		var stateData = e.detail;
-		// Update snake properties
-		if (snake.LastXLoc.length !== snake.XLoc.length) {
-			// Reconnect arrays if needed
-			snake.LastXLoc = null;
-			snake.LastYLoc = null;
-			snake.LastXLoc = snake.XLoc;
-			snake.LastYLoc = snake.YLoc;
-		}
-		// Make a deep copy of arrays if needed
-		if (snake.LastXLoc.length !== stateData.playerone.xloc.length) {
-			snake.LastXLoc = deepCopy(snake.XLoc);
-			snake.LastYLoc = deepCopy(snake.YLoc);
-		}
-		snake.XLoc = stateData.playerone.xloc;
-		snake.YLoc = stateData.playerone.yloc;
-		snake.Score = stateData.playerone.score;
-		snake.ID = stateData.playerone.pid;
-		// Update dot properties
-		dot.LastXLoc = dot.XLoc;
-		dot.XLoc = stateData.playertwo.xloc;
-		dot.LastYLoc = dot.YLoc;
-		dot.YLoc = stateData.playertwo.yloc;
-		dot.Score = stateData.playertwo.score;
-		dot.Set = stateData.playertwo.set;
-		dot.ID = stateData.playertwo.pid;
+		// Update snake state
+		snake.stateUpdate(stateData.playerone);
+		// Update dot state
+		dot.stateUpdate(stateData.playertwo);
 		// Update the scoreboard and player ids
 		if (ngRoom.getMyID() === stateData.playerone.pid) {
 			snkEnv.MyScoreSpan = stateData.playerone.score;
