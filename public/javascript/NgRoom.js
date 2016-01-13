@@ -62,7 +62,7 @@ function NgRoom (conn)
     }
     if (data.GameOver) {
       console.log('Client: Received GameOver from server.');
-      // TODO: Stop client-side snake movement / gamerunning is false
+      dispatchEvent(new CustomEvent('onGameOver', { detail: data.GameOver }));
     }
 	});
 

@@ -85,6 +85,7 @@ function GameClient (conn)
 		// Register custom event listeners
 		addEventListener('onGameStart', onGameStart, true);
 		addEventListener('onState', onState, true);
+		addEventListener('onGameOver', onGameOver, true);
 	}
 
   /**
@@ -187,7 +188,7 @@ function GameClient (conn)
 	 * @param {Event} e - Event object for keypress event
 	 * @desc Handle keyboard keypress down event.
 	*/
-	function onKeyDown (e)
+	function onKeyDown(e)
 	{
 		if (ngRoom.getMyID() === snake.ID) {
 			if (!gameRunning && dot.DotSet) {
@@ -242,7 +243,7 @@ function GameClient (conn)
 	 * @param {Event} e - Event object for onclick event
 	 * @desc Handles client mouse click events
 	 */
-	function onClick (e)
+	function onClick(e)
 	{
 		console.log('test1');
 		if (ngRoom.getMyID() === dot.ID && !dot.DotSet) {
@@ -270,7 +271,7 @@ function GameClient (conn)
 	/**
 	 * @function onPan
 	 */
-	function onPan (evt)
+	function onPan(evt)
 	{
 		if (ngRoom.getMyID() === snake.ID) {
 			if (!gameRunning && dot.DotSet) {
@@ -319,7 +320,7 @@ function GameClient (conn)
 	 *
 	 * @desc Handler for canvas resize event
 	 */
-	function onResize ()
+	function onResize()
 	{
 		// Clear canvases
 		paused = true;
@@ -329,7 +330,7 @@ function GameClient (conn)
 		snkEnv.resize();
 		bgStateChanged = true;
 		paused = false;
-	}
+	}	// End onResize
 
 	/**
 		* @function onGameReset
@@ -346,7 +347,7 @@ function GameClient (conn)
 		ngRoom.dataToServer({
 			ResetRequest: true
 		});
-	}
+	}	// End onGameReset
 
 	// -- Server Events -- //
 
@@ -362,7 +363,7 @@ function GameClient (conn)
 		// Reset the scoreboard
 		snkEnv.MyScoreSpan.innerHTML = 0;
 		snkEnv.OppScoreSpan.innerHTML = 0;
-	}
+	}	// End onReset
 
 	/**
 		* @function onGameStart
@@ -379,7 +380,7 @@ function GameClient (conn)
 		// Start game loop
 		gameRunning = true;
 		gameLoopID = setInterval(gameLoop, 800);
-	}
+	}	// End onGameStart
 
 	/**
 		* @function onState
@@ -402,5 +403,17 @@ function GameClient (conn)
 			snkEnv.MyScoreSpan = stateData.playertwo.score;
 			snkEnv.OppScoreSpan = stateData.playerone.score;
 		}
-	}
-}
+	}	// End onState
+
+	/**
+		* @function onGameOver
+		* @memberof SnkClient
+		*
+		* @desc Handler for 'GameOver' server event
+	*/
+	function onGameOver(e)
+	{
+		// Game is stopped
+		gameRunning = false;
+	}	// End onGameOver
+}	// End GameClient
