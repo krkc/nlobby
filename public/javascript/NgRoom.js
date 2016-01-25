@@ -10,7 +10,7 @@
  * @class NgRoom
  * @public
  */
-function NgRoom (conn)
+function NgRoom (conn, gamecallback)
 {
   'use strict';
 
@@ -20,7 +20,6 @@ function NgRoom (conn)
   var socket = io(conn + '/gameRoom');   /* Socket.io connection object */
   var toastDiv;			/* Toast message div DOM object */
   toastDiv = document.getElementById("toast");
-
 
 
   // -- Event Listeners / Handlers -- //
@@ -34,6 +33,7 @@ function NgRoom (conn)
   socket.on('createGameSession', function (pid) {
     myID = pid.ID;
     gameID = pid.gameID;
+    gamecallback();
   });
 
   // JS Event handler for user disconnecting from server
@@ -43,23 +43,27 @@ function NgRoom (conn)
 
   // SocketIO event handler for receiving game data
 	socket.on('serverToClient', function (data) {
-		//Process incoming data
+		// Server message 'GameReady'
     if (data.GameReady) {
       console.log('Client: Received GameReady from server.');
       dispatchEvent(new CustomEvent('onGameStart', { detail: data.GameReady }));
     }
+    // Server message 'StateUpdate'
     if (data.StateUpdate) {
       console.log('Client: Received StateUpdate from server.');
       dispatchEvent(new CustomEvent('onState', { detail: data.StateUpdate }));
     }
+    // Server message 'Toast'
     if (data.Toast) {
       console.log('Client: Received Toast from server.');
       dispatchEvent(new CustomEvent('onToast', { detail: data.Toast }));
     }
+    // Server message 'ResetAck'
     if (data.ResetAck) {
       console.log('Client: Received ResetAck from server.');
       dispatchEvent(new CustomEvent('onReset', { detail: data.ResetAck }));
     }
+    // Server message 'GameOver'
     if (data.GameOver) {
       console.log('Client: Received GameOver from server.');
       dispatchEvent(new CustomEvent('onGameOver', { detail: data.GameOver }));

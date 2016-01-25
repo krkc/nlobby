@@ -49,7 +49,9 @@ function NgLobby (conn)
   	var usersDiv = document.getElementById('divUsers');
   	console.log('New User message received');
   	// Add new user link
-  	usersDiv.innerHTML += "<button href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' title='user: " + newUserID + "' data-content=\"<a href='snake?p1=" + myID + "&p2=" + newUserID + "'>Play Snake!</a>\" >" + newUserID +  "</button>&nbsp;";
+    var snakeLink = "<a href='snake?gameTitle=snake&p1=" + myID + "&p2=" + newUserID + "'>Play Snake!</a>";
+    var dngnLink = "<a href='snake?gameTitle=dngn&p1=" + myID + "&p2=" + newUserID + "'>Play Dngn!</a>";
+  	usersDiv.innerHTML += "<button href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' title='user: " + newUserID + "' data-content=\"" + snakeLink + "<br />" + dngnLink + "\" >" + newUserID +  "</button>&nbsp;";
   	// Register the new popover element in JQuery
       $('[data-toggle="popover"]').popover({ html: true });
   });
@@ -64,7 +66,9 @@ function NgLobby (conn)
   	// Add updated users to div
   	for (var i=0; i<userIDs.length; i++) {
   		if (userIDs[i] != myID) {
-  			usersDiv.innerHTML += "<button href='#' data-toggle='popover' class='btn btn-success btn-sm' title='user: " + userIDs[i] + "' data-content=\"<a href='snake?p1=" + myID + "&p2=" + userIDs[i] + "'>Play Snake!</a>\" >" + userIDs[i] +  "</button>&nbsp;";
+        var snakeLink = "<a href='game?gameTitle=snake&p1=" + myID + "&p2=" + userIDs[i] + "'>Play Snake!</a>";
+        var dngnLink = "<a href='game?gameTitle=dngn&p1=" + myID + "&p2=" + userIDs[i] + "'>Play Dngn!</a>";
+  			usersDiv.innerHTML += "<button href='#' data-toggle='popover' class='btn btn-success btn-sm' title='user: " + userIDs[i] + "' data-content=\"" + snakeLink + "<br />" + dngnLink + "\" >" + userIDs[i] +  "</button>&nbsp;";
   		}
   	}
   	// Update JQuery popover element list
@@ -72,11 +76,13 @@ function NgLobby (conn)
     });
 
     // Another player initiates a game invite
-    socket.on('playerFinder', function(playerToFind) {
+    socket.on('playerFinder', function(d) {
+      var playerToFind = d.pid;
+      var gameToPlay = d.game;
     	if (myID == playerToFind) {
     		var r = confirm("A player wants to play a game, do you accept?");
     		if (r === true) {
-    			window.location = 'snake';
+    			window.location = `game?gameTitle=${gameToPlay}`;
     		}
     	}
     });

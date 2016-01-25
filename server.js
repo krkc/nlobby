@@ -52,24 +52,32 @@ var sessionNumber = 0;	/* current count of sessions started */
 
 // Express routes
 app.get('/', function (req, res) {
-	res.render('index', indexCon.getContent("Loading...", nlConfig.connection.port));
+	res.render('lobby', indexCon.getContent("Loading...", nlConfig.connection.port));
 });
 
-app.get('/snake', function(req, res) {
+// Snake Game
+app.get('/game', function(req, res) {
 	if (req.query.p1) {
 		// Sterilize input to prevent XSS
 		var p1Safe = req.query.p1.replace(/(<([^>]+)>)/ig,"");
 		var p2Safe = req.query.p2.replace(/(<([^>]+)>)/ig,"");
+		var gameTitleSafe = req.query.gameTitle.replace(/(<([^>]+)>)/ig,"");
 		// Create new game session and add to list of active games
-		var createdGame = activeGames.newGame('snakegame', p1Safe, p2Safe);
+		var createdGame = activeGames.newGame(gameTitleSafe, p1Safe, p2Safe);
 		// Player 1 broadcast invite to game lobby for Player 2
-		glio.emit('playerFinder', p2Safe);
+		glio.emit('playerFinder', { pid: p2Safe, game: gameTitleSafe });
 	}
 
 	if (req.headers.cookie) {
 		if (req.headers.cookie.search('sid') != -1) {
 			// User has an id
-			res.render('game', gameCon.getContent(nlConfig.connection.port));
+			if (req.query.gameTitle === 'snake') {
+				res.render('snake', gameCon.getContent(nlConfig.connection.port));
+			} else if (req.query.gameTitle === 'dngn') {
+				res.render('dngn', gameCon.getContent(nlConfig.connection.port));
+			} else {
+				res.redirect('/');
+			}
 		}
 		else {
 			// User needs an id, redirect to root
@@ -132,10 +140,8 @@ grio.on('connection', function (socket) {
 		socket.currentGame = activeGames.findGame(socket.username);		/* Session game for player */
 		if (socket.currentGame) {
 			var gameID = socket.currentGame.GameID;		/* ID of the current game session */
-
 			socket.join(gameID);
 			console.log('User connected to game room ' + gameID + '. ' + activeGames.sessions.length + ' active games.');
-
 			socket.emit('createGameSession', { ID: socket.username, gameID: gameID });
 
 			// Event handler for when game instance relays data via server to players

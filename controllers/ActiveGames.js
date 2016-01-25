@@ -28,18 +28,24 @@ var ActiveGames = function () {
  * @desc Create a new game session.
  */
 ActiveGames.prototype.newGame = function (gametype, p1, p2) {
-  var game;
+  var Game;
+  var gamedir;
 
-  if (gametype === 'snakegame') {
+  if (gametype === 'snake') {
     // TODO: look into using process.fork() for multi-process game instance creation
-    game = require('../game_files/snake/snkGame'); /* Game state module */
+    gamedir = 'snake/snkGame'; /* Game state module */
+  }
+  if (gametype === 'dngn') {
+    gamedir = 'dngn/DngnGame';
   }
 
-  if (game) {
+  Game = require('../game_files/' + gamedir);
+
+  if (Game) {
     // Create new game state object and add to list
     // TODO: Eventually move persistent data to redis or sqlite
     this.sessions.push(
-      new game(p1, p2)
+      new Game(p1, p2)
     );
 
     return this.sessions[this.sessions.length-1];

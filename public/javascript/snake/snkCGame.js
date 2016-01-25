@@ -42,20 +42,21 @@ function GameClient (conn)
   function init()
   {
 		// Connect to game room, load assets, and prepare game environment
-		ngRoom = new NgRoom(conn);
-		snkEnv = new SnkEnvironment();
-		snkEnv.init(function () {
-			// Register all event listeners for the page
-			setPageListeners();
-			// // Set the initial snake properties
-			snake = new CSnake();
-	    // // Set the initial dot properties
-			dot = new CDot();
-			// Send 'PlayerReady' message to server
-			ngRoom.dataToServer({
-				PlayerReady: {
-					pid: ngRoom.getMyID()
-				}
+		ngRoom = new NgRoom(conn, function () {
+			snkEnv = new SnkEnvironment();
+			snkEnv.init(function () {
+				// Register all event listeners for the page
+				setPageListeners();
+				// // Set the initial snake properties
+				snake = new CSnake();
+				// // Set the initial dot properties
+				dot = new CDot();
+				// Send 'PlayerReady' message to server
+				ngRoom.dataToServer({
+					PlayerReady: {
+						pid: ngRoom.getMyID()
+					}
+				});
 			});
 		});
   }
