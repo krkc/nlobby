@@ -7,6 +7,8 @@
 
 
 // Required framework modules:
+var fs = require('fs');
+var events = require('events');
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
@@ -15,15 +17,18 @@ var cookieParser = require('socket.io-cookie-parser');
 
 
 // Required project modules / configs:
-var indexCon = require('./helpers/index');		/* Helper functions for index page */
+var routeContent = require('./helpers/routeContent');	/* Helper functions for the index and game routes */
 var nlUsers = require('./controllers/ActiveUsers');		/* Active users object */
-var gameCon = require('./helpers/game');			/* Helper functions for game page */
 var activeGames = require('./controllers/ActiveGames');		/* Active games object */
 var nlConfig = require('./helpers/nLobby');	/* nLobby config file */
 
 
 var host;	/* Hostname of the server */
 var port;	/* Port that the server is listening on */
+var gamesInstalledArr;	/* Array of game titles that will be served */
+
+// Get list of installed games
+gamesInstalledArr = fs.readdirSync('./game_files');
 
 // Begin Express server
 server.listen(nlConfig.connection.port, function() {
@@ -39,7 +44,7 @@ var grio = io.of('/gameRoom');		/* Game Room namespace (all players currently pl
 
 // Make public files visible to express routing
 app.use(express.static(__dirname + '/public'));
-app.use('/bower',  express.static(__dirname + '/bower_components'));
+app.use('/lib',  express.static(__dirname + '/bower_components'));
 io.use(cookieParser());
 
 // Set up templating environment
@@ -50,12 +55,12 @@ var sessionNumber = 0;	/* current count of sessions started */
 
 // -- Begin express code --
 
-// Express routes
+// Route: lobby
 app.get('/', function (req, res) {
-	res.render('lobby', indexCon.getContent("Loading...", nlConfig.connection.port));
+	res.render('lobby', routeContent.getIContent("Loading...", port));
 });
 
-// Snake Game
+// Route: game
 app.get('/game', function(req, res) {
 	if (req.query.p1) {
 		// Sterilize input to prevent XSS
@@ -64,6 +69,7 @@ app.get('/game', function(req, res) {
 		var gameTitleSafe = req.query.gameTitle.replace(/(<([^>]+)>)/ig,"");
 		// Create new game session and add to list of active games
 		var createdGame = activeGames.newGame(gameTitleSafe, p1Safe, p2Safe);
+		createdGame.eventEmitter = new events.EventEmitter();  /* Event emitter object */
 		// Player 1 broadcast invite to game lobby for Player 2
 		glio.emit('playerFinder', { pid: p2Safe, game: gameTitleSafe });
 	}
@@ -71,10 +77,8 @@ app.get('/game', function(req, res) {
 	if (req.headers.cookie) {
 		if (req.headers.cookie.search('sid') != -1) {
 			// User has an id
-			if (req.query.gameTitle === 'snake') {
-				res.render('snake', gameCon.getContent(nlConfig.connection.port));
-			} else if (req.query.gameTitle === 'dngn') {
-				res.render('dngn', gameCon.getContent(nlConfig.connection.port));
+			if (gamesInstalledArr.indexOf(req.query.gameTitle) != -1) {
+				res.render(req.query.gameTitle, routeContent.getGContent(port));
 			} else {
 				res.redirect('/');
 			}

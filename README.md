@@ -9,7 +9,7 @@ nLobby is a node.js game lobby server built for html5 games
   - Built for minimal frustration integration
 
 ### Version
-v0.2.0
+v0.3.0
 
 ### Required Software
 
@@ -44,12 +44,19 @@ and CTRL+C to stop.
 
 ### Future TODOs
 
-- [x] Address network latency lag in snake movement
 - [x] Move user object to redis-store
 - [ ] Move game object to redis-store or sqlite
 - [x] Implement message toasting in jade file
 - [ ] Finish game 'reset' functionality
+
+Snake Game:
+
+- [x] Address network latency lag in snake movement
 - [ ] Move snake game into separate repo
+
+Dngn Game:
+- [ ] Begin to build dngn game
+- [ ] Move dngn game into separate repo
 
 License
 ----

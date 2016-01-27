@@ -1,5 +1,3 @@
-// -- Server-side script for game.jade --
-
 /**
  * @file Server-side script for game.jade
  * @author Christopher Kurek [cakurek1@gmail.com]
@@ -7,6 +5,20 @@
  * @license MIT
  */
 
+
+// Server-side script for index.jade
+
+exports.getIContent = function(newuser, port) {
+
+	return {
+		title: "Game Lobby",
+		userID: newuser,
+		connStr: ':' + port
+	};
+};
+
+
+// -- Server-side script for game.jade --
 
 /**
  * @function getTitle
@@ -30,11 +42,11 @@ function getBody() {
  * @function getContent
  * @return {Object} A JSON object containing data for the current view
  */
-exports.getContent = function(pNum) {
+exports.getGContent = function(port) {
 	return {
 		title: getTitle(),
 		bodyContent: getBody(),
-		connStr: ':' + pNum,
+		connStr: ':' + port,
 		toastMsg: 'Toast Test'
 	};
 };

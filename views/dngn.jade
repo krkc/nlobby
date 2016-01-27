@@ -1,13 +1,14 @@
 extends game
 
 block gameIncludes
-  script(type='text/javascript', src='javascript/dngn/DngnGame.js')
-  script(type='text/javascript', src='javascript/NgRoom.js')
+  script(data-main='javascript/dngn/dngnmain', src='lib/requirejs/require.js')
+  script(src='javascript/NgRoom.js')
   link(rel='stylesheet', href='stylesheets/dngn/dngn.css')
-
 block gameContent
   h2.page-header(style="text-align: center;")
-    | Crawl the dungeon! Arrow keys to move.
+    | Crawl the dungeon!
+  h4.page-header(style="text-align: center;")
+    | (Game is not yet functional. Only meant to show multiple game modules installed)
   div.container
   div#scoreboard.container
     div.row

@@ -15,14 +15,14 @@
 var Game = function (p1, p2) {
   'use strict';
 
-  var events = require('events');   /* Events middleware module */
+  //var events = require('events');   /* Events middleware module */
   var mainloop = null;    /* ID for setInterval callback (this.mainl) */
   var self = this;        /* Explicit reference to current context for calling setInterval */
   var readyPlayers = 0;   /* Players that are ready for play */
 
 
 
-  this.eventEmitter = new events.EventEmitter();  /* Event emitter object */
+  //this.eventEmitter = new events.EventEmitter();  /* Event emitter object */
 
   this.keyIsPressed = [false, false, false, false];   /* Keypress flags */
 

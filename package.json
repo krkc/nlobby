@@ -1,6 +1,6 @@
 {
   "name": "nlobby",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "game-lobby written in node",
   "main": "server.js",
   "scripts": {
@@ -32,6 +32,7 @@
     "karma-firefox-launcher": "^0.1.7",
     "karma-mocha": "^0.2.1",
     "karma-mocha-reporter": "^1.1.5",
-    "mocha": "^2.3.4"
+    "mocha": "^2.3.4",
+    "typescript": "^1.7.5"
   }
 }

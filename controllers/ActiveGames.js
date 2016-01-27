@@ -44,11 +44,22 @@ ActiveGames.prototype.newGame = function (gametype, p1, p2) {
   if (Game) {
     // Create new game state object and add to list
     // TODO: Eventually move persistent data to redis or sqlite
-    this.sessions.push(
-      new Game(p1, p2)
-    );
+    if (Game.Game) {
+      // TypeScript
+      this.sessions.push(
+          new Game.Game(p1, p2)
+      );
+    } else {
+      this.sessions.push(
+          new Game(p1, p2)
+      );
+    }
 
-    return this.sessions[this.sessions.length-1];
+    var newGame = this.sessions[this.sessions.length-1];
+    newGame.nlgPlayerOne = { ID: p1 };
+    newGame.nlgPlayerTwo = { ID: p2 };
+
+    return newGame;
   }
 };
 
@@ -63,7 +74,7 @@ ActiveGames.prototype.newGame = function (gametype, p1, p2) {
 ActiveGames.prototype.findGame = function (pid) {
   for (var game of this.sessions) {
     //Check each game session for a matching player ID
-    if ((game.PlayerOne.ID === pid) || (game.PlayerTwo.ID === pid)) {
+    if ((game.nlgPlayerOne.ID === pid) || (game.nlgPlayerTwo.ID === pid)) {
       return game;
     } else {
       return null;

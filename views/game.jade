@@ -1,11 +1,20 @@
 extends layout
 
 block includedScripts
-	script(type='text/javascript', src='bower/hammerjs/hammer.min.js')
+	script(type='text/javascript', src='lib/hammerjs/hammer.min.js')
 	block gameIncludes
 block bodyContent
-	body(style="height: 100%;", onload="GameClient('#{connStr}')")
+	body(style="height: 100%;")
 		block gameContent
 		div#toast.container.ontop
 			div.alert.alert-success
 				h1(value='#{toastMsg}')
+		script.
+			var game;
+			var connStr;
+			try {
+				game = GameClient('#{connStr}');
+			}
+			catch(e) {
+				connStr = '#{connStr}';
+			}

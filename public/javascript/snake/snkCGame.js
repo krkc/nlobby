@@ -9,8 +9,13 @@
  */
 
 
+function GameClient(conn)
+{
+	return new SnkCGame(conn);
+}
 
-function GameClient (conn)
+
+function SnkCGame (conn)
 {
 
 	'use strict';
@@ -246,9 +251,7 @@ function GameClient (conn)
 	 */
 	function onClick(e)
 	{
-		console.log('test1');
 		if (ngRoom.getMyID() === dot.ID && !dot.DotSet) {
-			console.log('test2');
 			var canvcoords = snkEnv.getMousePos(e.clientX, e.clientY);
 			// Clip click position to the upper-leftmost grid space
 			canvcoords.x = Math.floor( canvcoords.x / 5 ) * 5;

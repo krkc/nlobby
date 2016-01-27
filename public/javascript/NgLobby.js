@@ -18,22 +18,25 @@ function NgLobby (conn)
 	var gameID;		/* ID of current game session */
 	var readyID;	/* ID of ready client */
   var socket;
+  var disconnected = false;  /* Flag if client has disconnected (some browsers send two unload events) */
 
 
 	socket = io(conn + '/gameLobby');		/* Initiate Socket IO Connection with server */
 
-
   // Register client event handlers for socket.io disconnect
   window.addEventListener('beforeunload', onUserDisconnect);
-  //window.addEventListener('unload', onUserDisconnect);
+  window.addEventListener('unload', onUserDisconnect);
 
 
   // -- Event Handlers -- //
 
   // JS Event handler for user disconnecting from server
   function onUserDisconnect() {
-  	// Alert server that client is leaving
-  	socket.emit('sessionDisconnect');
+    if (!disconnected) {
+      disconnected = true;
+    	// Alert server that client is leaving
+    	socket.emit('sessionDisconnect');
+    }
   }
 
   // Acquire a SID for this page
@@ -51,7 +54,7 @@ function NgLobby (conn)
   	// Add new user link
     var snakeLink = "<a href='snake?gameTitle=snake&p1=" + myID + "&p2=" + newUserID + "'>Play Snake!</a>";
     var dngnLink = "<a href='snake?gameTitle=dngn&p1=" + myID + "&p2=" + newUserID + "'>Play Dngn!</a>";
-  	usersDiv.innerHTML += "<button href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' title='user: " + newUserID + "' data-content=\"" + snakeLink + "<br />" + dngnLink + "\" >" + newUserID +  "</button>&nbsp;";
+  	usersDiv.innerHTML += "<button href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' title='user: " + newUserID + "' data-content=\"" + snakeLink + "<br /><br />" + dngnLink + "\" >" + newUserID +  "</button>&nbsp;";
   	// Register the new popover element in JQuery
       $('[data-toggle="popover"]').popover({ html: true });
   });
@@ -68,7 +71,7 @@ function NgLobby (conn)
   		if (userIDs[i] != myID) {
         var snakeLink = "<a href='game?gameTitle=snake&p1=" + myID + "&p2=" + userIDs[i] + "'>Play Snake!</a>";
         var dngnLink = "<a href='game?gameTitle=dngn&p1=" + myID + "&p2=" + userIDs[i] + "'>Play Dngn!</a>";
-  			usersDiv.innerHTML += "<button href='#' data-toggle='popover' class='btn btn-success btn-sm' title='user: " + userIDs[i] + "' data-content=\"" + snakeLink + "<br />" + dngnLink + "\" >" + userIDs[i] +  "</button>&nbsp;";
+  			usersDiv.innerHTML += "<button href='#' data-toggle='popover' class='btn btn-success btn-sm' title='user: " + userIDs[i] + "' data-content=\"" + snakeLink + "<br /><br />" + dngnLink + "\" >" + userIDs[i] +  "</button>&nbsp;";
   		}
   	}
   	// Update JQuery popover element list
@@ -82,7 +85,7 @@ function NgLobby (conn)
     	if (myID == playerToFind) {
     		var r = confirm("A player wants to play a game, do you accept?");
     		if (r === true) {
-    			window.location = `game?gameTitle=${gameToPlay}`;
+    			window.location = "game?gameTitle=" + gameToPlay;
     		}
     	}
     });
