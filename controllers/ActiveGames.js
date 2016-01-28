@@ -33,10 +33,10 @@ ActiveGames.prototype.newGame = function (gametype, p1, p2) {
 
   if (gametype === 'snake') {
     // TODO: look into using process.fork() for multi-process game instance creation
-    gamedir = 'snake/snkGame'; /* Game state module */
+    gamedir = 'snake/serverside/snkGame'; /* Game state module */
   }
   if (gametype === 'dngn') {
-    gamedir = 'dngn/DngnGame';
+    gamedir = 'dngn/serverside/DngnGame';
   }
 
   Game = require('../game_files/' + gamedir);

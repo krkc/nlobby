@@ -1,12 +1,12 @@
-extends game
+extends ../../../views/game
 
 block gameIncludes
-  script(type='text/javascript', src='javascript/snake/snkCGame.js')
+  script(type='text/javascript', src='snkCGame.js')
   script(type='text/javascript', src='javascript/NgRoom.js')
-  script(type='text/javascript', src='javascript/snake/snkEnv.js')
-  script(type='text/javascript', src='javascript/snake/snkCSnake.js')
-  script(type='text/javascript', src='javascript/snake/snkCDot.js')
-  link(rel='stylesheet', href='stylesheets/snake/snake.css')
+  script(type='text/javascript', src='snkEnv.js')
+  script(type='text/javascript', src='snkCSnake.js')
+  script(type='text/javascript', src='snkCDot.js')
+  link(rel='stylesheet', href='snake.css')
 
 block gameContent
   h2.page-header(style="text-align: center;")

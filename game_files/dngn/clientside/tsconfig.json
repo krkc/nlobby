@@ -7,6 +7,9 @@
         "sourceMap": true
     },
     "files": [
-        "DngnCGame.ts"
+        "DngnCGame.ts",
+        "entities/characters/DngnCCharacter.ts",
+        "entities/characters/DngnCPlayer.ts",
+        "entities/characters/DngnCNonPlayer.ts"
     ]
 }

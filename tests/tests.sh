@@ -9,6 +9,6 @@ karma=./node_modules/karma/bin/karma
 
 # Start mocha node test suite
 $mocha ./tests
-$mocha ./tests/snake
+$mocha ./game_files/**/tests
 # Start karma web test suite
 $karma start

@@ -1,5 +1,5 @@
 var assert = require('chai').assert;
-var snkCGame = require('../../public/javascript/snake/snkCGame');
+var snkCGame = require('../clientside/snkCGame');
 
 describe('Snake Client-side Game Module', function () {
 

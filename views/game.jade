@@ -11,10 +11,10 @@ block bodyContent
 				h1(value='#{toastMsg}')
 		script.
 			var game;
-			var connStr;
+			var connStr = '#{connStr}';
 			try {
 				game = GameClient('#{connStr}');
 			}
 			catch(e) {
-				connStr = '#{connStr}';
+				
 			}

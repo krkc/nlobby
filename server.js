@@ -44,11 +44,20 @@ var grio = io.of('/gameRoom');		/* Game Room namespace (all players currently pl
 
 // Make public files visible to express routing
 app.use(express.static(__dirname + '/public'));
+// Make clientside game files visible to express routing
+for (var gameDir of gamesInstalledArr) {
+	app.use(express.static(__dirname + '/game_files/' + gameDir + '/clientside'));
+}
+// Make bower components visible to express routing
 app.use('/lib',  express.static(__dirname + '/bower_components'));
 io.use(cookieParser());
 
 // Set up templating environment
-app.set('views', './views');
+var viewsArr = ['./views'];
+for (var gameDir of gamesInstalledArr) {
+	viewsArr.push('./game_files/' + gameDir + '/clientside');
+}
+app.set('views', viewsArr);
 app.set('view engine', 'jade');
 
 var sessionNumber = 0;	/* current count of sessions started */

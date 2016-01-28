@@ -1,9 +1,9 @@
-extends game
+extends ../../../views/game
 
 block gameIncludes
-  script(data-main='javascript/dngn/dngnmain', src='lib/requirejs/require.js')
+  script(data-main='dngnmain', src='lib/requirejs/require.js')
   script(src='javascript/NgRoom.js')
-  link(rel='stylesheet', href='stylesheets/dngn/dngn.css')
+  link(rel='stylesheet', href='dngn.css')
 block gameContent
   h2.page-header(style="text-align: center;")
     | Crawl the dungeon!
