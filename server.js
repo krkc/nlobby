@@ -8,7 +8,6 @@
 
 // Required framework modules:
 var fs = require('fs');
-var events = require('events');
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
@@ -78,7 +77,6 @@ app.get('/game', function(req, res) {
 		var gameTitleSafe = req.query.gameTitle.replace(/(<([^>]+)>)/ig,"");
 		// Create new game session and add to list of active games
 		var createdGame = activeGames.newGame(gameTitleSafe, p1Safe, p2Safe);
-		createdGame.eventEmitter = new events.EventEmitter();  /* Event emitter object */
 		// Player 1 broadcast invite to game lobby for Player 2
 		glio.emit('playerFinder', { pid: p2Safe, game: gameTitleSafe });
 	}

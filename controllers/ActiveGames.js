@@ -28,6 +28,7 @@ var ActiveGames = function () {
  * @desc Create a new game session.
  */
 ActiveGames.prototype.newGame = function (gametype, p1, p2) {
+  var events = require('events');   /* Node.js Events module */
   var Game;
   var gamedir;
 
@@ -58,6 +59,7 @@ ActiveGames.prototype.newGame = function (gametype, p1, p2) {
     var newGame = this.sessions[this.sessions.length-1];
     newGame.nlgPlayerOne = { ID: p1 };
     newGame.nlgPlayerTwo = { ID: p2 };
+    newGame.eventEmitter = new events.EventEmitter();  /* Event emitter object */
 
     return newGame;
   }

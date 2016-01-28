@@ -1,4 +1,5 @@
 var assert = require('chai').assert;
+var events = require('events');
 var nlGames = require('../controllers/ActiveGames.js');
 
 describe('Active Games module', function () {
@@ -7,6 +8,8 @@ describe('Active Games module', function () {
     var newGame;
     it('should create a new game', function () {
       newGame = nlGames.newGame('snake', '3', '4');
+      newGame.eventEmitter = new events.EventEmitter();
+      newGame.eventEmitter.addListener('dataFromServer', function () {});
       assert.isNotNull(newGame, 'a value was returned');
       assert.isObject(newGame, 'an object was returned');
     }); // End it
@@ -29,7 +32,7 @@ describe('Active Games module', function () {
         var pid = newGame.nlgPlayerOne.ID;
         assert.isNotNull(newGame, 'the game object is not null');
         nlGames.removeGame(newGame);
-        var foundGame;
+        var foundGame = null;
         foundGame = nlGames.findGame(pid);
         assert.isNull(foundGame, 'the game object is null');
       }); // End it
