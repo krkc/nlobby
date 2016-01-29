@@ -7,8 +7,8 @@ define(["require", "exports", "./DngnCCharacter"], function (require, exports, D
     "use strict";
     var DngnCPlayer = (function (_super) {
         __extends(DngnCPlayer, _super);
-        function DngnCPlayer() {
-            _super.call(this);
+        function DngnCPlayer(_pid) {
+            _super.call(this, _pid);
         }
         return DngnCPlayer;
     }(DngnCCharacter_1.DngnCCharacter));

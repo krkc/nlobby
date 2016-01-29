@@ -114,6 +114,31 @@ var ActiveUsers = function () {
   };
 
   /**
+   * @function refreshUsers
+   * @memberof ActiveUsers
+   * @param {Array[String]} userkeys - Keys of the users still connected
+   * @param {Object} roomsocket - Socket.io socket used to emit results when finished
+   *
+   * @desc Remove a user from the redis-store
+   */
+  ActiveUsers.prototype.refreshUsers = function (userids, refreshUserCB) {
+    if (userids.length > 0) {
+      var expireCmds = [];
+      for (var key of userids) {
+        expireCmds.push(["expire", "user_" + key, nlConfig.user.expireTime]);
+      }
+      // Remove the specified user
+      rClient.multi(expireCmds).exec(function (err, status) {
+        if (err) {
+          refreshUserCB(err, null);
+        } else {
+          refreshUserCB(null, status);
+        }
+      });
+    }
+  };
+
+  /**
    * @function listUsers
    * @memberof ActiveUsers
    * @param {Object} roomsocket - Socket.io socket used to emit results when finished

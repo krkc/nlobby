@@ -7,12 +7,15 @@
  * @copyright Christopher Kurek 2015
  * @license GPLv3
  */
-/// <reference path="../NgRoom.d.ts"/>
+/// <reference path="../../../../public/javascript/NgRoom.d.ts"/>
+
+import { DngnCPlayer } from "./entities/characters/DngnCPlayer";
 
 export class DngnCGame {
 	_self: any;
 	_ngRoom: any;
 	_dngnEnv: any;
+	_players: DngnCPlayer[];
 	_gameLoopID: number;
 	_gameRunning: boolean;
 	_paused: boolean;
@@ -36,8 +39,67 @@ export class DngnCGame {
 		// 				pid: this._ngRoom.getMyID()
 		// 			}
 		// 		});
-			console.log('Success!!');
+		// 	console.log('Success!!');
+		// });
 		});
+	}
+
+
+	/**
+		* @function addPlayer
+		* @memberof DngnCGame
+		* @param {string} pid - Player-ID assigned to the new player-character
+		* @return {boolean} - Success/failure indication
+		*
+		* @desc Add a new player-character to the current game
+	*/
+	public addPlayer (pid: string)
+	{
+		if (pid) {
+			// Add a new player to the list of current players in the game
+			try {
+				this._players.push(new DngnCPlayer(pid));
+			}
+			catch (e) {
+				console.log('Error: Unable to add a new player to the game. ' + e);
+				return false;
+			}
+			return true;
+		}
+	}
+
+	/**
+		* @function removePlayer
+		* @memberof DngnCGame
+		* @param {string} pid - Player-ID of the player to be removed
+		* @return {boolean} - Success/failure indication
+		*
+		* @desc Removes a new player-character from the current game
+	*/
+	public removePlayer (pid: string)
+	{
+		if (pid) {
+			// Add a new player to the list of current players in the game
+			let playerToRemove: DngnCPlayer;
+			for (let player of this._players) {
+				if (player.pid === pid) {
+					playerToRemove = player;
+				}
+			}
+			if (playerToRemove) {
+				// PlayerID was found in the game, remove the player.
+				try {
+					this._players.splice(this._players.indexOf(playerToRemove), 1);
+				}
+				catch (e) {
+					console.log('Error: unable to remove the player from the game. ' + e);
+					return false;
+				}
+				return true;
+			} else {
+				return false;
+			}
+		}
 	}
 
 	/**
@@ -45,8 +107,8 @@ export class DngnCGame {
 		* @memberof DngnCGame
 		*
 		* @desc Set all event listeners for the page
-	*/
-	_setPageListeners ()
+	  */
+	private _setPageListeners ()
 	{
 		// Register event listener for keypresses, clicks, and touches.
 		window.addEventListener('keydown', this._onKeyDown, true);
@@ -68,37 +130,39 @@ export class DngnCGame {
 		addEventListener('onGameOver', this._onGameOver, true);
 	}
 
-	_onKeyDown ()
+
+	// Event handler: '_onKeyDown'
+	private _onKeyDown (ev: Event)
 	{
 		console.log('Key Down Event');
 	}
-
-	_onClick ()
+	// Event handler: '_onClick'
+	private _onClick (ev: Event)
 	{
 		console.log('Click Event');
 	}
-
-	_onPan ()
+	// Event handler: '_onPan'
+	private _onPan (ev: Event)
 	{
 		console.log('Pan Event');
 	}
-
-	_onGameReset ()
+	// Event handler: '_onGameReset'
+	private _onGameReset (ev: Event)
 	{
 		console.log('Game Reset Event');
 	}
-
-	_onGameStart ()
+	// Event handler: '_onGameStart'
+	private _onGameStart (ev: Event)
 	{
 		console.log('Game Start Event');
 	}
-
-	_onState ()
+	// Event handler: '_onState'
+	private _onState (ev: Event)
 	{
 		console.log('State Event');
 	}
-
-	_onGameOver ()
+	// Event handler: '_onGameOver'
+	private _onGameOver (ev: Event)
 	{
 		console.log('Game Over Event');
 	}

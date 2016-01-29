@@ -1,1 +1,1 @@
-{"version":3,"file":"DngnCCharacter.js","sourceRoot":"","sources":["DngnCCharacter.ts"],"names":[],"mappings":";;IAcA;QAME;QAEA,CAAC;QACH,qBAAC;IAAD,CAAC,AATD,IASC;IATY,sBAAc,iBAS1B,CAAA"}
+{"version":3,"file":"DngnCCharacter.js","sourceRoot":"","sources":["../../tsSrc/entities/characters/DngnCCharacter.ts"],"names":[],"mappings":";;IAcA;QAOE,wBAAY,IAAa;YACvB,IAAI,CAAC,GAAG,GAAG,IAAI,CAAC;QAClB,CAAC;QACH,qBAAC;IAAD,CAAC,AAVD,IAUC;IAVY,sBAAc,iBAU1B,CAAA"}

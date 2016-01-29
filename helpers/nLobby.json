@@ -1,7 +1,7 @@
 {
   "user" : {
     "uuidsalt" : "salty",
-    "expireTime" : 300
+    "expireTime" : 20
   },
   "connection" : {
     "port" : 8080

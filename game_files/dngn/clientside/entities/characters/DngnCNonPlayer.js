@@ -8,7 +8,7 @@ define(["require", "exports", "./DngnCCharacter"], function (require, exports, D
     var DngnCNonPlayer = (function (_super) {
         __extends(DngnCNonPlayer, _super);
         function DngnCNonPlayer() {
-            _super.call(this);
+            _super.call(this, this.pid);
         }
         return DngnCNonPlayer;
     }(DngnCCharacter_1.DngnCCharacter));

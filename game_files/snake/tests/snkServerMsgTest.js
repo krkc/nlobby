@@ -14,4 +14,13 @@ describe('Server Message Tests', function () {
       done();
     }); // End it
   }); // End describe 'Player Ready'
+
+  describe('Reset Request', function () {
+    it('should unset game running flag', function (done) {
+      newGame.gameRunning = true;
+      newGame.runData({ ResetRequest: true });
+      assert.isFalse(newGame.gameRunning, 'game running flag is false');
+      done();
+    }); // End it
+  }); // End describe 'Reset Request'
 }); // End describe 'Server Message Tests'

@@ -14,11 +14,15 @@ function NgLobby (conn)
 {
   'use strict';
 
+  var _self = this;
 	var myID;			/* ID of the current player */
 	var gameID;		/* ID of current game session */
 	var readyID;	/* ID of ready client */
   var socket;
   var disconnected = false;  /* Flag if client has disconnected (some browsers send two unload events) */
+  var _usersDiv = document.getElementById('divUsers');
+  var _mainloop = null;
+  var _usersHtml = "";
 
 
 	socket = io(conn + '/gameLobby');		/* Initiate Socket IO Connection with server */
@@ -27,6 +31,12 @@ function NgLobby (conn)
   window.addEventListener('beforeunload', onUserDisconnect);
   window.addEventListener('unload', onUserDisconnect);
 
+  // Refresh the users on the screen at an interval
+  setInterval(function refreshUsers () {
+    _usersDiv.innerHTML = _usersHtml;
+    // Update JQuery popover element list
+    $('[data-toggle="popover"]').popover({ html: true });
+  }, 1500);
 
   // -- Event Handlers -- //
 
@@ -60,50 +70,47 @@ function NgLobby (conn)
   });
 
   // A user has left the socket.io lobby
-  socket.on('userLeft', function (userIDs) {
-    console.log("[TEST]");
-    console.log(userIDs);
-  	var usersDiv = document.getElementById('divUsers');
-  	// Clear out div contents
-  	usersDiv.innerHTML = "";
+  socket.on('users', function (userIDs) {
   	// Add updated users to div
+    var htmlString = "";
   	for (var i=0; i<userIDs.length; i++) {
   		if (userIDs[i] != myID) {
         var snakeLink = "<a href='game?gameTitle=snake&p1=" + myID + "&p2=" + userIDs[i] + "'>Play Snake!</a>";
         var dngnLink = "<a href='game?gameTitle=dngn&p1=" + myID + "&p2=" + userIDs[i] + "'>Play Dngn!</a>";
-  			usersDiv.innerHTML += "<button href='#' data-toggle='popover' class='btn btn-success btn-sm' title='user: " + userIDs[i] + "' data-content=\"" + snakeLink + "<br /><br />" + dngnLink + "\" >" + userIDs[i] +  "</button>&nbsp;";
+  			htmlString += "<button href='#' data-toggle='popover' class='btn btn-success btn-sm' title='user: " + userIDs[i] + "' data-content=\"" + snakeLink + "<br /><br />" + dngnLink + "\" >" + userIDs[i] +  "</button>&nbsp;";
   		}
   	}
-  	// Update JQuery popover element list
+    _usersHtml = htmlString;
+    // Inform server that this client is still connected
+    socket.emit('userReport', myID);
+  });
+
+  // Another player initiates a game invite
+  socket.on('playerFinder', function(d) {
+    var playerToFind = d.pid;
+    var gameToPlay = d.game;
+  	if (myID == playerToFind) {
+  		var r = confirm("A player wants to play a game, do you accept?");
+  		if (r === true) {
+  			window.location = "game?gameTitle=" + gameToPlay;
+  		}
+  	}
+  });
+
+  // When page loads, register all popover elements in JQuery
+  $(document).ready(function(){
       $('[data-toggle="popover"]').popover({ html: true });
-    });
 
-    // Another player initiates a game invite
-    socket.on('playerFinder', function(d) {
-      var playerToFind = d.pid;
-      var gameToPlay = d.game;
-    	if (myID == playerToFind) {
-    		var r = confirm("A player wants to play a game, do you accept?");
-    		if (r === true) {
-    			window.location = "game?gameTitle=" + gameToPlay;
-    		}
-    	}
-    });
-
-    // When page loads, register all popover elements in JQuery
-    $(document).ready(function(){
-        $('[data-toggle="popover"]').popover({ html: true });
-
-        $('body').on('click', function (e) {
-        $('[data-toggle="popover"]').each(function () {
-            //the 'is' for buttons that trigger popups
-            //the 'has' for icons within a button that triggers a popup
-            if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
-                $(this).popover('hide');
-            }
-         });
-        });
-    });
+      $('body').on('click', function (e) {
+      $('[data-toggle="popover"]').each(function () {
+          //the 'is' for buttons that trigger popups
+          //the 'has' for icons within a button that triggers a popup
+          if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+              $(this).popover('hide');
+          }
+       });
+      });
+  });
 }
 
 /**

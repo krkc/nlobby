@@ -13,12 +13,13 @@
  * @class
  */
 export class DngnCCharacter {
+  pid: string;
   location: {
     x: number,
     y: number
   };
   direction: string;
-  constructor() {
-
+  constructor(_pid : string) {
+    this.pid = _pid;
   }
 }

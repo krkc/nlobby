@@ -106,6 +106,24 @@ app.get('/game', function(req, res) {
 
 // -- Begin socket.io code --
 
+var usersReportedArr = [];		/* array of keys of users to look for in redis */
+// Regularly check redis for connected users and inform clients
+setInterval(function () {
+	// Refresh reported users in redis (so they don't expire)
+	nlUsers.refreshUsers(usersReportedArr, function (err, status) {
+		if (err) console.log(err);
+		if (status) {
+			usersReportedArr = [];
+		}
+	});
+	// Send list of users in redis to clients
+	nlUsers.listUsers(function (err, userList) {
+		if (err) console.log(err);
+		glio.emit('users', userList);
+	});
+}, 1500);
+
+
 // Socket.io event handler for Game Lobby connection
 glio.on('connection', function (socket) {
 	// Add user
@@ -116,28 +134,22 @@ glio.on('connection', function (socket) {
 		// Broadcast to the lobby that user has connected
 		socket.broadcast.emit('userJoined', socket.username);
 	});
-	// Retreive other users
-	nlUsers.listUsers(function (err, userList) {
-		if (err) console.log(err);
-		// Broadcast to the lobby that user has disconnected
-		glio.emit('userLeft', userList);
-	});
 
 	// Socket.io handler for client browser 'unload' event
 	socket.on('sessionDisconnect', function () {
 		// Remove the disconnecting user from the list and broadcast update
 		nlUsers.removeUser(socket.username, function (err, status) {
 			if (err) console.log(err);
-			if (status) {
-				nlUsers.listUsers(function (err, userList) {
-					if (err) console.log(err);
-					// Broadcast to the lobby that user has disconnected
-					glio.emit('userLeft', userList);
-				});
-			}
 		});
 	});
+
+	// Socket.io handler for client browser 'userReport' event
+	socket.on('userReport', function (uid) {
+		// Add reporting user to the list of reported users
+		usersReportedArr.push(uid);
+	});
 });
+
 
 // Socket.io event handler for Game Room connection
 grio.on('connection', function (socket) {

@@ -1,7 +1,7 @@
 "use strict";
 var Game = (function () {
     function Game(p1, p2) {
-        console.log('TEST!!!');
+        console.log('TEST!!');
     }
     return Game;
 }());
