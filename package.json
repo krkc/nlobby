@@ -4,10 +4,10 @@
   "description": "game-lobby written in node",
   "main": "server.js",
   "scripts": {
-    "pretest": "rm dump.rdb -f && redis-server&",
+    "pretest": "rm dump.rdb -f && redis-server --save '' &",
     "test": "./tests/tests.sh",
     "posttest": "kill $(ps | grep redis-server | awk '{ print $1 }')",
-    "prestart": "rm dump.rdb -f && redis-server&",
+    "prestart": "rm dump.rdb -f && redis-server --save '' &",
     "poststop": "kill $(ps | grep redis-server | awk '{ print $1 }')"
   },
   "author": "Christopher Kurek",

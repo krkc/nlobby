@@ -21,8 +21,10 @@ function NgLobby (conn)
   var socket;
   var disconnected = false;  /* Flag if client has disconnected (some browsers send two unload events) */
   var _usersDiv = document.getElementById('divUsers');
+  var _chatTextDiv = document.getElementById('chatText');
+  var _uOnlineSpan = document.getElementById('usersOnlineSpan');
   var _mainloop = null;
-  var _usersHtml = "";
+  var _lastUsers = [];
 
 
 	socket = io(conn + '/gameLobby');		/* Initiate Socket IO Connection with server */
@@ -31,12 +33,6 @@ function NgLobby (conn)
   window.addEventListener('beforeunload', onUserDisconnect);
   window.addEventListener('unload', onUserDisconnect);
 
-  // Refresh the users on the screen at an interval
-  setInterval(function refreshUsers () {
-    _usersDiv.innerHTML = _usersHtml;
-    // Update JQuery popover element list
-    $('[data-toggle="popover"]').popover({ html: true });
-  }, 1500);
 
   // -- Event Handlers -- //
 
@@ -57,30 +53,112 @@ function NgLobby (conn)
     myLabel.innerHTML = myID;
   });
 
+
+  // TODO:
+  // Going to have 3 events: userJoined, userLeft, and users
+  // userJoined and userLeft will be initiated by other client's events
+  // users will be initiated by server on an interval and will contain an
+  //  expensive operation, but only used when a user disconnects in an improper way.
+  // Now there are 3 events performing operations on the same data,
+  //  so may need a queueing system for _lastUsers and _usersDiv.
   // A new user has joined the socket.io lobby
   socket.on('userJoined', function (newUserID) {
-  	var usersDiv = document.getElementById('divUsers');
-  	console.log('New User message received');
-  	// Add new user link
-    var snakeLink = "<a href='snake?gameTitle=snake&p1=" + myID + "&p2=" + newUserID + "'>Play Snake!</a>";
-    var dngnLink = "<a href='snake?gameTitle=dngn&p1=" + myID + "&p2=" + newUserID + "'>Play Dngn!</a>";
-  	usersDiv.innerHTML += "<button href='#' class='btn btn-success btn-sm' role='button' data-toggle='popover' title='user: " + newUserID + "' data-content=\"" + snakeLink + "<br /><br />" + dngnLink + "\" >" + newUserID +  "</button>&nbsp;";
-  	// Register the new popover element in JQuery
-      $('[data-toggle="popover"]').popover({ html: true });
+    // Show message in chat box
+  	_chatTextDiv.innerHTML += 'User ' + newUserID + ' has joined.<br />';
+    updateUsers('add', [newUserID]);
   });
 
-  // A user has left the socket.io lobby
+  socket.on('userLeft', function (userLeft) {
+    // Show message in chat box
+    _chatTextDiv.innerHTML += 'User ' + userLeft + ' has left.<br />';
+    updateUsers('remove', [userLeft]);
+  });
+
+  function updateUsers (action, usersToUpdate) {
+    for (var userToUpdate of usersToUpdate) {
+      if (action === "add") {
+        if (_lastUsers.length === 1) {
+          // Remove users online default text
+          _uOnlineSpan.style.visibility = "hidden";
+        }
+        // Add new user link
+        _lastUsers.push(userToUpdate);
+        var attribs = "";
+        var snakeLink = "<a href='game?gameTitle=snake&p1=" + myID + "&p2=" + userToUpdate + "'>Play Snake!</a>";
+        var dngnLink = "<a href='game?gameTitle=dngn&p1=" + myID + "&p2=" + userToUpdate + "'>Play Dngn!</a>";
+        if (myID === userToUpdate) {
+            attribs = "style='visibility: hidden; display: none;'";
+        }
+        _usersDiv.innerHTML += "<a href='#' " + attribs + " class='btn btn-success btn-sm' role='button' data-toggle='popover' data-trigger='focus' title='user: " + userToUpdate + "' data-content=\"" + snakeLink + "<br /><br />" + dngnLink + "\" >" + userToUpdate +  "</a>&nbsp;";
+      } else if (action === "remove") {
+        // Remove user link
+        var ulindex = _lastUsers.indexOf(userToUpdate);
+        _lastUsers.splice(ulindex, 1);
+        // Remove user button from div
+        _usersDiv.removeChild(_usersDiv.children[ulindex]);
+        if (_lastUsers.length === 1) {
+          // Set users online default text
+          _uOnlineSpan.style.visibility = "visible";
+        }
+      }
+    }
+    // Update JQuery popover element list
+    $('[data-toggle="popover"]').popover({ html: true });
+  }
+
+  // A list of users was sent at an interval from the server
+  var doubleCheck = false;  /* indicates we should check again for mismatch */
   socket.on('users', function (userIDs) {
-  	// Add updated users to div
-    var htmlString = "";
-  	for (var i=0; i<userIDs.length; i++) {
-  		if (userIDs[i] != myID) {
-        var snakeLink = "<a href='game?gameTitle=snake&p1=" + myID + "&p2=" + userIDs[i] + "'>Play Snake!</a>";
-        var dngnLink = "<a href='game?gameTitle=dngn&p1=" + myID + "&p2=" + userIDs[i] + "'>Play Dngn!</a>";
-  			htmlString += "<button href='#' data-toggle='popover' class='btn btn-success btn-sm' title='user: " + userIDs[i] + "' data-content=\"" + snakeLink + "<br /><br />" + dngnLink + "\" >" + userIDs[i] +  "</button>&nbsp;";
-  		}
-  	}
-    _usersHtml = htmlString;
+    if (_lastUsers.length === 0) {
+      // Populate the user list
+      updateUsers('add', userIDs);
+    } else if (userIDs.length < _lastUsers.length) {
+      if (!doubleCheck) {
+        // Give time to allow the 'userLeft' event to arrive by ignoring this
+        //  event, and acting on the next.
+        doubleCheck = true;
+      } else {
+        // There is a difference in data, likely caused by a client disconnecting
+        //  in an improper way. Need to resync with server.
+        var needRemoved = [];
+        var indexToStart = (-1);
+        // Skip to the point where the data differs to cut down on operations
+        for (var i=0; i < _lastUsers.length && indexToStart === (-1); i++) {
+          if (userIDs[i] === undefined) {
+            indexToStart = i;
+          } else if (userIDs[i] !== _lastUsers[i]) {
+            indexToStart = i;
+          }
+        }
+
+        if (indexToStart !== (-1)) {
+          if (userIDs[indexToStart] === undefined) {
+            // Reached end of userIDs, so remove any _lastUsers elements past this index
+            for (var l = indexToStart; l < _lastUsers.length; l++) {
+              needRemoved.push(_lastUsers[l]);
+            }
+          } else {
+            // The expensive part- the extra elements need found in _lastUsers
+            for (var j = indexToStart; j < _lastUsers.length; j++) {
+              var match = false;
+              for (var k = indexToStart; k < userIDs.length; k++) {
+                if (_lastUsers[j] === userIDs[k]) {
+                  match = true;
+                }
+              }
+              if (!match) {
+                needRemoved.push(_lastUsers[j]);
+              }
+            }
+          }
+        }
+        // Perform necessary DOM updates
+        if (needRemoved.length > 0) {
+          updateUsers('remove', needRemoved);
+        }
+        doubleCheck = false;
+      }
+    }
     // Inform server that this client is still connected
     socket.emit('userReport', myID);
   });

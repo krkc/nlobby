@@ -141,6 +141,7 @@ glio.on('connection', function (socket) {
 		nlUsers.removeUser(socket.username, function (err, status) {
 			if (err) console.log(err);
 		});
+		socket.broadcast.emit('userLeft', socket.username);
 	});
 
 	// Socket.io handler for client browser 'userReport' event

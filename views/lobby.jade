@@ -29,5 +29,21 @@ block bodyContent
 			div#userLabel.label.label-primary #{userID}
 			h3.page-header Connected Users:
 			div.panel.panel-default.divUsers
-				div#divUsers.panel-body
+				div.row
+					div.col-md-8
+						div#divChat.panel-body
+								pre#chatText.pre-scrollable.chatText
+								div.row.chatControl
+									div.col-md-8
+										input.form-control.chatInput
+									div.col-md-4
+										button.form-control.btn.btn-default.chatSend Send
+					div.col-md-4
+						div.panel-body
+							h4.page-header Online Users
+							span#usersOnlineSpan 0 users online
+							div#divUsers
+			h3.page-header Active Games:
+			div.panel.panel-default.divGames
+				div#divGames.panel-body
 			include partials/_footer

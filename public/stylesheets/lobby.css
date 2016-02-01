@@ -1,4 +1,23 @@
 .divUsers {
-  height: 25em;
   background-color: #F0F0F0;
+}
+.divGames {
+  height: 15em;
+  background-color: #F0F0F0;
+}
+.divChat {
+  background-color: #F0F0F0;
+}
+.chatText {
+  height: 20em;
+}
+.chatControl {
+  width: 100%;
+
+}
+.chatInput {
+
+}
+.chatSend {
+
 }
