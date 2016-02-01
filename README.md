@@ -45,9 +45,10 @@ and CTRL+C to stop.
 ### Future TODOs
 
 - [x] Move user object to redis-store
-- [ ] Move game object to redis-store or sqlite
+- [ ] Move game object to redis-store or similar
 - [x] Implement message toasting in jade file
 - [ ] Finish game 'reset' functionality
+- [ ] Add lobby chat functionality
 
 Snake Game:
 
