@@ -42,6 +42,35 @@ and CTRL+C to stop.
 > nLobby server is terminated. However, occasionally if the nLobby server comes down unexpectedly, the user
 > will be required to manually terminate the redis-server process.
 
+### Installing a game module
+
+Required directory layout:
+
+    [game_files]
+            |____ [My Game]
+                        |____ [clientside]
+                        |           |____ CGame.js
+                        |____ [serverside]
+                        |           |____ Game.js
+                        |____ [tests]
+
+
+Enclose your entire game into a folder with the above layout and name it as you wish it to be displayed on the lobby screen, then place it under the 'game_files' directory.
+
+In this case, nLobby will seek a serverside file:
+
+```
+"./game_files/My\ Game/serverside/Game.js"
+```
+
+and a clientside file:
+
+```
+"./game_files/My\ Game/clientside/CGame.js"
+```
+
+as well as run any test files in the tests folder.
+
 ### Future TODOs
 
 - [x] Move user object to redis-store
@@ -49,15 +78,8 @@ and CTRL+C to stop.
 - [x] Implement message toasting in jade file
 - [ ] Finish game 'reset' functionality
 - [ ] Add lobby chat functionality
+- [ ] Add 'Available Games' and live game-joining functionality
 
-Snake Game:
-
-- [x] Address network latency lag in snake movement
-- [ ] Move snake game into separate repo
-
-Dngn Game:
-- [ ] Begin to build dngn game
-- [ ] Move dngn game into separate repo
 
 License
 ----
