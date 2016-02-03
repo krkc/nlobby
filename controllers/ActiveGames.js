@@ -29,18 +29,12 @@ var ActiveGames = function () {
  */
 ActiveGames.prototype.newGame = function (gametype, p1, p2) {
   var events = require('events');   /* Node.js Events module */
+  var nlConfig = require('../helpers/nLobby.json');
   var Game;
-  var gamedir;
+  var gamedir = "../game_files/" + gametype + "/serverside/";
 
-  if (gametype === 'snake') {
-    // TODO: look into using process.fork() for multi-process game instance creation
-    gamedir = 'snake/serverside/snkGame'; /* Game state module */
-  }
-  if (gametype === 'dngn') {
-    gamedir = 'dngn/serverside/DngnGame';
-  }
-
-  Game = require('../game_files/' + gamedir);
+  gamedir += nlConfig.games[gametype].serverEntry;
+  Game = require(gamedir);
 
   if (Game) {
     // Create new game state object and add to list
@@ -59,6 +53,7 @@ ActiveGames.prototype.newGame = function (gametype, p1, p2) {
     var newGame = this.sessions[this.sessions.length-1];
     newGame.nlgPlayerOne = { ID: p1 };
     newGame.nlgPlayerTwo = { ID: p2 };
+    newGame.GameID = p1.toString() + p2.toString();
     newGame.eventEmitter = new events.EventEmitter();  /* Event emitter object */
 
     return newGame;

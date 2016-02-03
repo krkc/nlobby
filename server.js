@@ -185,8 +185,18 @@ grio.on('connection', function (socket) {
 
 			// Socket.io event handler for session creation
 			socket.on('clientToServer', function (dataIn) {
-				console.log('server: Received data from client.');
-				socket.currentGame.runData(dataIn);
+				if (dataIn.PlayerReady) {
+					console.log('server: Received "PlayerReady" message from client.');
+					socket.currentGame.onPlayerReady(dataIn.PlayerReady);
+				}
+				if (dataIn.Input) {
+					console.log('server: Received "Input" message from client.');
+					socket.currentGame.onInput(dataIn.Input);
+				}
+				if (dataIn.ResetRequest) {
+					console.log('server: Received "ResetRequest" message from client.');
+					socket.currentGame.onResetRequest(dataIn.ResetRequest);
+				}
 			});
 		}
 	}

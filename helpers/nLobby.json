@@ -5,5 +5,17 @@
   },
   "connection" : {
     "port" : 8080
+  },
+  "games" : {
+    "snake" : {
+      "title" : "Snake",
+      "serverEntry" : "snkGame.js",
+      "clientEntry" : "snkCGame.js"
+    },
+    "dngn" : {
+      "title" : "dngn",
+      "serverEntry" : "DngnGame.js",
+      "clientEntry" : "DngnCGame.js"
+    }
   }
 }

@@ -7,15 +7,11 @@
         "sourceMap": true,
         "outDir": "../"
     },
-    "filesGlob": [
-        "node.d.ts",
-        "DngnGame.ts"
-    ],
     "files": [
-        "node.d.ts",
-        "DngnGame.ts"
-    ],
-    "atom": {
-        "rewriteTsconfig": true
-    }
+      "node.d.ts",
+      "DngnGame.ts",
+      "./entities/characters/DngnCharacter.ts",
+      "./entities/characters/DngnPlayer.ts",
+      "./entities/characters/DngnNonPlayer.ts"
+    ]
 }
