@@ -21,7 +21,6 @@ function NgRoom (conn, gamecallback)
   var toastDiv;			/* Toast message div DOM object */
   toastDiv = document.getElementById("toast");
 
-
   // -- Event Listeners / Handlers -- //
 
   // Register client event handlers for socket.io disconnect

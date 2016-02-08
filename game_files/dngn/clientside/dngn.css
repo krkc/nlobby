@@ -1,11 +1,3 @@
-#myscorespan {
-  font-weight: bold;
-}
-
-#oppscorespan {
-  font-weight: bold;
-}
-
 #toast {
   display: none;
   visibility: hidden;
@@ -18,4 +10,41 @@
   left: 0;
   z-index: 2;
   text-align: center;
+}
+
+#canvWrapper {
+  width: 100%;
+  height: 100%;
+}
+
+#canvbg {
+  border: 1px solid #000000;
+  position: absolute;
+  z-index: 0;
+}
+
+#canvfg {
+  border: 1px solid #000000;
+  position: absolute;
+  z-index: 1;
+}
+
+#canvol {
+  border: 1px solid #000000;
+  position: absolute;
+  z-index: 2;
+}
+
+/*  */
+@media (min-width: 768px) {
+  #canvWrapper {
+    margin-left: 0;
+  }
+}
+
+@media (min-width: 992px) {
+  #canvWrapper {
+    margin: 2%;
+    margin-left: 20%;
+  }
 }

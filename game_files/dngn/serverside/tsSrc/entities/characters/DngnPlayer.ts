@@ -1,24 +1,25 @@
 import { DngnCharacter } from "./DngnCharacter";
 
-export class DngnPlayer extends DngnCharacter {
+export class Player extends DngnCharacter {
   constructor(_pid: string) {
     super(_pid);
-
   }
+}
 
-  public move (keybd : any) {
-    enum Key { Left = 37, Up = 38, Right = 39, Down = 40, Space = 32 };
-    if (keybd.key == Key.Up) {
+export class PWarrior extends Player {
+  constructor(_pid: string) {
+    super(_pid);
+  }
+}
 
-    }
-    if (keybd.key == Key.Down) {
+export class PMage extends Player {
+  constructor(_pid: string) {
+    super(_pid);
+  }
+}
 
-    }
-    if (keybd.key == Key.Left) {
-
-    }
-    if (keybd.key == Key.Right) {
-
-    }
+export class PHealer extends Player {
+  constructor(_pid: string) {
+    super(_pid);
   }
 }

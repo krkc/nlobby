@@ -1,87 +1,72 @@
-define(["require", "exports", "./entities/characters/DngnCPlayer"], function (require, exports, DngnCPlayer_1) {
+define(["require", "exports", "./environment/DngnCEnv"], function (require, exports, DngnCEnv_1) {
     "use strict";
     var DngnCGame = (function () {
         function DngnCGame(conn) {
-            this._self = this;
+            this.game = new CGame(conn);
+        }
+        return DngnCGame;
+    }());
+    exports.DngnCGame = DngnCGame;
+    var CGame = (function () {
+        function CGame(conn) {
+            var _this = this;
             this._ngRoom = null;
             this._dngnEnv = null;
             this._gameLoopID = null;
             this._gameRunning = false;
             this._paused = false;
             this._ngRoom = new NgRoom(conn, function () {
+                _this._dngnEnv = new DngnCEnv_1.Environment();
+                _this._dngnEnv.loadAssets(function () {
+                    window.addEventListener('keydown', function (event) { return _this._onKeyDown(_this, event); }, true);
+                    addEventListener('onGameStart', function (event) { return _this._onGameStart(_this, event); }, true);
+                    addEventListener('onState', function (event) { return _this._onState(_this, event); }, true);
+                    addEventListener('onGameOver', function (event) { return _this._onGameOver(_this, event); }, true);
+                    _this._dngnEnv.Overlay.canvas.addEventListener('click', function (event) { return _this._onClick(_this, event); }, true);
+                    var options = {
+                        preventDefault: true
+                    };
+                    _this._mc = new Hammer(_this._dngnEnv.canvfg, options);
+                    _this._mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+                    _this._mc.on("panend", function (event) { return _this._onPan(_this, event); });
+                    window.addEventListener('resize', function (event) { return _this._dngnEnv.onResize(_this._dngnEnv, event); }, true);
+                    if (_this.promptMenu()) {
+                        _this._ngRoom.dataToServer({
+                            PlayerReady: {
+                                pid: _this._ngRoom.getMyID()
+                            }
+                        });
+                    }
+                });
             });
         }
-        DngnCGame.prototype.addPlayer = function (pid) {
-            if (pid) {
-                try {
-                    this._players.push(new DngnCPlayer_1.DngnCPlayer(pid));
-                }
-                catch (e) {
-                    console.log('Error: Unable to add a new player to the game. ' + e);
-                    return false;
-                }
-                return true;
-            }
+        CGame.prototype.promptMenu = function () {
+            this._dngnEnv.titleMenu.showText(0, 50, 50, "Some text");
+            return true;
         };
-        DngnCGame.prototype.removePlayer = function (pid) {
-            if (pid) {
-                var playerToRemove = void 0;
-                for (var _i = 0, _a = this._players; _i < _a.length; _i++) {
-                    var player = _a[_i];
-                    if (player.pid === pid) {
-                        playerToRemove = player;
-                    }
-                }
-                if (playerToRemove) {
-                    try {
-                        this._players.splice(this._players.indexOf(playerToRemove), 1);
-                    }
-                    catch (e) {
-                        console.log('Error: unable to remove the player from the game. ' + e);
-                        return false;
-                    }
-                    return true;
-                }
-                else {
-                    return false;
-                }
-            }
+        CGame.prototype._onKeyDown = function (GameContext, event) {
+            console.log('Key Down Event' + this._ngRoom.getMyID());
         };
-        DngnCGame.prototype._setPageListeners = function () {
-            window.addEventListener('keydown', this._onKeyDown, true);
-            this._dngnEnv.Foreground.canvas.addEventListener('click', this._onClick, true);
-            var options = {
-                preventDefault: true
-            };
-            window.addEventListener('resize', this._dngnEnv.onResize, true);
-            this._dngnEnv.ResetBtn.addEventListener('click', this._onGameReset, true);
-            addEventListener('onGameStart', this._onGameStart, true);
-            addEventListener('onState', this._onState, true);
-            addEventListener('onGameOver', this._onGameOver, true);
-        };
-        DngnCGame.prototype._onKeyDown = function (ev) {
-            console.log('Key Down Event');
-        };
-        DngnCGame.prototype._onClick = function (ev) {
+        CGame.prototype._onClick = function (GameContext, event) {
             console.log('Click Event');
         };
-        DngnCGame.prototype._onPan = function (ev) {
+        CGame.prototype._onPan = function (GameContext, event) {
             console.log('Pan Event');
         };
-        DngnCGame.prototype._onGameReset = function (ev) {
+        CGame.prototype._onGameReset = function (GameContext, event) {
             console.log('Game Reset Event');
         };
-        DngnCGame.prototype._onGameStart = function (ev) {
+        CGame.prototype._onGameStart = function (GameContext, event) {
             console.log('Game Start Event');
         };
-        DngnCGame.prototype._onState = function (ev) {
+        CGame.prototype._onState = function (GameContext, event) {
             console.log('State Event');
         };
-        DngnCGame.prototype._onGameOver = function (ev) {
+        CGame.prototype._onGameOver = function (GameContext, event) {
             console.log('Game Over Event');
         };
-        return DngnCGame;
+        return CGame;
     }());
-    exports.DngnCGame = DngnCGame;
+    exports.CGame = CGame;
 });
 //# sourceMappingURL=DngnCGame.js.map

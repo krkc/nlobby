@@ -1,40 +1,49 @@
 "use strict";
 var events = require("events");
-var DngnPlayer_ts_1 = require("./entities/characters/DngnPlayer.ts");
+var DngnZone_1 = require("./entities/DngnZone");
 var Game = (function () {
     function Game(p1, p2) {
-        this.players.push(new DngnPlayer_ts_1.DngnPlayer(p1));
-        this.players.push(new DngnPlayer_ts_1.DngnPlayer(p2));
-        this.eventEmitter = new events.EventEmitter();
+        this._readyPlayers = 0;
+        this._message = "";
+        this._eventEmitter = new events.EventEmitter();
+        this._gameRunning = false;
+        this._zone = new DngnZone_1.Zone();
     }
-    Game.prototype.gameLoop = function () {
+    Game.prototype.gameLoop = function (context) {
+        this._zone.run();
     };
-    ;
     Game.prototype.init = function () {
+        var _this = this;
+        this._gameLoopID = setInterval(function () { _this.gameLoop(_this); }, 1000);
+        this._gameRunning = true;
     };
     Game.prototype.gameOver = function () {
+        this._gameRunning = false;
     };
     Game.prototype.reset = function () {
     };
     Game.prototype.sendData = function (d) {
-        this.eventEmitter.emit('dataFromGame', d);
+        this._eventEmitter.emit('dataFromGame', d);
     };
     Game.prototype.onPlayerReady = function (ev) {
-        if (++this.readyPlayers >= 2) {
+        this._zone.addPlayer(ev.detail.pid, ev.detail.class);
+        if (++this._readyPlayers >= 2) {
             this.init();
-            this.Message = "Arrow keys to move!";
+            this._message = "Arrow keys to move!";
             this.sendData({
-                GameReady: {},
+                GameReady: {
+                    pid: ev.detail.pid
+                },
                 Toast: {
-                    msg: this.Message
+                    msg: this._message
                 }
             });
         }
     };
     Game.prototype.onInput = function (ev) {
         if (ev.keybd) {
-            if (this.gameRunning) {
-                for (var _i = 0, _a = this.players; _i < _a.length; _i++) {
+            if (this._gameRunning) {
+                for (var _i = 0, _a = this._zone._players; _i < _a.length; _i++) {
                     var player = _a[_i];
                     if (player.pid == ev.pid) {
                         player.move(ev.keybd);

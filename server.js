@@ -46,6 +46,7 @@ app.use(express.static(__dirname + '/public'));
 // Make clientside game files visible to express routing
 for (var gameDir of gamesInstalledArr) {
 	app.use(express.static(__dirname + '/game_files/' + gameDir + '/clientside'));
+	app.use(express.static(__dirname + '/game_files/' + gameDir + '/clientside/tsSrc/environment/textures'));
 }
 // Make bower components visible to express routing
 app.use('/lib',  express.static(__dirname + '/bower_components'));
@@ -121,6 +122,7 @@ setInterval(function () {
 		if (err) console.log(err);
 		glio.emit('users', userList);
 	});
+	// TODO: Remove any users from games they may have been in
 }, 1500);
 
 

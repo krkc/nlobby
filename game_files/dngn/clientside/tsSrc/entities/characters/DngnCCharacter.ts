@@ -13,13 +13,15 @@
  * @class
  */
 export class DngnCCharacter {
-  pid: string;
+  hitPoints: number;
   location: {
     x: number,
     y: number
   };
   direction: string;
-  constructor(_pid : string) {
-    this.pid = _pid;
+  velocity: number;
+  acceleration: number;
+  constructor() {
+    this.hitPoints = 10;
   }
 }

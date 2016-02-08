@@ -1,8 +1,8 @@
 define(["require", "exports"], function (require, exports) {
     "use strict";
     var DngnCCharacter = (function () {
-        function DngnCCharacter(_pid) {
-            this.pid = _pid;
+        function DngnCCharacter() {
+            this.hitPoints = 10;
         }
         return DngnCCharacter;
     }());

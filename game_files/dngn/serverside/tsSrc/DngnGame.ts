@@ -1,31 +1,35 @@
 /// <reference path="node.d.ts"/>
 
 import * as events from "events";
-import { DngnPlayer } from "./entities/characters/DngnPlayer.ts";
+import { Zone } from "./entities/DngnZone";
 
 export class Game {
-  players : DngnPlayer[];
-  readyPlayers : number;
-  Message : string;
-  eventEmitter : events.EventEmitter;
-  gameRunning : string;
+  _readyPlayers : number;
+  _message : string;
+  _eventEmitter : events.EventEmitter;
+  _gameLoopID : NodeJS.Timer;
+  _gameRunning : boolean;
+  _zone : Zone;
 
   constructor(p1: string, p2: string) {
-    this.players.push(new DngnPlayer(p1));
-    this.players.push(new DngnPlayer(p2));
-    this.eventEmitter = new events.EventEmitter();
+    this._readyPlayers = 0;
+    this._message = "";
+    this._eventEmitter = new events.EventEmitter();
+    this._gameRunning = false;
+    this._zone = new Zone();
   }
 
-  private gameLoop () {
-    
-  };
+  private gameLoop (context : Game) {
+    this._zone.run();
+  }
 
   private init () {
-
+    this._gameLoopID = setInterval(() => { this.gameLoop(this); }, 1000);
+    this._gameRunning = true;
   }
 
   private gameOver () {
-
+    this._gameRunning = false;
   }
 
   private reset () {
@@ -33,24 +37,26 @@ export class Game {
   }
 
   private sendData (d : any) {
-    this.eventEmitter.emit('dataFromGame', d);
+    this._eventEmitter.emit('dataFromGame', d);
   }
 
   // Client message events
 
-  public onPlayerReady (ev: Event) {
-    // A player is ready, increment readyPlayer counter
-    if (++this.readyPlayers >= 2) {
+  public onPlayerReady (ev: CustomEvent) {
+    // A player is ready
+    this._zone.addPlayer(ev.detail.pid, ev.detail.class);
+    // increment readyPlayer counter
+    if (++this._readyPlayers >= 2) {
       // Start game
       this.init();
       // Send updated data to clients
-      this.Message = "Arrow keys to move!";
+      this._message = "Arrow keys to move!";
       this.sendData({
         GameReady: {
-
+          pid: ev.detail.pid
         },
         Toast: {
-          msg: this.Message
+          msg: this._message
         }
       });
     }
@@ -58,8 +64,8 @@ export class Game {
 
   public onInput (ev: any) {
     if (ev.keybd) {
-      if (this.gameRunning) {
-        for (let player of this.players) {
+      if (this._gameRunning) {
+        for (let player of this._zone._players) {
           if (player.pid == ev.pid) {
             player.move(ev.keybd);
           }

@@ -5,13 +5,43 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 define(["require", "exports", "./DngnCCharacter"], function (require, exports, DngnCCharacter_1) {
     "use strict";
-    var DngnCNonPlayer = (function (_super) {
-        __extends(DngnCNonPlayer, _super);
-        function DngnCNonPlayer() {
-            _super.call(this, this.pid);
+    var NonPlayer = (function (_super) {
+        __extends(NonPlayer, _super);
+        function NonPlayer() {
+            _super.call(this);
         }
-        return DngnCNonPlayer;
+        return NonPlayer;
     }(DngnCCharacter_1.DngnCCharacter));
-    exports.DngnCNonPlayer = DngnCNonPlayer;
+    exports.NonPlayer = NonPlayer;
+    var NPWarrior = (function (_super) {
+        __extends(NPWarrior, _super);
+        function NPWarrior() {
+            _super.call(this);
+        }
+        NPWarrior.prototype.slash = function () {
+        };
+        return NPWarrior;
+    }(NonPlayer));
+    exports.NPWarrior = NPWarrior;
+    var NPMage = (function (_super) {
+        __extends(NPMage, _super);
+        function NPMage() {
+            _super.call(this);
+        }
+        NPMage.prototype.cast = function () {
+        };
+        return NPMage;
+    }(NonPlayer));
+    exports.NPMage = NPMage;
+    var NPHealer = (function (_super) {
+        __extends(NPHealer, _super);
+        function NPHealer() {
+            _super.call(this);
+        }
+        NPHealer.prototype.heal = function () {
+        };
+        return NPHealer;
+    }(NonPlayer));
+    exports.NPHealer = NPHealer;
 });
 //# sourceMappingURL=DngnCNonPlayer.js.map
