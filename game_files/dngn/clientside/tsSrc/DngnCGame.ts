@@ -20,6 +20,10 @@ export class DngnCGame {
 	}
 }
 
+enum Classes {
+  Warrior, Mage, Healer
+}
+
 export class CGame {
 	_ngRoom: NgRoom;
 	_dngnEnv: Environment;
@@ -61,7 +65,8 @@ export class CGame {
 					// Send 'PlayerReady' message to server
 					this._ngRoom.dataToServer({
 						PlayerReady: {
-							pid: this._ngRoom.getMyID()
+							pid: this._ngRoom.getMyID(),
+							class: Classes.Warrior
 						}
 					});
 				}

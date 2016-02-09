@@ -25,14 +25,14 @@ var Game = (function () {
     Game.prototype.sendData = function (d) {
         this._eventEmitter.emit('dataFromGame', d);
     };
-    Game.prototype.onPlayerReady = function (ev) {
-        this._zone.addPlayer(ev.detail.pid, ev.detail.class);
+    Game.prototype.onPlayerReady = function (d) {
+        this._zone.addPlayer(d.pid, d.class);
         if (++this._readyPlayers >= 2) {
             this.init();
             this._message = "Arrow keys to move!";
             this.sendData({
                 GameReady: {
-                    pid: ev.detail.pid
+                    pid: d.pid
                 },
                 Toast: {
                     msg: this._message

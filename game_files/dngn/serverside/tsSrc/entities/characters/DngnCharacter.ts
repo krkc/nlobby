@@ -23,7 +23,7 @@ export class DngnCharacter {
   _direction: Direction;
   constructor(_pid : string) {
     this.pid = _pid;
-    this._location = { x : 0, y : 0 };
+    this._location = { x : 10, y : 90 };
     this._velocity = { x: 0, y: 0 };
     this._acceleration = { x: 0, y: 0 };
     this._direction = Direction.EAST;
@@ -78,6 +78,8 @@ export class DngnCharacter {
    * @return x and y axis locations for each side of the character
    */
   public move(_accelerating? : boolean) {
+    if (this._velocity.x == 0 && this._velocity.y == 0)
+      return null;
     // Move or decelerate horizontally
     if (this._velocity.x != 0) {
       this._location.x += this._velocity.x;
@@ -90,9 +92,7 @@ export class DngnCharacter {
       if (!_accelerating)
         this._velocity.y += this._acceleration.y;
     }
-
-    return [this._location.x, (this._location.x + CHAR_WIDTH),
-            this._location.y, (this._location.y + CHAR_HEIGHT)];
+    return this.getSides();
   } // End move
 
   public testXCollisions(_x1: number, _x2: number) {
@@ -149,5 +149,10 @@ export class DngnCharacter {
       // No collisions detected
       return false;
     }
+  }
+
+  public getSides() {
+    return [this._location.x, (this._location.x + CHAR_WIDTH),
+            this._location.y, (this._location.y + CHAR_HEIGHT)];
   }
 } // End class

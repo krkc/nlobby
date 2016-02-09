@@ -42,9 +42,9 @@ export class Game {
 
   // Client message events
 
-  public onPlayerReady (ev: CustomEvent) {
+  public onPlayerReady (d : any) {
     // A player is ready
-    this._zone.addPlayer(ev.detail.pid, ev.detail.class);
+    this._zone.addPlayer(d.pid, d.class);
     // increment readyPlayer counter
     if (++this._readyPlayers >= 2) {
       // Start game
@@ -53,7 +53,7 @@ export class Game {
       this._message = "Arrow keys to move!";
       this.sendData({
         GameReady: {
-          pid: ev.detail.pid
+          pid: d.pid
         },
         Toast: {
           msg: this._message

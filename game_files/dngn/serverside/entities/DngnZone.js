@@ -27,18 +27,59 @@ var Zone = (function () {
         else if (_class == Classes.Healer) {
             this._players.push(new DngnPlayer_1.PHealer(_pid));
         }
+        var _pl = this._players[this._players.length - 1];
+        var _sides = _pl.getSides();
+        this.addToMap(this._leftSideMap, _sides[0], _pl);
+        this.addToMap(this._rightSideMap, _sides[1], _pl);
+        this.addToMap(this._topSideMap, _sides[2], _pl);
+        this.addToMap(this._bottomSideMap, _sides[3], _pl);
     };
     Zone.prototype.removePlayer = function () {
     };
     Zone.prototype.run = function () {
         for (var _i = 0, _a = this._players; _i < _a.length; _i++) {
             var player = _a[_i];
+            var _lastSidesPos = player.getSides();
             var _playerSidesPos = player.move();
             if (_playerSidesPos) {
                 var collidingEntities = [];
+                this.updateBoundaries(player, _lastSidesPos, _playerSidesPos);
                 this.findCollisions(collidingEntities, player._direction, _playerSidesPos);
                 this.handleCollision(collidingEntities);
             }
+        }
+    };
+    Zone.prototype.addToMap = function (_map, _side, _pl) {
+        if (_map[_side]) {
+            _map[_side].push(_pl);
+        }
+        else {
+            _map[_side] = [_pl];
+        }
+    };
+    Zone.prototype.removeFromMap = function (_map, _side, _pl) {
+        var parallelSides = _map[_side];
+        if (parallelSides.length <= 1) {
+            delete _map[_side];
+        }
+        else {
+            parallelSides.splice(parallelSides.indexOf(_pl), 1);
+        }
+    };
+    Zone.prototype.updateBoundaries = function (_player, _lastSides, _newSides) {
+        if (_player._direction == DngnEnums_1.Direction.NORTH ||
+            _player._direction == DngnEnums_1.Direction.SOUTH) {
+            this.removeFromMap(this._topSideMap, _lastSides[2], _player);
+            this.addToMap(this._topSideMap, _newSides[2], _player);
+            this.removeFromMap(this._bottomSideMap, _lastSides[3], _player);
+            this.addToMap(this._bottomSideMap, _newSides[3], _player);
+        }
+        if (_player._direction == DngnEnums_1.Direction.EAST ||
+            _player._direction == DngnEnums_1.Direction.WEST) {
+            this.removeFromMap(this._leftSideMap, _lastSides[0], _player);
+            this.addToMap(this._leftSideMap, _newSides[0], _player);
+            this.removeFromMap(this._rightSideMap, _lastSides[1], _player);
+            this.addToMap(this._rightSideMap, _newSides[1], _player);
         }
     };
     Zone.prototype.findCollisions = function (_entityArr, _direction, _playerSides) {

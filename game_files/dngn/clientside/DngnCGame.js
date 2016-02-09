@@ -7,6 +7,12 @@ define(["require", "exports", "./environment/DngnCEnv"], function (require, expo
         return DngnCGame;
     }());
     exports.DngnCGame = DngnCGame;
+    var Classes;
+    (function (Classes) {
+        Classes[Classes["Warrior"] = 0] = "Warrior";
+        Classes[Classes["Mage"] = 1] = "Mage";
+        Classes[Classes["Healer"] = 2] = "Healer";
+    })(Classes || (Classes = {}));
     var CGame = (function () {
         function CGame(conn) {
             var _this = this;
@@ -33,7 +39,8 @@ define(["require", "exports", "./environment/DngnCEnv"], function (require, expo
                     if (_this.promptMenu()) {
                         _this._ngRoom.dataToServer({
                             PlayerReady: {
-                                pid: _this._ngRoom.getMyID()
+                                pid: _this._ngRoom.getMyID(),
+                                class: Classes.Warrior
                             }
                         });
                     }
