@@ -1,0 +1,11 @@
+extends ../../../views/game
+
+block gameIncludes
+  script(data-main='dngnmain', src='lib/requirejs/require.js')
+  script(src='javascript/NgRoom.js')
+  link(rel='stylesheet', href='dngn.css')
+block gameContent
+  div#canvWrapper
+    canvas#canvbg
+    canvas#canvfg
+    canvas#canvol

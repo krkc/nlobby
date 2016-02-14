@@ -34,8 +34,6 @@ function SnkCGame (conn)
 	var gameRunning;				/* Game running flag */
 	var paused = false;			/* Game pause switch */
 
-
-
 	init();
 
   /**

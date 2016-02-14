@@ -31,33 +31,39 @@ ActiveGames.prototype.newGame = function (gametype, p1, p2) {
   var events = require('events');   /* Node.js Events module */
   var nlConfig = require('../helpers/nLobby.json');
   var Game;
-  var gamedir = "../game_files/" + gametype + "/serverside/";
+  var selectedGame;
+  if (nlConfig.games[gametype]) {
+    selectedGame = nlConfig.games[gametype];
 
-  gamedir += nlConfig.games[gametype].serverEntry;
-  Game = require(gamedir);
+    var gamedir = "../game_files/" + selectedGame.serverDir + "/" + selectedGame.serverEntry;
 
-  if (Game) {
-    // Create new game state object and add to list
-    // TODO: Eventually move persistent data to redis or sqlite
-    if (Game.Game) {
-      // TypeScript
-      this.sessions.push(
-          new Game.Game(p1, p2)
-      );
-    } else {
-      this.sessions.push(
-          new Game(p1, p2)
-      );
+    Game = require(gamedir);
+
+    if (Game) {
+      // Create new game state object and add to list
+      // TODO: Eventually move persistent data to redis or sqlite
+      if (Game.Game) {
+        // TypeScript
+        this.sessions.push(
+            new Game.Game(p1, p2)
+        );
+      } else {
+        this.sessions.push(
+            new Game(p1, p2)
+        );
+      }
+
+      var newGame = this.sessions[this.sessions.length-1];
+      newGame.nlgPlayerOne = { ID: p1 };
+      newGame.nlgPlayerTwo = { ID: p2 };
+      newGame.GameID = p1.toString() + p2.toString();
+      newGame.eventEmitter = new events.EventEmitter();  /* Event emitter object */
+
+      return newGame;
     }
-
-    var newGame = this.sessions[this.sessions.length-1];
-    newGame.nlgPlayerOne = { ID: p1 };
-    newGame.nlgPlayerTwo = { ID: p2 };
-    newGame.GameID = p1.toString() + p2.toString();
-    newGame.eventEmitter = new events.EventEmitter();  /* Event emitter object */
-
-    return newGame;
   }
+  console.log('ActiveGames.newGame: Game unable to be created.');
+  return null;
 };
 
 /**

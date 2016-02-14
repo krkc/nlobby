@@ -9,13 +9,17 @@
   "games" : {
     "snake" : {
       "title" : "Snake",
+      "serverDir" : "snake/serverside",
       "serverEntry" : "snkGame.js",
+      "clientDir" : "snake/clientside",
       "clientEntry" : "snkCGame.js"
     },
     "dngn" : {
       "title" : "dngn",
+      "serverDir" : "dngn/serverjs/serverside",
       "serverEntry" : "DngnGame.js",
-      "clientEntry" : "DngnCGame.js"
+      "clientDir" : "dngn/clientjs",
+      "clientEntry" : "clientside/DngnCGame.js"
     }
   }
 }

@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "sourceMap": true,
+        "outDir": "../../serverjs"
+    },
+    "files": [
+      "node.d.ts",
+      "DngnGame.ts",
+      "../common/DngnEnums.ts",
+      "../common/DngnMessages.ts",
+      "../common/world/DngnZone.ts",
+      "../common/world/entities/DngnEntity.ts",
+      "../common/world/entities/characters/DngnCharacter.ts",
+      "../common/world/entities/characters/DngnPlayer.ts",
+      "../common/world/entities/characters/DngnNonPlayer.ts",
+      "../common/world/entities/characters/DngnClasses.ts"
+    ]
+}

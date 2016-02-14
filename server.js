@@ -7,7 +7,6 @@
 
 
 // Required framework modules:
-var fs = require('fs');
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
@@ -24,10 +23,7 @@ var nlConfig = require('./helpers/nLobby');	/* nLobby config file */
 
 var host;	/* Hostname of the server */
 var port;	/* Port that the server is listening on */
-var gamesInstalledArr;	/* Array of game titles that will be served */
-
-// Get list of installed games
-gamesInstalledArr = fs.readdirSync('./game_files');
+var installedGamesArr = Object.keys(nlConfig.games);	/* Array of game titles that will be served */
 
 // Begin Express server
 server.listen(nlConfig.connection.port, function() {
@@ -44,9 +40,10 @@ var grio = io.of('/gameRoom');		/* Game Room namespace (all players currently pl
 // Make public files visible to express routing
 app.use(express.static(__dirname + '/public'));
 // Make clientside game files visible to express routing
-for (var gameDir of gamesInstalledArr) {
-	app.use(express.static(__dirname + '/game_files/' + gameDir + '/clientside'));
-	app.use(express.static(__dirname + '/game_files/' + gameDir + '/clientside/tsSrc/environment/textures'));
+for (var i of installedGamesArr) {
+	var _game = nlConfig.games[i];
+	app.use(express.static(__dirname + '/game_files/' + _game.clientDir));
+	app.use(express.static(__dirname + '/game_files/' + _game.clientDir + '/textures'));
 }
 // Make bower components visible to express routing
 app.use('/lib',  express.static(__dirname + '/bower_components'));
@@ -54,8 +51,9 @@ io.use(cookieParser());
 
 // Set up templating environment
 var viewsArr = ['./views'];
-for (var gameDir of gamesInstalledArr) {
-	viewsArr.push('./game_files/' + gameDir + '/clientside');
+for (var i of installedGamesArr) {
+	var _game = nlConfig.games[i];
+	viewsArr.push('./game_files/' + _game.clientDir);
 }
 app.set('views', viewsArr);
 app.set('view engine', 'jade');
@@ -78,14 +76,18 @@ app.get('/game', function(req, res) {
 		var gameTitleSafe = req.query.gameTitle.replace(/(<([^>]+)>)/ig,"");
 		// Create new game session and add to list of active games
 		var createdGame = activeGames.newGame(gameTitleSafe, p1Safe, p2Safe);
-		// Player 1 broadcast invite to game lobby for Player 2
-		glio.emit('playerFinder', { pid: p2Safe, game: gameTitleSafe });
+		if (createdGame !== null) {
+			// Player 1 broadcast invite to game lobby for Player 2
+			glio.emit('playerFinder', { pid: p2Safe, game: gameTitleSafe });
+		} else {
+			res.redirect('/');
+		}
 	}
 
 	if (req.headers.cookie) {
 		if (req.headers.cookie.search('sid') != -1) {
 			// User has an id
-			if (gamesInstalledArr.indexOf(req.query.gameTitle) != -1) {
+			if (nlConfig.games[req.query.gameTitle]) {
 				res.render(req.query.gameTitle, routeContent.getGContent(port));
 			} else {
 				res.redirect('/');
