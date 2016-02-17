@@ -1,10 +1,11 @@
 define(["require", "exports", "./environment/DngnCEnv", "../common/DngnMessages", "../common/world/entities/characters/DngnClasses"], function (require, exports, DngnCEnv_1, DngnMessages_1, DngnClasses_1) {
+    "use strict";
     var DngnCGame = (function () {
         function DngnCGame(conn) {
             this.game = new CGame(conn);
         }
         return DngnCGame;
-    })();
+    }());
     exports.DngnCGame = DngnCGame;
     var CGame = (function () {
         function CGame(conn) {
@@ -17,7 +18,7 @@ define(["require", "exports", "./environment/DngnCEnv", "../common/DngnMessages"
             this._ngRoom = new NgRoom(conn, function () {
                 _this._dngnEnv = new DngnCEnv_1.Environment();
                 _this._dngnEnv.loadAssets(function () {
-                    window.addEventListener('keydown', function (event) { return _this._onKeyDown(_this, event); }, true);
+                    window.addEventListener('keydown', function (ev) { return _this._onKeyDown(_this, ev); }, true);
                     addEventListener('onGameStart', function (event) { return _this.onGameStart(_this, event); }, true);
                     addEventListener('onState', function (event) { return _this._onState(_this, event); }, true);
                     addEventListener('onGameOver', function (event) { return _this._onGameOver(_this, event); }, true);
@@ -29,31 +30,32 @@ define(["require", "exports", "./environment/DngnCEnv", "../common/DngnMessages"
                     _this._mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
                     _this._mc.on("panend", function (event) { return _this._onPan(_this, event); });
                     window.addEventListener('resize', function (event) { return _this._dngnEnv.onResize(_this._dngnEnv, event); }, true);
-                    if (_this.promptMenu()) {
+                    _this._dngnEnv.promptMenu(function () {
                         _this._ngRoom.dataToServer(DngnMessages_1.ClientStatusMsg.ready(_this._ngRoom.getMyID(), DngnClasses_1.Classes.Warrior));
-                    }
+                    });
                 });
             });
         }
-        CGame.prototype.promptMenu = function () {
-            this._dngnEnv.titleMenu.showText(0, 50, 50, "Some text");
-            return true;
-        };
         CGame.prototype._onKeyDown = function (GameContext, event) {
             if (GameContext._gameRunning) {
                 if (event.keyCode == DngnMessages_1.Key.Up) {
+                    event.preventDefault();
                     GameContext._ngRoom.dataToServer(DngnMessages_1.ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), DngnMessages_1.Direction.NORTH));
                 }
                 if (event.keyCode == DngnMessages_1.Key.Down) {
+                    event.preventDefault();
                     GameContext._ngRoom.dataToServer(DngnMessages_1.ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), DngnMessages_1.Direction.SOUTH));
                 }
                 if (event.keyCode == DngnMessages_1.Key.Left) {
+                    event.preventDefault();
                     GameContext._ngRoom.dataToServer(DngnMessages_1.ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), DngnMessages_1.Direction.WEST));
                 }
                 if (event.keyCode == DngnMessages_1.Key.Right) {
+                    event.preventDefault();
                     GameContext._ngRoom.dataToServer(DngnMessages_1.ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), DngnMessages_1.Direction.EAST));
                 }
                 if (event.keyCode == DngnMessages_1.Key.Space) {
+                    event.preventDefault();
                     GameContext._ngRoom.dataToServer(DngnMessages_1.ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), DngnMessages_1.Direction.NORTH));
                 }
             }
@@ -89,7 +91,7 @@ define(["require", "exports", "./environment/DngnCEnv", "../common/DngnMessages"
             console.log('Game Over Event');
         };
         return CGame;
-    })();
+    }());
     exports.CGame = CGame;
 });
 //# sourceMappingURL=DngnCGame.js.map

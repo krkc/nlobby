@@ -1,3 +1,4 @@
+"use strict";
 var events = require("events");
 var DngnZone_1 = require("../common/world/DngnZone");
 var Game = (function () {
@@ -41,10 +42,12 @@ var Game = (function () {
     };
     Game.prototype.onInput = function (ev) {
         if (ev.keybd) {
+            console.log('test1');
             if (this._gameRunning) {
                 for (var _i = 0, _a = this._zone._players; _i < _a.length; _i++) {
                     var player = _a[_i];
                     if (player.pid == ev.pid) {
+                        console.log('test2');
                         player.move(ev.keybd);
                     }
                 }
@@ -59,6 +62,6 @@ var Game = (function () {
         this.reset();
     };
     return Game;
-})();
+}());
 exports.Game = Game;
 //# sourceMappingURL=DngnGame.js.map

@@ -10,6 +10,7 @@
 
 import { Menu } from "./DngnCMenu";
 import { HUD } from "./DngnCHUD";
+import { CanvasUnits, CAlign } from "./DngnRCU";
 
 declare type envCallback = () => void;
 
@@ -24,6 +25,7 @@ export class Environment {
   glbg : CanvasRenderingContext2D;  /* 2D rendering context for background */
   glfg : CanvasRenderingContext2D;  /* 2D rendering context for foreground */
   glol : CanvasRenderingContext2D;  /* 2D rendering context for HUD overlay */
+  rcu : CanvasUnits;
   titleMenu : Menu;           /* Class-selection menu */
   hud : HUD;                  /* Heads-up-display */
   characterSprite: {
@@ -38,14 +40,20 @@ export class Environment {
       healer: HTMLImageElement
     }
   };     /* Sprite to be used for game characters */
+  classAvatar: {
+    warrior : HTMLImageElement
+  }
+  assetsToLoad: number;
   constructor() {
-    console.log(this);
     this._getPageElements();
     this._setCanvas();
+    this._setCanvasContext();
+    this.rcu = new CanvasUnits();
+    this.rcu.setRCU(this.canvfg.width, this.canvfg.height);
 
     this.characterSprite = {
       male: {
-        warrior: null,
+        warrior: new Image(),
         mage: null,
         healer: null
       },
@@ -56,7 +64,11 @@ export class Environment {
       }
     };
 
-    this.titleMenu = new Menu();
+    this.classAvatar = { warrior: new Image() };
+
+    this.assetsToLoad = 2;
+
+    this.titleMenu = new Menu(this.classAvatar);
     this.hud = new HUD();
   }
 
@@ -73,9 +85,16 @@ export class Environment {
   }
 
   public loadAssets(callback : envCallback) {
-    this.characterSprite.male.warrior = new Image();
     this.characterSprite.male.warrior.src = "textures/warrior_m.png";
-    callback();
+    this.classAvatar.warrior.src = "textures/warrior_class_profile.png";
+    this.characterSprite.male.warrior.onload = () => { this.checkAssetsLoaded(callback) };
+    this.classAvatar.warrior.onload = () => { this.checkAssetsLoaded(callback) };
+  }
+
+  public checkAssetsLoaded(_done: envCallback) {
+    if (--this.assetsToLoad == 0) {
+      _done();
+    }
   }
 
   /**
@@ -106,7 +125,7 @@ export class Environment {
       this.canvol.setAttribute('width', landscapeWidth);
       this.canvol.setAttribute('height', landscapeHeight);
     } else {
-      let portraitWidth = (this.wWidth - Math.floor(this.wWidth * 0.0)).toString();
+      let portraitWidth = (this.wWidth - Math.floor(this.wWidth * 0.01)).toString();
       let portraitHeight = (this.wHeight - Math.floor(this.wHeight * 0.006)).toString();
       this.wOrientation = "portrait";
       this.canvbg.setAttribute('width', portraitWidth);
@@ -116,8 +135,10 @@ export class Environment {
       this.canvol.setAttribute('width', portraitWidth);
       this.canvol.setAttribute('height', portraitHeight);
     }
+  }
 
-		// Establish a 2D drawing context.
+  private _setCanvasContext() {
+    // Establish a 2D drawing context.
 		try {
 			this.glbg = this.canvbg.getContext("2d");
 			this.glfg = this.canvfg.getContext("2d");
@@ -128,7 +149,28 @@ export class Environment {
 		}
   }
 
+
+
+  /**
+		* @function promptMenu
+		* @memberof CGame
+		* @return {boolean} - Success/failure indication
+		*
+		* @desc Prompts a class-selection menu to the user
+	*/
+	public promptMenu(_callback? : () => void) {
+    this.titleMenu.setLayout(this.glol, this.rcu, this.wOrientation);
+    this.titleMenu.show(this.glol, this.rcu.getRCU(CAlign.BULLSEYE, this.titleMenu.width, this.titleMenu.height));
+		// User has selected a class
+    if (_callback) {
+      _callback();
+    }
+	}
+
   public onResize(EnvContext: Environment, event: Event) {
-    this._setCanvas();
+    EnvContext._setCanvas();
+    EnvContext.rcu.setRCU(EnvContext.canvfg.width, EnvContext.canvfg.height);
+    if (EnvContext.titleMenu.displayed)
+      EnvContext.promptMenu();
   }
 }

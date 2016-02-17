@@ -1,13 +1,15 @@
-define(["require", "exports", "./DngnCMenu", "./DngnCHUD"], function (require, exports, DngnCMenu_1, DngnCHUD_1) {
+define(["require", "exports", "./DngnCMenu", "./DngnCHUD", "./DngnRCU"], function (require, exports, DngnCMenu_1, DngnCHUD_1, DngnRCU_1) {
     "use strict";
     var Environment = (function () {
         function Environment() {
-            console.log(this);
             this._getPageElements();
             this._setCanvas();
+            this._setCanvasContext();
+            this.rcu = new DngnRCU_1.CanvasUnits();
+            this.rcu.setRCU(this.canvfg.width, this.canvfg.height);
             this.characterSprite = {
                 male: {
-                    warrior: null,
+                    warrior: new Image(),
                     mage: null,
                     healer: null
                 },
@@ -17,7 +19,9 @@ define(["require", "exports", "./DngnCMenu", "./DngnCHUD"], function (require, e
                     healer: null
                 }
             };
-            this.titleMenu = new DngnCMenu_1.Menu();
+            this.classAvatar = { warrior: new Image() };
+            this.assetsToLoad = 2;
+            this.titleMenu = new DngnCMenu_1.Menu(this.classAvatar);
             this.hud = new DngnCHUD_1.HUD();
         }
         Object.defineProperty(Environment.prototype, "Foreground", {
@@ -42,9 +46,16 @@ define(["require", "exports", "./DngnCMenu", "./DngnCHUD"], function (require, e
             configurable: true
         });
         Environment.prototype.loadAssets = function (callback) {
-            this.characterSprite.male.warrior = new Image();
+            var _this = this;
             this.characterSprite.male.warrior.src = "textures/warrior_m.png";
-            callback();
+            this.classAvatar.warrior.src = "textures/warrior_class_profile.png";
+            this.characterSprite.male.warrior.onload = function () { _this.checkAssetsLoaded(callback); };
+            this.classAvatar.warrior.onload = function () { _this.checkAssetsLoaded(callback); };
+        };
+        Environment.prototype.checkAssetsLoaded = function (_done) {
+            if (--this.assetsToLoad == 0) {
+                _done();
+            }
         };
         Environment.prototype._getPageElements = function () {
             this.canvbg = document.getElementById("canvbg");
@@ -67,7 +78,7 @@ define(["require", "exports", "./DngnCMenu", "./DngnCHUD"], function (require, e
                 this.canvol.setAttribute('height', landscapeHeight);
             }
             else {
-                var portraitWidth = (this.wWidth - Math.floor(this.wWidth * 0.0)).toString();
+                var portraitWidth = (this.wWidth - Math.floor(this.wWidth * 0.01)).toString();
                 var portraitHeight = (this.wHeight - Math.floor(this.wHeight * 0.006)).toString();
                 this.wOrientation = "portrait";
                 this.canvbg.setAttribute('width', portraitWidth);
@@ -77,6 +88,8 @@ define(["require", "exports", "./DngnCMenu", "./DngnCHUD"], function (require, e
                 this.canvol.setAttribute('width', portraitWidth);
                 this.canvol.setAttribute('height', portraitHeight);
             }
+        };
+        Environment.prototype._setCanvasContext = function () {
             try {
                 this.glbg = this.canvbg.getContext("2d");
                 this.glfg = this.canvfg.getContext("2d");
@@ -86,8 +99,18 @@ define(["require", "exports", "./DngnCMenu", "./DngnCHUD"], function (require, e
                 console.log("Error establishing drawing context.");
             }
         };
+        Environment.prototype.promptMenu = function (_callback) {
+            this.titleMenu.setLayout(this.glol, this.rcu, this.wOrientation);
+            this.titleMenu.show(this.glol, this.rcu.getRCU(DngnRCU_1.CAlign.BULLSEYE, this.titleMenu.width, this.titleMenu.height));
+            if (_callback) {
+                _callback();
+            }
+        };
         Environment.prototype.onResize = function (EnvContext, event) {
-            this._setCanvas();
+            EnvContext._setCanvas();
+            EnvContext.rcu.setRCU(EnvContext.canvfg.width, EnvContext.canvfg.height);
+            if (EnvContext.titleMenu.displayed)
+                EnvContext.promptMenu();
         };
         return Environment;
     }());

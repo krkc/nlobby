@@ -20,6 +20,7 @@
         "../common/world/entities/characters/DngnClasses.ts",
         "environment/DngnCEnv.ts",
         "environment/DngnCMenu.ts",
-        "environment/DngnCHUD.ts"
+        "environment/DngnCHUD.ts",
+        "environment/DngnRCU.ts"
     ]
 }

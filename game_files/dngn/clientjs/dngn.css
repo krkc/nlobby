@@ -8,13 +8,14 @@
   top: 40%;
   right: 0;
   left: 0;
-  z-index: 2;
+  z-index: 3;
   text-align: center;
 }
 
 #canvWrapper {
-  width: 100%;
   height: 100%;
+  width: 100%;
+  margin: 0;
 }
 
 #canvbg {
@@ -35,16 +36,29 @@
   z-index: 2;
 }
 
-/*  */
-@media (min-width: 768px) {
+
+@media (max-width: 619px) {
   #canvWrapper {
-    margin-left: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
   }
 }
 
-@media (min-width: 992px) {
+/*  */
+@media (min-width: 620px) {
   #canvWrapper {
-    margin: 2%;
+    margin: 0;
+    width: 60%;
+    margin-top: 2%;
     margin-left: 20%;
   }
 }
+
+/*@media (min-width: 992px) {
+  #canvWrapper {
+    margin-top: 2%;
+    margin-left: 20%;
+    width: 60%;
+  }
+}*/

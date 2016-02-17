@@ -44,7 +44,7 @@ export class CGame {
 			this._dngnEnv = new Environment();
 			this._dngnEnv.loadAssets(() => {
 				// Register event listener for keypresses, clicks, and touches.
-				window.addEventListener('keydown', (event: KeyboardEvent) => this._onKeyDown(this, event), true);
+				window.addEventListener('keydown', (ev: KeyboardEvent) => this._onKeyDown(this, ev), true);
 				//window.onkeydown = (event: Event) => this._onKeyDown(this, event);
 				// Register custom event listeners
 				addEventListener('onGameStart', (event: CustomEvent) => this.onGameStart(this, event), true);
@@ -63,28 +63,17 @@ export class CGame {
 				window.addEventListener('resize', (event: Event) => this._dngnEnv.onResize(this._dngnEnv, event), true);
 				// Prompt user with class-selection menu
 
-				if (this.promptMenu()) {
+				this._dngnEnv.promptMenu( () => {
 					// Send 'PlayerReady' message to server
 					this._ngRoom.dataToServer(ClientStatusMsg.ready(this._ngRoom.getMyID(), Classes.Warrior));
-				}
+				});
 			});
 		});
 
 	}	// End DngnCGame constructor
 
 
-	/**
-		* @function promptMenu
-		* @memberof CGame
-		* @return {boolean} - Success/failure indication
-		*
-		* @desc Prompts a class-selection menu to the user
-	*/
-	private promptMenu() {
-		this._dngnEnv.titleMenu.showText(0, 50, 50, "Some text");
-		// User has selected a class
-		return true;
-	}
+
 
 
 
@@ -94,18 +83,23 @@ export class CGame {
 		if (GameContext._gameRunning) {
 			// ---- Arrow Key --------------
 			if (event.keyCode == Key.Up) {
+				event.preventDefault();
 				GameContext._ngRoom.dataToServer(ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), Direction.NORTH));
 			}
 			if (event.keyCode == Key.Down) {
+				event.preventDefault();
 				GameContext._ngRoom.dataToServer(ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), Direction.SOUTH));
 			}
 			if (event.keyCode == Key.Left) {
+				event.preventDefault();
 				GameContext._ngRoom.dataToServer(ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), Direction.WEST));
 			}
 			if (event.keyCode == Key.Right) {
+				event.preventDefault();
 				GameContext._ngRoom.dataToServer(ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), Direction.EAST));
 			}
 			if (event.keyCode == Key.Space) {
+				event.preventDefault();
 				GameContext._ngRoom.dataToServer(ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), Direction.NORTH));
 			}
 		}

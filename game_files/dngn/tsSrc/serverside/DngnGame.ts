@@ -74,9 +74,11 @@ export class Game {
 
   public onInput (ev: any) {
     if (ev.keybd) {
+      console.log('test1');
       if (this._gameRunning) {
         for (let player of this._zone._players) {
           if (player.pid == ev.pid) {
+            console.log('test2');
             player.move(ev.keybd);
           }
         }
