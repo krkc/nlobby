@@ -1,4 +1,4 @@
-define(["require", "exports"], function (require, exports) {
+define(["require", "exports", "../../common/DngnMessages", "../../common/world/entities/characters/DngnClasses"], function (require, exports, DngnMessages_1, DngnClasses_1) {
     "use strict";
     var Menu = (function () {
         function Menu(_avatars) {
@@ -8,10 +8,14 @@ define(["require", "exports"], function (require, exports) {
             this.position = { x: 0, y: 0 };
             this.heading = { text: "Please choose a class", width: 0,
                 height: 0, vOffset: 0, hOffset: 0 };
-            this.classProfiles = [new ClassProfile(_avatars.warrior),
-                new ClassProfile(_avatars.warrior), new ClassProfile(_avatars.warrior)];
+            this.classProfiles = [new ClassProfile(_avatars.warrior, DngnClasses_1.Classes.Warrior),
+                new ClassProfile(_avatars.warrior, DngnClasses_1.Classes.Warrior),
+                new ClassProfile(_avatars.warrior, DngnClasses_1.Classes.Warrior)];
+            this.callback = null;
         }
-        Menu.prototype.setLayout = function (_glol, _rcu, _orientation) {
+        Menu.prototype.setLayout = function (_glol, _rcu, _orientation, _cb) {
+            if (_cb)
+                this.callback = _cb;
             if (_orientation == "landscape") {
                 this.width = _rcu.y[79];
                 this.height = _rcu.y[74];
@@ -56,11 +60,34 @@ define(["require", "exports"], function (require, exports) {
             glol.clearRect(this.position.x, this.position.y, this.width, this.height);
             this.displayed = false;
         };
+        Menu.prototype.onClick = function (mouseX, mouseY) {
+            for (var _i = 0, _a = this.classProfiles; _i < _a.length; _i++) {
+                var _profile = _a[_i];
+                var leftSide = this.position.x + _profile.positionOffset.x;
+                var rightSide = leftSide + _profile.width;
+                var topSide = this.position.y + _profile.positionOffset.y;
+                var bottomSide = topSide + _profile.height;
+                if (mouseX > leftSide && mouseX < rightSide) {
+                    if (mouseY > topSide && mouseY < bottomSide) {
+                        this.callback(_profile.classID);
+                    }
+                }
+            }
+        };
+        Menu.prototype.onKey = function (keyCode) {
+            if (keyCode == DngnMessages_1.Key.One)
+                this.callback(DngnClasses_1.Classes.Warrior);
+            else if (keyCode == DngnMessages_1.Key.Two)
+                this.callback(DngnClasses_1.Classes.Mage);
+            else if (keyCode == DngnMessages_1.Key.Three)
+                this.callback(DngnClasses_1.Classes.Healer);
+        };
         return Menu;
     }());
     exports.Menu = Menu;
     var ClassProfile = (function () {
-        function ClassProfile(_avatar) {
+        function ClassProfile(_avatar, _classID) {
+            this.classID = 0;
             this.width = 0;
             this.height = 0;
             this.positionOffset = { x: 0, y: 0 };

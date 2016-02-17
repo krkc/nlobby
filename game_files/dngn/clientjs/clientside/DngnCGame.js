@@ -1,4 +1,4 @@
-define(["require", "exports", "./environment/DngnCEnv", "../common/DngnMessages", "../common/world/entities/characters/DngnClasses"], function (require, exports, DngnCEnv_1, DngnMessages_1, DngnClasses_1) {
+define(["require", "exports", "./environment/DngnCEnv", "../common/DngnMessages"], function (require, exports, DngnCEnv_1, DngnMessages_1) {
     "use strict";
     var DngnCGame = (function () {
         function DngnCGame(conn) {
@@ -30,14 +30,18 @@ define(["require", "exports", "./environment/DngnCEnv", "../common/DngnMessages"
                     _this._mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
                     _this._mc.on("panend", function (event) { return _this._onPan(_this, event); });
                     window.addEventListener('resize', function (event) { return _this._dngnEnv.onResize(_this._dngnEnv, event); }, true);
-                    _this._dngnEnv.promptMenu(function () {
-                        _this._ngRoom.dataToServer(DngnMessages_1.ClientStatusMsg.ready(_this._ngRoom.getMyID(), DngnClasses_1.Classes.Warrior));
+                    _this._dngnEnv.promptMenu(function (_selectedClass) {
+                        _this._dngnEnv.hideMenu();
+                        _this._ngRoom.dataToServer(DngnMessages_1.ClientStatusMsg.ready(_this._ngRoom.getMyID(), _selectedClass));
                     });
                 });
             });
         }
         CGame.prototype._onKeyDown = function (GameContext, event) {
-            if (GameContext._gameRunning) {
+            if (GameContext._dngnEnv.titleMenu.displayed) {
+                GameContext._dngnEnv.titleMenu.onKey(event.keyCode);
+            }
+            else if (GameContext._gameRunning) {
                 if (event.keyCode == DngnMessages_1.Key.Up) {
                     event.preventDefault();
                     GameContext._ngRoom.dataToServer(DngnMessages_1.ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), DngnMessages_1.Direction.NORTH));
@@ -61,7 +65,11 @@ define(["require", "exports", "./environment/DngnCEnv", "../common/DngnMessages"
             }
         };
         CGame.prototype._onClick = function (GameContext, event) {
-            GameContext._ngRoom.dataToServer(DngnMessages_1.ClientInputMsg.click(GameContext._ngRoom.getMyID(), event.clientX, event.clientY));
+            if (GameContext._dngnEnv.titleMenu.displayed) {
+                GameContext._dngnEnv.titleMenu.onClick(event.clientX, event.clientY);
+            }
+            else {
+            }
         };
         CGame.prototype._onPan = function (GameContext, event) {
             if (event.direction == 8) {

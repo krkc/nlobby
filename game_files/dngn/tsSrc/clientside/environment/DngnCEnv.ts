@@ -11,6 +11,7 @@
 import { Menu } from "./DngnCMenu";
 import { HUD } from "./DngnCHUD";
 import { CanvasUnits, CAlign } from "./DngnRCU";
+import { Classes } from "../../common/world/entities/characters/DngnClasses";
 
 declare type envCallback = () => void;
 
@@ -153,19 +154,30 @@ export class Environment {
 
   /**
 		* @function promptMenu
-		* @memberof CGame
-		* @return {boolean} - Success/failure indication
+		* @memberof Environment
+    * @param _callback - Callback function to call when class selected
 		*
 		* @desc Prompts a class-selection menu to the user
 	*/
-	public promptMenu(_callback? : () => void) {
+	public promptMenu(_callback? : (_selectedClass: Classes) => void) {
+    if (_callback) {
+      this.titleMenu.setLayout(this.glol, this.rcu, this.wOrientation, _callback);
+    }
     this.titleMenu.setLayout(this.glol, this.rcu, this.wOrientation);
     this.titleMenu.show(this.glol, this.rcu.getRCU(CAlign.BULLSEYE, this.titleMenu.width, this.titleMenu.height));
 		// User has selected a class
-    if (_callback) {
-      _callback();
-    }
 	}
+
+  /**
+		* @function hideMenu
+		* @memberof Environment
+		*
+		* @desc Hides the class-selection menu
+	*/
+  public hideMenu() {
+    if (this.titleMenu.displayed)
+      this.titleMenu.hide(this.glol);
+  }
 
   public onResize(EnvContext: Environment, event: Event) {
     EnvContext._setCanvas();

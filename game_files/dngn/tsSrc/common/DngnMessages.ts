@@ -1,7 +1,7 @@
 import { Classes } from "../common/world/entities/characters/DngnClasses";
 
 export enum Direction { NORTH, SOUTH, EAST, WEST };
-export enum Key { Left = 37, Up = 38, Right = 39, Down = 40, Space = 32 };
+export enum Key { Left = 37, Up = 38, Right = 39, Down = 40, Space = 32, One = 49, Two = 50, Three = 51 };
 
 // ---- Client Messages ---- //
 

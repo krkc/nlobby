@@ -14,6 +14,9 @@ define(["require", "exports"], function (require, exports) {
         Key[Key["Right"] = 39] = "Right";
         Key[Key["Down"] = 40] = "Down";
         Key[Key["Space"] = 32] = "Space";
+        Key[Key["One"] = 49] = "One";
+        Key[Key["Two"] = 50] = "Two";
+        Key[Key["Three"] = 51] = "Three";
     })(exports.Key || (exports.Key = {}));
     var Key = exports.Key;
     ;

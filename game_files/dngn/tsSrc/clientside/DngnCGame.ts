@@ -63,9 +63,10 @@ export class CGame {
 				window.addEventListener('resize', (event: Event) => this._dngnEnv.onResize(this._dngnEnv, event), true);
 				// Prompt user with class-selection menu
 
-				this._dngnEnv.promptMenu( () => {
+				this._dngnEnv.promptMenu( (_selectedClass: Classes) => {
+					this._dngnEnv.hideMenu();
 					// Send 'PlayerReady' message to server
-					this._ngRoom.dataToServer(ClientStatusMsg.ready(this._ngRoom.getMyID(), Classes.Warrior));
+					this._ngRoom.dataToServer(ClientStatusMsg.ready(this._ngRoom.getMyID(), _selectedClass));
 				});
 			});
 		});
@@ -80,6 +81,9 @@ export class CGame {
 
 	// Event handler: '_onKeyDown'
 	private _onKeyDown(GameContext: CGame, event: KeyboardEvent) {
+		if (GameContext._dngnEnv.titleMenu.displayed) {
+			GameContext._dngnEnv.titleMenu.onKey(event.keyCode);
+		} else
 		if (GameContext._gameRunning) {
 			// ---- Arrow Key --------------
 			if (event.keyCode == Key.Up) {
@@ -106,7 +110,11 @@ export class CGame {
 	}
 	// Event handler: '_onClick'
 	private _onClick(GameContext: CGame, event: MouseEvent) {
-		GameContext._ngRoom.dataToServer(ClientInputMsg.click(GameContext._ngRoom.getMyID(), event.clientX, event.clientY));
+		if (GameContext._dngnEnv.titleMenu.displayed) {
+			GameContext._dngnEnv.titleMenu.onClick(event.clientX, event.clientY);
+		} else {
+			// GameContext._ngRoom.dataToServer(ClientInputMsg.click(GameContext._ngRoom.getMyID(), event.clientX, event.clientY));
+		}
 	}
 	// Event handler: '_onPan'
 	private _onPan(GameContext: CGame, event: HammerInput) {

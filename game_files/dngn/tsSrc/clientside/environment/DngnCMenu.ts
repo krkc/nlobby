@@ -9,6 +9,8 @@
  */
 
 import { CanvasUnits, CAlign } from "./DngnRCU";
+import { Key } from "../../common/DngnMessages";
+import { Classes } from "../../common/world/entities/characters/DngnClasses";
 
 export class Menu {
   displayed: boolean;   /* indicates if menu is currently displayed */
@@ -19,6 +21,7 @@ export class Menu {
   htWidth: number;
   heading: { text: string, width: number, height: number, vOffset: number, hOffset: number };
   classProfiles: ClassProfile[];
+  callback: any;
   constructor(_avatars : { warrior: HTMLImageElement }) {
     this.displayed = false;
     this.width = 0;
@@ -26,11 +29,15 @@ export class Menu {
     this.position = { x: 0, y: 0 };
     this.heading = { text: "Please choose a class", width: 0,
                       height: 0, vOffset: 0, hOffset: 0 };
-    this.classProfiles = [new ClassProfile(_avatars.warrior),
-        new ClassProfile(_avatars.warrior), new ClassProfile(_avatars.warrior)];
+    this.classProfiles = [new ClassProfile(_avatars.warrior, Classes.Warrior),
+        new ClassProfile(_avatars.warrior, Classes.Warrior),
+        new ClassProfile(_avatars.warrior, Classes.Warrior)];
+    this.callback = null;
   }
 
-  public setLayout(_glol: CanvasRenderingContext2D, _rcu: CanvasUnits, _orientation: string) {
+  public setLayout(_glol: CanvasRenderingContext2D, _rcu: CanvasUnits, _orientation: string, _cb?: (_selectedClass: Classes) => void) {
+    if (_cb) this.callback = _cb;
+
     if (_orientation == "landscape") {
       this.width = _rcu.y[79];
       this.height = _rcu.y[74];
@@ -88,18 +95,48 @@ export class Menu {
     return true;
   }
 
+  /**
+   * This method hides the class selection menu
+   *
+   * @param glol - The canvas rendering context
+   */
   public hide(glol: CanvasRenderingContext2D) {
     glol.clearRect(this.position.x, this.position.y, this.width, this.height);
     this.displayed = false;
   }
+
+  public onClick(mouseX: number, mouseY: number) {
+    for (let _profile of this.classProfiles) {
+      let leftSide = this.position.x + _profile.positionOffset.x;
+      let rightSide = leftSide + _profile.width;
+      let topSide = this.position.y + _profile.positionOffset.y;
+      let bottomSide = topSide + _profile.height;
+      if (mouseX > leftSide && mouseX < rightSide) {
+        if (mouseY > topSide && mouseY < bottomSide) {
+          this.callback(_profile.classID);
+        }
+      }
+    }
+  }
+
+  public onKey(keyCode: number) {
+    if (keyCode == Key.One)
+      this.callback(Classes.Warrior);
+    else if (keyCode == Key.Two)
+      this.callback(Classes.Mage);
+    else if (keyCode == Key.Three)
+      this.callback(Classes.Healer);
+  }
 }
 
 class ClassProfile {
+  classID: Classes;
   width: number;
   height: number;
   positionOffset: { x: number, y: number };
   avatar: HTMLImageElement;
-  constructor(_avatar : HTMLImageElement) {
+  constructor(_avatar : HTMLImageElement, _classID : Classes) {
+    this.classID = 0;
     this.width = 0;
     this.height = 0;
     this.positionOffset = { x: 0, y: 0 };

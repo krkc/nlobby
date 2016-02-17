@@ -100,11 +100,15 @@ define(["require", "exports", "./DngnCMenu", "./DngnCHUD", "./DngnRCU"], functio
             }
         };
         Environment.prototype.promptMenu = function (_callback) {
+            if (_callback) {
+                this.titleMenu.setLayout(this.glol, this.rcu, this.wOrientation, _callback);
+            }
             this.titleMenu.setLayout(this.glol, this.rcu, this.wOrientation);
             this.titleMenu.show(this.glol, this.rcu.getRCU(DngnRCU_1.CAlign.BULLSEYE, this.titleMenu.width, this.titleMenu.height));
-            if (_callback) {
-                _callback();
-            }
+        };
+        Environment.prototype.hideMenu = function () {
+            if (this.titleMenu.displayed)
+                this.titleMenu.hide(this.glol);
         };
         Environment.prototype.onResize = function (EnvContext, event) {
             EnvContext._setCanvas();
