@@ -217,7 +217,7 @@ Game.prototype.onPlayerReady = function (ev)
       }
     });
   }
-} // End onPlayerReady
+}; // End onPlayerReady
 
 Game.prototype.onInput = function (ev)
 {
@@ -248,14 +248,14 @@ Game.prototype.onInput = function (ev)
       }
     }
   }
-} // End onInput
+}; // End onInput
 
 Game.prototype.onResetRequest = function (ev)
 {
   // -- Server message: 'ResetRequest' -- //
   // Perform reset
   this.reset();
-} // End onResetRequest
+}; // End onResetRequest
 
 
 module.exports = Game;

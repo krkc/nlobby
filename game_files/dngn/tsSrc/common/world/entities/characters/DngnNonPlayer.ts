@@ -21,6 +21,6 @@ export class NPMage extends NonPlayer {
 export class NPHealer extends NonPlayer {
   constructor(_pid: string) {
     super(_pid);
-    
+
   }
-}
+} // End class NPHealer

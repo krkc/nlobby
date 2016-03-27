@@ -1,5 +1,4 @@
 define(["require", "exports"], function (require, exports) {
-    "use strict";
     (function (CAlign) {
         CAlign[CAlign["TOP_LEFT"] = 0] = "TOP_LEFT";
         CAlign[CAlign["TOP_RIGHT"] = 1] = "TOP_RIGHT";
@@ -48,7 +47,7 @@ define(["require", "exports"], function (require, exports) {
                 return { x: this.x[50] - (width / 2), y: this.y[50] - (width / 2) };
         };
         return CanvasUnits;
-    }());
+    })();
     exports.CanvasUnits = CanvasUnits;
 });
 //# sourceMappingURL=DngnRCU.js.map

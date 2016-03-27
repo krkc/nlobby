@@ -12,9 +12,18 @@ var Direction = exports.Direction;
     Key[Key["Right"] = 39] = "Right";
     Key[Key["Down"] = 40] = "Down";
     Key[Key["Space"] = 32] = "Space";
+    Key[Key["One"] = 49] = "One";
+    Key[Key["Two"] = 50] = "Two";
+    Key[Key["Three"] = 51] = "Three";
 })(exports.Key || (exports.Key = {}));
 var Key = exports.Key;
 ;
+var ClientMessage = (function () {
+    function ClientMessage() {
+    }
+    return ClientMessage;
+})();
+exports.ClientMessage = ClientMessage;
 var ClientInputMsg = (function () {
     function ClientInputMsg() {
     }
@@ -53,10 +62,34 @@ var ClientStatusMsg = (function () {
     return ClientStatusMsg;
 })();
 exports.ClientStatusMsg = ClientStatusMsg;
-var ServerStatusMsg = (function () {
-    function ServerStatusMsg() {
+var ServerMessage = (function () {
+    function ServerMessage() {
+        this.GameReady = null;
+        this.Toast = null;
+        this.StateUpdate = null;
     }
-    return ServerStatusMsg;
+    return ServerMessage;
 })();
-exports.ServerStatusMsg = ServerStatusMsg;
+exports.ServerMessage = ServerMessage;
+var ServerStatusMessages = (function () {
+    function ServerStatusMessages() {
+    }
+    ServerStatusMessages.Ready = function (_pid) {
+        var _rm = { pid: _pid };
+        return _rm;
+    };
+    ServerStatusMessages.Toast = function (_msg, _pid) {
+        var _tm = { msg: _msg };
+        if (_pid) {
+            _tm.pid = _pid;
+        }
+        return _tm;
+    };
+    ServerStatusMessages.State = function () {
+        var _sm = {};
+        return _sm;
+    };
+    return ServerStatusMessages;
+})();
+exports.ServerStatusMessages = ServerStatusMessages;
 //# sourceMappingURL=DngnMessages.js.map

@@ -1,5 +1,4 @@
 define(["require", "exports", "../../common/DngnMessages", "../../common/world/entities/characters/DngnClasses"], function (require, exports, DngnMessages_1, DngnClasses_1) {
-    "use strict";
     var Menu = (function () {
         function Menu(_avatars) {
             this.displayed = false;
@@ -27,20 +26,20 @@ define(["require", "exports", "../../common/DngnMessages", "../../common/world/e
                 this.heading.height = _rcu.x[6];
             }
             _glol.font = this.heading.height + "px Arial";
-            this.heading.width = _glol.measureText(this.heading.text).width;
-            this.heading.vOffset = (this.height * 0.125);
-            this.heading.hOffset = (this.width / 2) - (this.heading.width / 2);
+            this.heading.width = Math.floor(_glol.measureText(this.heading.text).width);
+            this.heading.vOffset = Math.floor(this.height * 0.125);
+            this.heading.hOffset = Math.floor((this.width / 2) - (this.heading.width / 2));
             for (var _i = 0, _a = this.classProfiles; _i < _a.length; _i++) {
                 var profile = _a[_i];
-                profile.width = this.width * 0.2;
-                profile.height = this.height * 0.6;
+                profile.width = Math.floor(this.width * 0.2);
+                profile.height = Math.floor(this.height * 0.6);
                 profile.avatar.width = profile.width;
                 profile.avatar.height = profile.height;
-                profile.positionOffset.y = (this.height * 0.3);
+                profile.positionOffset.y = Math.floor(this.height * 0.3);
             }
-            this.classProfiles[0].positionOffset.x = ((this.width / 4) - (this.classProfiles[0].width / 2));
-            this.classProfiles[1].positionOffset.x = ((this.width / 2) - (this.classProfiles[1].width / 2));
-            this.classProfiles[2].positionOffset.x = ((this.width / 4 * 3) - (this.classProfiles[2].width / 2));
+            this.classProfiles[0].positionOffset.x = Math.floor((this.width / 4) - (this.classProfiles[0].width / 2));
+            this.classProfiles[1].positionOffset.x = Math.floor((this.width / 2) - (this.classProfiles[1].width / 2));
+            this.classProfiles[2].positionOffset.x = Math.floor((this.width / 4 * 3) - (this.classProfiles[2].width / 2));
         };
         Menu.prototype.show = function (glol, align) {
             this.position.x = align.x;
@@ -83,7 +82,7 @@ define(["require", "exports", "../../common/DngnMessages", "../../common/world/e
                 this.callback(DngnClasses_1.Classes.Healer);
         };
         return Menu;
-    }());
+    })();
     exports.Menu = Menu;
     var ClassProfile = (function () {
         function ClassProfile(_avatar, _classID) {
@@ -94,6 +93,6 @@ define(["require", "exports", "../../common/DngnMessages", "../../common/world/e
             this.avatar = _avatar;
         }
         return ClassProfile;
-    }());
+    })();
 });
 //# sourceMappingURL=DngnCMenu.js.map

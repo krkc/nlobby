@@ -1,5 +1,5 @@
-"use strict";
 var events = require("events");
+var Messages = require("../common/DngnMessages");
 var DngnZone_1 = require("../common/world/DngnZone");
 var Game = (function () {
     function Game(p1, p2) {
@@ -22,22 +22,18 @@ var Game = (function () {
     };
     Game.prototype.reset = function () {
     };
-    Game.prototype.sendData = function (d) {
-        this._eventEmitter.emit('dataFromGame', d);
+    Game.prototype.sendData = function (m) {
+        this._eventEmitter.emit('dataFromGame', m);
     };
-    Game.prototype.onPlayerReady = function (d) {
-        this._zone.addPlayer(d.pid, d.class);
+    Game.prototype.onPlayerReady = function (m) {
+        this._zone.addPlayer(m.pid, m.class);
         if (++this._readyPlayers >= 2) {
             this.init();
             this._message = "Arrow keys to move!";
-            this.sendData({
-                GameReady: {
-                    pid: d.pid
-                },
-                Toast: {
-                    msg: this._message
-                }
-            });
+            var _msg = new Messages.ServerMessage();
+            _msg.GameReady = Messages.ServerStatusMessages.Ready(m.pid);
+            _msg.Toast = Messages.ServerStatusMessages.Toast(this._message);
+            this.sendData(_msg);
         }
     };
     Game.prototype.onInput = function (ev) {
@@ -62,6 +58,6 @@ var Game = (function () {
         this.reset();
     };
     return Game;
-}());
+})();
 exports.Game = Game;
 //# sourceMappingURL=DngnGame.js.map

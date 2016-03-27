@@ -11,11 +11,11 @@
 /// <reference path="../../../../public/javascript/NgRoom.d.ts"/>
 /// <reference path="hammerjs.d.ts"/>
 
-
 import { Environment } from "./environment/DngnCEnv";
 import { Zone } from "../common/world/DngnZone";
-import { Direction, Key, ClientInputMsg, ClientStatusMsg } from "../common/DngnMessages";
+import * as Messages from "../common/DngnMessages";
 import { Classes } from "../common/world/entities/characters/DngnClasses";
+import { Entity } from "../common/world/entities/DngnEntity";
 
 export class DngnCGame {
 	game : CGame;
@@ -42,6 +42,8 @@ export class CGame {
 		// Connect to game room, load assets, and prepare game environment
 		this._ngRoom = new NgRoom(conn, () => {
 			this._dngnEnv = new Environment();
+			this._zone = new Zone();
+			this._zone._myPlayer.pid = this._ngRoom.getMyID();
 			this._dngnEnv.loadAssets(() => {
 				// Register event listener for keypresses, clicks, and touches.
 				window.addEventListener('keydown', (ev: KeyboardEvent) => this._onKeyDown(this, ev), true);
@@ -61,12 +63,14 @@ export class CGame {
 				this._mc.on("panend", (event: HammerInput) => this._onPan(this, event));
 				// Register event listener for window resize and reset.
 				window.addEventListener('resize', (event: Event) => this._dngnEnv.onResize(this._dngnEnv, event), true);
-				// Prompt user with class-selection menu
 
+				// Draw background
+				this._dngnEnv.drawBackground();
+				// Prompt user with class-selection menu
 				this._dngnEnv.promptMenu( (_selectedClass: Classes) => {
 					this._dngnEnv.hideMenu();
 					// Send 'PlayerReady' message to server
-					this._ngRoom.dataToServer(ClientStatusMsg.ready(this._ngRoom.getMyID(), _selectedClass));
+					this._ngRoom.dataToServer(Messages.ClientStatusMsg.ready(this._ngRoom.getMyID(), _selectedClass));
 				});
 			});
 		});
@@ -74,7 +78,18 @@ export class CGame {
 	}	// End DngnCGame constructor
 
 
+	private gameLoop() {
+		// See if my player is moving
+		if (this._zone._myPlayer.isMoving()) {
+			this._dngnEnv.bgStateChanged = true;
+		}
+		// TODO: make a decision!!!!!!!! (ugh)
+		//this._dngnEnv.scene.add(this._zone._players);
+		//this._dngnEnv.scene.add(this._zone._npcs);
 
+		// Redraw entire scene
+		this._dngnEnv.drawScene(this._zone._players);
+	}
 
 
 
@@ -86,25 +101,25 @@ export class CGame {
 		} else
 		if (GameContext._gameRunning) {
 			// ---- Arrow Key --------------
-			if (event.keyCode == Key.Up) {
+			if (event.keyCode == Messages.Key.Up) {
 				event.preventDefault();
-				GameContext._ngRoom.dataToServer(ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), Direction.NORTH));
+				GameContext._ngRoom.dataToServer(Messages.ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), Messages.Direction.NORTH));
 			}
-			if (event.keyCode == Key.Down) {
+			if (event.keyCode == Messages.Key.Down) {
 				event.preventDefault();
-				GameContext._ngRoom.dataToServer(ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), Direction.SOUTH));
+				GameContext._ngRoom.dataToServer(Messages.ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), Messages.Direction.SOUTH));
 			}
-			if (event.keyCode == Key.Left) {
+			if (event.keyCode == Messages.Key.Left) {
 				event.preventDefault();
-				GameContext._ngRoom.dataToServer(ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), Direction.WEST));
+				GameContext._ngRoom.dataToServer(Messages.ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), Messages.Direction.WEST));
 			}
-			if (event.keyCode == Key.Right) {
+			if (event.keyCode == Messages.Key.Right) {
 				event.preventDefault();
-				GameContext._ngRoom.dataToServer(ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), Direction.EAST));
+				GameContext._ngRoom.dataToServer(Messages.ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), Messages.Direction.EAST));
 			}
-			if (event.keyCode == Key.Space) {
+			if (event.keyCode == Messages.Key.Space) {
 				event.preventDefault();
-				GameContext._ngRoom.dataToServer(ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), Direction.NORTH));
+				GameContext._ngRoom.dataToServer(Messages.ClientInputMsg.keyDown(GameContext._ngRoom.getMyID(), Messages.Direction.NORTH));
 			}
 		}
 	}
@@ -119,16 +134,16 @@ export class CGame {
 	// Event handler: '_onPan'
 	private _onPan(GameContext: CGame, event: HammerInput) {
 		if (event.direction == 8) {
-			GameContext._ngRoom.dataToServer(ClientInputMsg.pan(GameContext._ngRoom.getMyID(), Direction.NORTH));
+			GameContext._ngRoom.dataToServer(Messages.ClientInputMsg.pan(GameContext._ngRoom.getMyID(), Messages.Direction.NORTH));
 		}
 		if (event.direction == 16) {
-			GameContext._ngRoom.dataToServer(ClientInputMsg.pan(GameContext._ngRoom.getMyID(), Direction.SOUTH));
+			GameContext._ngRoom.dataToServer(Messages.ClientInputMsg.pan(GameContext._ngRoom.getMyID(), Messages.Direction.SOUTH));
 		}
 		if (event.direction == 4) {
-			GameContext._ngRoom.dataToServer(ClientInputMsg.pan(GameContext._ngRoom.getMyID(), Direction.EAST));
+			GameContext._ngRoom.dataToServer(Messages.ClientInputMsg.pan(GameContext._ngRoom.getMyID(), Messages.Direction.EAST));
 		}
 		if (event.direction == 2) {
-			GameContext._ngRoom.dataToServer(ClientInputMsg.pan(GameContext._ngRoom.getMyID(), Direction.WEST));
+			GameContext._ngRoom.dataToServer(Messages.ClientInputMsg.pan(GameContext._ngRoom.getMyID(), Messages.Direction.WEST));
 		}
 	}
 	// Event handler: '_onGameReset'
@@ -138,11 +153,17 @@ export class CGame {
 	// Event handler: '_onGameStart'
 	public onGameStart(GameContext: CGame, event: CustomEvent) {
 		console.log('Game Start Event');
+		// Start game loop
+		this._gameLoopID = setInterval(() => this.gameLoop, 1000);
 		GameContext._gameRunning = true;
 	}
 	// Event handler: '_onState'
 	private _onState(GameContext: CGame, event: CustomEvent) {
 		console.log('State Event');
+		if (this._gameRunning) {
+			// Process state data
+			this._zone.run();
+		}
 	}
 	// Event handler: '_onGameOver'
 	private _onGameOver(GameContext: CGame, event: CustomEvent) {

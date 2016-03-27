@@ -8,8 +8,8 @@
  * @license GPLv3
  */
 
- export class HUD {
-   constructor() {
-     
-   }
- }
+export class HUD {
+  constructor() {
+
+  }
+}

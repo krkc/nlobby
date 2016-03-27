@@ -16,8 +16,8 @@
     },
     "dngn" : {
       "title" : "dngn",
-      "serverDir" : "dngn/serverjs/serverside",
-      "serverEntry" : "DngnGame.js",
+      "serverDir" : "dngn/serverjs",
+      "serverEntry" : "serverside/DngnGame.js",
       "clientDir" : "dngn/clientjs",
       "clientEntry" : "clientside/DngnCGame.js"
     }

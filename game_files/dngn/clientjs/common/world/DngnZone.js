@@ -8,6 +8,7 @@ define(["require", "exports", "./entities/characters/DngnPlayer", "../DngnEnums"
     var Zone = (function () {
         function Zone() {
             this._players = [];
+            this._myPlayer = new DngnPlayer_1.Player();
             this._npcs = [];
             this._topSideMap = {};
             this._bottomSideMap = {};
@@ -45,6 +46,8 @@ define(["require", "exports", "./entities/characters/DngnPlayer", "../DngnEnums"
                     this.findCollisions(collidingEntities, player._direction, _playerSidesPos);
                     this.handleCollision(collidingEntities);
                 }
+                if (player.pid == this._myPlayer.pid)
+                    this._myPlayer = player;
             }
         };
         Zone.prototype.addToMap = function (_map, _side, _pl) {

@@ -12,6 +12,7 @@ import { CanvasUnits, CAlign } from "./DngnRCU";
 import { Key } from "../../common/DngnMessages";
 import { Classes } from "../../common/world/entities/characters/DngnClasses";
 
+
 export class Menu {
   displayed: boolean;   /* indicates if menu is currently displayed */
   width: number;        /* Menu width in pixels */
@@ -49,20 +50,20 @@ export class Menu {
     }
     // Prepare heading
     _glol.font = this.heading.height + "px Arial";
-    this.heading.width = _glol.measureText(this.heading.text).width;
-    this.heading.vOffset = (this.height * 0.125);
-    this.heading.hOffset = (this.width / 2) - (this.heading.width / 2);
+    this.heading.width = Math.floor(_glol.measureText(this.heading.text).width);
+    this.heading.vOffset = Math.floor(this.height * 0.125);
+    this.heading.hOffset = Math.floor((this.width / 2) - (this.heading.width / 2));
     // Prepare class profiles
     for (let profile of this.classProfiles) {
-      profile.width = this.width * 0.2;
-      profile.height = this.height * 0.6;
+      profile.width = Math.floor(this.width * 0.2);
+      profile.height = Math.floor(this.height * 0.6);
       profile.avatar.width = profile.width;
       profile.avatar.height = profile.height;
-      profile.positionOffset.y = (this.height * 0.3);
+      profile.positionOffset.y = Math.floor(this.height * 0.3);
     }
-    this.classProfiles[0].positionOffset.x = ((this.width/4) - (this.classProfiles[0].width / 2));
-    this.classProfiles[1].positionOffset.x = ((this.width/2) - (this.classProfiles[1].width / 2));
-    this.classProfiles[2].positionOffset.x = ((this.width/4*3) - (this.classProfiles[2].width / 2));
+    this.classProfiles[0].positionOffset.x = Math.floor((this.width/4) - (this.classProfiles[0].width / 2));
+    this.classProfiles[1].positionOffset.x = Math.floor((this.width/2) - (this.classProfiles[1].width / 2));
+    this.classProfiles[2].positionOffset.x = Math.floor((this.width/4*3) - (this.classProfiles[2].width / 2));
   }
 
   /**
@@ -127,7 +128,7 @@ export class Menu {
     else if (keyCode == Key.Three)
       this.callback(Classes.Healer);
   }
-}
+} // End class 'Menu'
 
 class ClassProfile {
   classID: Classes;
@@ -142,4 +143,4 @@ class ClassProfile {
     this.positionOffset = { x: 0, y: 0 };
     this.avatar = _avatar;
   }
-}
+} // End class 'ClassProfile'

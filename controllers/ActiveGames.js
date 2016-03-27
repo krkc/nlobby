@@ -30,7 +30,7 @@ var ActiveGames = function () {
 ActiveGames.prototype.newGame = function (gametype, p1, p2) {
   var events = require('events');   /* Node.js Events module */
   var nlConfig = require('../helpers/nLobby.json');
-  var Game;
+  var Game = null;
   var selectedGame;
   if (nlConfig.games[gametype]) {
     selectedGame = nlConfig.games[gametype];

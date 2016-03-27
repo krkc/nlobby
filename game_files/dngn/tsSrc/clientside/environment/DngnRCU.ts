@@ -1,3 +1,4 @@
+
 export enum CAlign {
   TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT,
   TOP_XCENTERED, BOTTOM_XCENTERED, LEFT_YCENTERED, RIGHT_YCENTERED,
@@ -61,6 +62,6 @@ export class CanvasUnits {
       return { x: this.x[100] - width, y: this.y[50] - (width / 2) }
     if (align == CAlign.BULLSEYE)
       return { x: this.x[50] - (width / 2), y: this.y[50] - (width / 2) }
-  }
+  } // End getRCU
 
-}
+} // End class 'CanvasUnits'

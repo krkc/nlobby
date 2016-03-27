@@ -1,7 +1,9 @@
+import { Entity } from "./entities/DngnEntity";
 import { DngnCharacter } from "./entities/characters/DngnCharacter";
 import { Player, PWarrior, PMage, PHealer } from "./entities/characters/DngnPlayer";
 import { NonPlayer, NPWarrior, NPMage, NPHealer } from "./entities/characters/DngnNonPlayer";
 import { Direction } from "../DngnEnums";
+
 
 enum Classes {
   Warrior, Mage, Healer
@@ -11,6 +13,7 @@ declare type PosMap = { [key : number] : DngnCharacter[] };
 
 export class Zone {
   _players : Player[];
+  _myPlayer : Player;
   _npcs : NonPlayer[];
   _topSideMap : PosMap;
   _bottomSideMap : PosMap;
@@ -19,6 +22,7 @@ export class Zone {
   _playersMoving : Player[];
   constructor() {
     this._players = [];
+    this._myPlayer = new Player();
     this._npcs = [];
     this._topSideMap = {};
     this._bottomSideMap = {};
@@ -74,6 +78,9 @@ export class Zone {
         this.findCollisions(collidingEntities, player._direction, _playerSidesPos);
         this.handleCollision(collidingEntities);
       }
+      // Set a reference to my player
+      if (player.pid == this._myPlayer.pid)
+        this._myPlayer = player;
     }
   } // End run
 

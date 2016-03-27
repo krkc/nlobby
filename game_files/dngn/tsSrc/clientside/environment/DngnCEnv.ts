@@ -12,6 +12,7 @@ import { Menu } from "./DngnCMenu";
 import { HUD } from "./DngnCHUD";
 import { CanvasUnits, CAlign } from "./DngnRCU";
 import { Classes } from "../../common/world/entities/characters/DngnClasses";
+import { Player } from "../../common/world/entities/characters/DngnPlayer";
 
 declare type envCallback = () => void;
 
@@ -29,18 +30,9 @@ export class Environment {
   rcu : CanvasUnits;
   titleMenu : Menu;           /* Class-selection menu */
   hud : HUD;                  /* Heads-up-display */
-  characterSprite: {
-    male: {
-      warrior: HTMLImageElement,
-      mage: HTMLImageElement,
-      healer: HTMLImageElement
-    },
-    female: {
-      warrior: HTMLImageElement,
-      mage: HTMLImageElement,
-      healer: HTMLImageElement
-    }
-  };     /* Sprite to be used for game characters */
+  backgroundSprite: HTMLImageElement;
+  bgStateChanged: boolean;
+  characterSprite: { warrior_m: HTMLImageElement };     /* Sprite to be used for game characters */
   classAvatar: {
     warrior : HTMLImageElement
   }
@@ -51,24 +43,13 @@ export class Environment {
     this._setCanvasContext();
     this.rcu = new CanvasUnits();
     this.rcu.setRCU(this.canvfg.width, this.canvfg.height);
-
-    this.characterSprite = {
-      male: {
-        warrior: new Image(),
-        mage: null,
-        healer: null
-      },
-      female: {
-        warrior: null,
-        mage: null,
-        healer: null
-      }
-    };
-
+    this.bgStateChanged = true;
+    // Initialize default image placeholder objects
+    this.backgroundSprite = new Image();
+    this.characterSprite = { warrior_m: new Image() };
     this.classAvatar = { warrior: new Image() };
-
-    this.assetsToLoad = 2;
-
+    this.assetsToLoad = 3;
+    // Create class selection menu and Heads-up-display
     this.titleMenu = new Menu(this.classAvatar);
     this.hud = new HUD();
   }
@@ -77,18 +58,16 @@ export class Environment {
     return this.glfg;
   }
 
-  get Background () {
-    return this.glbg;
-  }
-
   get Overlay () {
     return this.glol;
   }
 
   public loadAssets(callback : envCallback) {
-    this.characterSprite.male.warrior.src = "textures/warrior_m.png";
+    this.backgroundSprite.src = "textures/brick_1.png";
+    this.characterSprite["warrior_m"].src = "textures/warrior_m.png";
     this.classAvatar.warrior.src = "textures/warrior_class_profile.png";
-    this.characterSprite.male.warrior.onload = () => { this.checkAssetsLoaded(callback) };
+    this.backgroundSprite.onload = () => { this.checkAssetsLoaded(callback) };
+    this.characterSprite["warrior_m"].onload = () => { this.checkAssetsLoaded(callback) };
     this.classAvatar.warrior.onload = () => { this.checkAssetsLoaded(callback) };
   }
 
@@ -117,8 +96,8 @@ export class Environment {
     // Specify canvas size based on window dimensions
     if (this.wWidth > this.wHeight) {
       this.wOrientation = "landscape";
-      let landscapeHeight = (this.wHeight - Math.floor(this.wHeight * 0.1)).toString();
-      let landscapeWidth = (this.wWidth - Math.floor(this.wWidth * 0.4)).toString();
+      let landscapeHeight = Math.floor(this.wHeight - (this.wHeight * 0.1)).toString();
+      let landscapeWidth = Math.floor(this.wWidth - (this.wWidth * 0.4)).toString();
       this.canvbg.setAttribute('width', landscapeWidth);
       this.canvbg.setAttribute('height', landscapeHeight);
       this.canvfg.setAttribute('width', landscapeWidth);
@@ -126,8 +105,8 @@ export class Environment {
       this.canvol.setAttribute('width', landscapeWidth);
       this.canvol.setAttribute('height', landscapeHeight);
     } else {
-      let portraitWidth = (this.wWidth - Math.floor(this.wWidth * 0.01)).toString();
-      let portraitHeight = (this.wHeight - Math.floor(this.wHeight * 0.006)).toString();
+      let portraitWidth = Math.floor(this.wWidth - (this.wWidth * 0.01)).toString();
+      let portraitHeight = Math.floor(this.wHeight - (this.wHeight * 0.006)).toString();
       this.wOrientation = "portrait";
       this.canvbg.setAttribute('width', portraitWidth);
       this.canvbg.setAttribute('height', portraitHeight);
@@ -150,7 +129,27 @@ export class Environment {
 		}
   }
 
+  /**
+   * This method redraws the entire scene
+   */
+  public drawScene(ents: Player[]) {
+    // Clear scene
+    this.glfg.clearRect(0,0,this.canvfg.width, this.canvfg.height);
+    // Redraw scene entities
+    for (let ent of ents) {
+      this.glfg.drawImage(this.characterSprite[ent.spriteName], this.rcu[ent._location.x], this.rcu[ent._location.y],
+                      this.rcu[ent.width], this.rcu[ent.height]);
+    }
 
+  }
+
+  /**
+   * This method redraws the background canvas
+   */
+  public drawBackground() {
+    this.glbg.drawImage(this.backgroundSprite, 0, 0,
+                    this.canvbg.width, this.canvbg.height);
+  }
 
   /**
 		* @function promptMenu
@@ -184,5 +183,5 @@ export class Environment {
     EnvContext.rcu.setRCU(EnvContext.canvfg.width, EnvContext.canvfg.height);
     if (EnvContext.titleMenu.displayed)
       EnvContext.promptMenu();
-  }
-}
+  } // End onResize
+} // End class 'Environment'

@@ -188,7 +188,7 @@ grio.on('connection', function (socket) {
 			});
 
 			// Socket.io event handler for session creation
-			socket.on('clientToServer', function (dataIn) {
+			socket.on('clientToServer', function (dataIn, serverAckCB) {
 				if (dataIn.PlayerReady) {
 					console.log('server: Received "PlayerReady" message from client.');
 					socket.currentGame.onPlayerReady(dataIn.PlayerReady);

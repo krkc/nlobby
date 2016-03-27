@@ -1,5 +1,4 @@
 define(["require", "exports", "./DngnCMenu", "./DngnCHUD", "./DngnRCU"], function (require, exports, DngnCMenu_1, DngnCHUD_1, DngnRCU_1) {
-    "use strict";
     var Environment = (function () {
         function Environment() {
             this._getPageElements();
@@ -7,33 +6,17 @@ define(["require", "exports", "./DngnCMenu", "./DngnCHUD", "./DngnRCU"], functio
             this._setCanvasContext();
             this.rcu = new DngnRCU_1.CanvasUnits();
             this.rcu.setRCU(this.canvfg.width, this.canvfg.height);
-            this.characterSprite = {
-                male: {
-                    warrior: new Image(),
-                    mage: null,
-                    healer: null
-                },
-                female: {
-                    warrior: null,
-                    mage: null,
-                    healer: null
-                }
-            };
+            this.bgStateChanged = true;
+            this.backgroundSprite = new Image();
+            this.characterSprite = { warrior_m: new Image() };
             this.classAvatar = { warrior: new Image() };
-            this.assetsToLoad = 2;
+            this.assetsToLoad = 3;
             this.titleMenu = new DngnCMenu_1.Menu(this.classAvatar);
             this.hud = new DngnCHUD_1.HUD();
         }
         Object.defineProperty(Environment.prototype, "Foreground", {
             get: function () {
                 return this.glfg;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Environment.prototype, "Background", {
-            get: function () {
-                return this.glbg;
             },
             enumerable: true,
             configurable: true
@@ -47,9 +30,11 @@ define(["require", "exports", "./DngnCMenu", "./DngnCHUD", "./DngnRCU"], functio
         });
         Environment.prototype.loadAssets = function (callback) {
             var _this = this;
-            this.characterSprite.male.warrior.src = "textures/warrior_m.png";
+            this.backgroundSprite.src = "textures/brick_1.png";
+            this.characterSprite["warrior_m"].src = "textures/warrior_m.png";
             this.classAvatar.warrior.src = "textures/warrior_class_profile.png";
-            this.characterSprite.male.warrior.onload = function () { _this.checkAssetsLoaded(callback); };
+            this.backgroundSprite.onload = function () { _this.checkAssetsLoaded(callback); };
+            this.characterSprite["warrior_m"].onload = function () { _this.checkAssetsLoaded(callback); };
             this.classAvatar.warrior.onload = function () { _this.checkAssetsLoaded(callback); };
         };
         Environment.prototype.checkAssetsLoaded = function (_done) {
@@ -68,8 +53,8 @@ define(["require", "exports", "./DngnCMenu", "./DngnCHUD", "./DngnRCU"], functio
             this.existingWidth = this.wWidth;
             if (this.wWidth > this.wHeight) {
                 this.wOrientation = "landscape";
-                var landscapeHeight = (this.wHeight - Math.floor(this.wHeight * 0.1)).toString();
-                var landscapeWidth = (this.wWidth - Math.floor(this.wWidth * 0.4)).toString();
+                var landscapeHeight = Math.floor(this.wHeight - (this.wHeight * 0.1)).toString();
+                var landscapeWidth = Math.floor(this.wWidth - (this.wWidth * 0.4)).toString();
                 this.canvbg.setAttribute('width', landscapeWidth);
                 this.canvbg.setAttribute('height', landscapeHeight);
                 this.canvfg.setAttribute('width', landscapeWidth);
@@ -78,8 +63,8 @@ define(["require", "exports", "./DngnCMenu", "./DngnCHUD", "./DngnRCU"], functio
                 this.canvol.setAttribute('height', landscapeHeight);
             }
             else {
-                var portraitWidth = (this.wWidth - Math.floor(this.wWidth * 0.01)).toString();
-                var portraitHeight = (this.wHeight - Math.floor(this.wHeight * 0.006)).toString();
+                var portraitWidth = Math.floor(this.wWidth - (this.wWidth * 0.01)).toString();
+                var portraitHeight = Math.floor(this.wHeight - (this.wHeight * 0.006)).toString();
                 this.wOrientation = "portrait";
                 this.canvbg.setAttribute('width', portraitWidth);
                 this.canvbg.setAttribute('height', portraitHeight);
@@ -99,6 +84,16 @@ define(["require", "exports", "./DngnCMenu", "./DngnCHUD", "./DngnRCU"], functio
                 console.log("Error establishing drawing context.");
             }
         };
+        Environment.prototype.drawScene = function (ents) {
+            this.glfg.clearRect(0, 0, this.canvfg.width, this.canvfg.height);
+            for (var _i = 0; _i < ents.length; _i++) {
+                var ent = ents[_i];
+                this.glfg.drawImage(this.characterSprite[ent.spriteName], this.rcu[ent._location.x], this.rcu[ent._location.y], this.rcu[ent.width], this.rcu[ent.height]);
+            }
+        };
+        Environment.prototype.drawBackground = function () {
+            this.glbg.drawImage(this.backgroundSprite, 0, 0, this.canvbg.width, this.canvbg.height);
+        };
         Environment.prototype.promptMenu = function (_callback) {
             if (_callback) {
                 this.titleMenu.setLayout(this.glol, this.rcu, this.wOrientation, _callback);
@@ -117,7 +112,7 @@ define(["require", "exports", "./DngnCMenu", "./DngnCHUD", "./DngnRCU"], functio
                 EnvContext.promptMenu();
         };
         return Environment;
-    }());
+    })();
     exports.Environment = Environment;
 });
 //# sourceMappingURL=DngnCEnv.js.map

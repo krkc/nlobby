@@ -1,5 +1,4 @@
 define(["require", "exports"], function (require, exports) {
-    "use strict";
     (function (Classes) {
         Classes[Classes["Warrior"] = 0] = "Warrior";
         Classes[Classes["Mage"] = 1] = "Mage";

@@ -1,3 +1,4 @@
+"use strict";
 var DngnPlayer_1 = require("./entities/characters/DngnPlayer");
 var DngnEnums_1 = require("../DngnEnums");
 var Classes;
@@ -9,6 +10,7 @@ var Classes;
 var Zone = (function () {
     function Zone() {
         this._players = [];
+        this._myPlayer = new DngnPlayer_1.Player();
         this._npcs = [];
         this._topSideMap = {};
         this._bottomSideMap = {};
@@ -46,6 +48,8 @@ var Zone = (function () {
                 this.findCollisions(collidingEntities, player._direction, _playerSidesPos);
                 this.handleCollision(collidingEntities);
             }
+            if (player.pid == this._myPlayer.pid)
+                this._myPlayer = player;
         }
     };
     Zone.prototype.addToMap = function (_map, _side, _pl) {
@@ -85,8 +89,8 @@ var Zone = (function () {
         if (_direction == DngnEnums_1.Direction.NORTH) {
             if (this._bottomSideMap[_playerSides[2]]) {
                 var plArr = this._bottomSideMap[_playerSides[2]];
-                for (var _i = 0; _i < plArr.length; _i++) {
-                    var pl = plArr[_i];
+                for (var _i = 0, plArr_1 = plArr; _i < plArr_1.length; _i++) {
+                    var pl = plArr_1[_i];
                     if (pl.testXCollisions(_playerSides[0], _playerSides[1])) {
                         _entityArr.push(pl);
                     }
@@ -96,8 +100,8 @@ var Zone = (function () {
         if (_direction == DngnEnums_1.Direction.SOUTH) {
             if (this._topSideMap[_playerSides[3]]) {
                 var plArr = this._topSideMap[_playerSides[2]];
-                for (var _a = 0; _a < plArr.length; _a++) {
-                    var pl = plArr[_a];
+                for (var _a = 0, plArr_2 = plArr; _a < plArr_2.length; _a++) {
+                    var pl = plArr_2[_a];
                     if (pl.testXCollisions(_playerSides[0], _playerSides[1])) {
                         _entityArr.push(pl);
                     }
@@ -107,8 +111,8 @@ var Zone = (function () {
         if (_direction == DngnEnums_1.Direction.EAST) {
             if (this._leftSideMap[_playerSides[1]]) {
                 var plArr = this._leftSideMap[_playerSides[2]];
-                for (var _b = 0; _b < plArr.length; _b++) {
-                    var pl = plArr[_b];
+                for (var _b = 0, plArr_3 = plArr; _b < plArr_3.length; _b++) {
+                    var pl = plArr_3[_b];
                     if (pl.textYCollisions(_playerSides[2], _playerSides[3])) {
                         _entityArr.push(pl);
                     }
@@ -118,8 +122,8 @@ var Zone = (function () {
         if (_direction == DngnEnums_1.Direction.WEST) {
             if (this._rightSideMap[_playerSides[0]]) {
                 var plArr = this._rightSideMap[_playerSides[2]];
-                for (var _c = 0; _c < plArr.length; _c++) {
-                    var pl = plArr[_c];
+                for (var _c = 0, plArr_4 = plArr; _c < plArr_4.length; _c++) {
+                    var pl = plArr_4[_c];
                     if (pl.textYCollisions(_playerSides[2], _playerSides[3])) {
                         _entityArr.push(pl);
                     }
@@ -131,6 +135,6 @@ var Zone = (function () {
         console.log('Collision detected.');
     };
     return Zone;
-})();
+}());
 exports.Zone = Zone;
 //# sourceMappingURL=DngnZone.js.map

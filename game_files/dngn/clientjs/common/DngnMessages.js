@@ -1,5 +1,4 @@
 define(["require", "exports"], function (require, exports) {
-    "use strict";
     (function (Direction) {
         Direction[Direction["NORTH"] = 0] = "NORTH";
         Direction[Direction["SOUTH"] = 1] = "SOUTH";
@@ -20,6 +19,12 @@ define(["require", "exports"], function (require, exports) {
     })(exports.Key || (exports.Key = {}));
     var Key = exports.Key;
     ;
+    var ClientMessage = (function () {
+        function ClientMessage() {
+        }
+        return ClientMessage;
+    })();
+    exports.ClientMessage = ClientMessage;
     var ClientInputMsg = (function () {
         function ClientInputMsg() {
         }
@@ -42,7 +47,7 @@ define(["require", "exports"], function (require, exports) {
             };
         };
         return ClientInputMsg;
-    }());
+    })();
     exports.ClientInputMsg = ClientInputMsg;
     var ClientStatusMsg = (function () {
         function ClientStatusMsg() {
@@ -56,13 +61,37 @@ define(["require", "exports"], function (require, exports) {
             };
         };
         return ClientStatusMsg;
-    }());
+    })();
     exports.ClientStatusMsg = ClientStatusMsg;
-    var ServerStatusMsg = (function () {
-        function ServerStatusMsg() {
+    var ServerMessage = (function () {
+        function ServerMessage() {
+            this.GameReady = null;
+            this.Toast = null;
+            this.StateUpdate = null;
         }
-        return ServerStatusMsg;
-    }());
-    exports.ServerStatusMsg = ServerStatusMsg;
+        return ServerMessage;
+    })();
+    exports.ServerMessage = ServerMessage;
+    var ServerStatusMessages = (function () {
+        function ServerStatusMessages() {
+        }
+        ServerStatusMessages.Ready = function (_pid) {
+            var _rm = { pid: _pid };
+            return _rm;
+        };
+        ServerStatusMessages.Toast = function (_msg, _pid) {
+            var _tm = { msg: _msg };
+            if (_pid) {
+                _tm.pid = _pid;
+            }
+            return _tm;
+        };
+        ServerStatusMessages.State = function () {
+            var _sm = {};
+            return _sm;
+        };
+        return ServerStatusMessages;
+    })();
+    exports.ServerStatusMessages = ServerStatusMessages;
 });
 //# sourceMappingURL=DngnMessages.js.map

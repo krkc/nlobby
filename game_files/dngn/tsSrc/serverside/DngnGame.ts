@@ -11,12 +11,13 @@
 /// <reference path="node.d.ts"/>
 
 import * as events from "events";
+import * as Messages from "../common/DngnMessages";
 import { Zone } from "../common/world/DngnZone";
 
 export class Game {
   _readyPlayers : number;
   _message : string;
-  _eventEmitter : events.EventEmitter;
+  _eventEmitter : NodeJS.EventEmitter;
   _gameLoopID : NodeJS.Timer;
   _gameRunning : boolean;
   _zone : Zone;
@@ -46,29 +47,25 @@ export class Game {
 
   }
 
-  private sendData (d : any) {
-    this._eventEmitter.emit('dataFromGame', d);
+  private sendData (m: Messages.ServerMessage) {
+    this._eventEmitter.emit('dataFromGame', m);
   }
 
   // Client message events
 
-  public onPlayerReady (d : any) {
+  public onPlayerReady (m : Messages.ClientReadyMsg) {
     // A player is ready
-    this._zone.addPlayer(d.pid, d.class);
+    this._zone.addPlayer(m.pid, m.class);
     // increment readyPlayer counter
     if (++this._readyPlayers >= 2) {
       // Start game
       this.init();
       // Send updated data to clients
       this._message = "Arrow keys to move!";
-      this.sendData({
-        GameReady: {
-          pid: d.pid
-        },
-        Toast: {
-          msg: this._message
-        }
-      });
+      let _msg : Messages.ServerMessage = new Messages.ServerMessage();
+      _msg.GameReady = Messages.ServerStatusMessages.Ready(m.pid);
+      _msg.Toast = Messages.ServerStatusMessages.Toast(this._message);
+      this.sendData(_msg);
     }
   }
 
@@ -94,5 +91,5 @@ export class Game {
 
   public onResetRequest (ev: Event) {
     this.reset();
-  }
-}
+  } // End onResetRequest
+} // End class 'Game'
