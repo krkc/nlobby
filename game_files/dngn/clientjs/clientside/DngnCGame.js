@@ -1,10 +1,11 @@
 define(["require", "exports", "./environment/DngnCEnv", "../common/world/DngnZone", "../common/DngnMessages"], function (require, exports, DngnCEnv_1, DngnZone_1, Messages) {
+    "use strict";
     var DngnCGame = (function () {
         function DngnCGame(conn) {
             this.game = new CGame(conn);
         }
         return DngnCGame;
-    })();
+    }());
     exports.DngnCGame = DngnCGame;
     var CGame = (function () {
         function CGame(conn) {
@@ -112,7 +113,7 @@ define(["require", "exports", "./environment/DngnCEnv", "../common/world/DngnZon
             console.log('Game Over Event');
         };
         return CGame;
-    })();
+    }());
     exports.CGame = CGame;
 });
 //# sourceMappingURL=DngnCGame.js.map

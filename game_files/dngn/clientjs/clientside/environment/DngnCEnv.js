@@ -1,4 +1,5 @@
 define(["require", "exports", "./DngnCMenu", "./DngnCHUD", "./DngnRCU"], function (require, exports, DngnCMenu_1, DngnCHUD_1, DngnRCU_1) {
+    "use strict";
     var Environment = (function () {
         function Environment() {
             this._getPageElements();
@@ -86,9 +87,9 @@ define(["require", "exports", "./DngnCMenu", "./DngnCHUD", "./DngnRCU"], functio
         };
         Environment.prototype.drawScene = function (ents) {
             this.glfg.clearRect(0, 0, this.canvfg.width, this.canvfg.height);
-            for (var _i = 0; _i < ents.length; _i++) {
-                var ent = ents[_i];
-                this.glfg.drawImage(this.characterSprite[ent.spriteName], this.rcu[ent._location.x], this.rcu[ent._location.y], this.rcu[ent.width], this.rcu[ent.height]);
+            for (var _i = 0, ents_1 = ents; _i < ents_1.length; _i++) {
+                var ent = ents_1[_i];
+                this.glfg.drawImage(this.characterSprite[ent.spriteName], this.rcu.x[ent._location.x], this.rcu.y[ent._location.y], this.rcu.x[ent.width], this.rcu.y[ent.height]);
             }
         };
         Environment.prototype.drawBackground = function () {
@@ -112,7 +113,7 @@ define(["require", "exports", "./DngnCMenu", "./DngnCHUD", "./DngnRCU"], functio
                 EnvContext.promptMenu();
         };
         return Environment;
-    })();
+    }());
     exports.Environment = Environment;
 });
 //# sourceMappingURL=DngnCEnv.js.map

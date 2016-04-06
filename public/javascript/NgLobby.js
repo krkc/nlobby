@@ -15,10 +15,10 @@ function NgLobby (conn)
   'use strict';
 
   var _self = this;
-	var myID;			/* ID of the current player */
-	var gameID;		/* ID of current game session */
-	var readyID;	/* ID of ready client */
-  var socket;
+	var myID = null;       /* ID of the current player */
+	var gameID = null;		 /* ID of current game session */
+	var readyID = null;	   /* ID of ready client */
+  var socket = null;
   var disconnected = false;  /* Flag if client has disconnected (some browsers send two unload events) */
   var _usersDiv = document.getElementById('divUsers');
   var _chatTextDiv = document.getElementById('chatText');
@@ -170,6 +170,7 @@ function NgLobby (conn)
   	if (myID == playerToFind) {
   		var r = confirm("A player wants to play a game, do you accept?");
   		if (r === true) {
+        // Call
   			window.location = "game?gameTitle=" + gameToPlay;
   		}
   	}

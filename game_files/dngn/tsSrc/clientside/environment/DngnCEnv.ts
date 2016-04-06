@@ -35,7 +35,7 @@ export class Environment {
   characterSprite: { warrior_m: HTMLImageElement };     /* Sprite to be used for game characters */
   classAvatar: {
     warrior : HTMLImageElement
-  }
+  };
   assetsToLoad: number;
   constructor() {
     this._getPageElements();
@@ -137,8 +137,8 @@ export class Environment {
     this.glfg.clearRect(0,0,this.canvfg.width, this.canvfg.height);
     // Redraw scene entities
     for (let ent of ents) {
-      this.glfg.drawImage(this.characterSprite[ent.spriteName], this.rcu[ent._location.x], this.rcu[ent._location.y],
-                      this.rcu[ent.width], this.rcu[ent.height]);
+      this.glfg.drawImage(this.characterSprite[ent.spriteName], this.rcu.x[ent._location.x], this.rcu.y[ent._location.y],
+                      this.rcu.x[ent.width], this.rcu.y[ent.height]);
     }
 
   }

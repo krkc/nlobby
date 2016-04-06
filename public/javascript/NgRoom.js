@@ -5,6 +5,12 @@
  * @license MIT
  */
 
+// TODO: when the server receives regular client updates, update expiration timer
+//        in redis. If client stops sending regular updates, they will be removed
+//        from redis automatically. On the next server update, clients will receive new player
+//        list with the disconnected player removed. If that disconnected client
+//        again tries to connect, a rejection response will be sent, and they
+//        will be redirected back to the lobby.
 
 /**
  * @class NgRoom

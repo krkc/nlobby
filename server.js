@@ -18,6 +18,8 @@ var cookieParser = require('socket.io-cookie-parser');
 var routeContent = require('./helpers/routeContent');	/* Helper functions for the index and game routes */
 var nlUsers = require('./controllers/ActiveUsers');		/* Active users object */
 var activeGames = require('./controllers/ActiveGames');		/* Active games object */
+var LobbySocket = require('./controllers/LobbySocket.js');
+var RoomSocket = require('./controllers/RoomSocket.js');
 var nlConfig = require('./helpers/nLobby');	/* nLobby config file */
 
 
@@ -109,15 +111,11 @@ app.get('/game', function(req, res) {
 
 // -- Begin socket.io code --
 
-var usersReportedArr = [];		/* array of keys of users to look for in redis */
 // Regularly check redis for connected users and inform clients
 setInterval(function () {
 	// Refresh reported users in redis (so they don't expire)
-	nlUsers.refreshUsers(usersReportedArr, function (err, status) {
+	nlUsers.refreshUsers(function (err, status) {
 		if (err) console.log(err);
-		if (status) {
-			usersReportedArr = [];
-		}
 	});
 	// Send list of users in redis to clients
 	nlUsers.listUsers(function (err, userList) {
@@ -130,84 +128,13 @@ setInterval(function () {
 
 // Socket.io event handler for Game Lobby connection
 glio.on('connection', function (socket) {
-	// Add user
-	nlUsers.newUser(sessionNumber += 1, function (err, newUuid) {
-		if (err) console.log(err);
-		socket.username = newUuid;
-		socket.emit('createSession', { sessionID: socket.username });
-		// Broadcast to the lobby that user has connected
-		socket.broadcast.emit('userJoined', socket.username);
-	});
-
-	// Socket.io handler for client browser 'unload' event
-	socket.on('sessionDisconnect', function () {
-		// Remove the disconnecting user from the list and broadcast update
-		nlUsers.removeUser(socket.username, function (err, status) {
-			if (err) console.log(err);
-		});
-		socket.broadcast.emit('userLeft', socket.username);
-	});
-
-	// Socket.io handler for client browser 'userReport' event
-	socket.on('userReport', function (uid) {
-		// Add reporting user to the list of reported users
-		usersReportedArr.push(uid);
-	});
+	LobbySocket(socket, nlUsers);
 });
 
 
 // Socket.io event handler for Game Room connection
 grio.on('connection', function (socket) {
-	// Check if user is currently in a game session
-	if (!socket.currentGame) {
-		// Perform game and player session setup if newly joined
-		if (socket.request.cookies.sid) {
-			socket.username = socket.request.cookies.sid;		/* Session username for player */
-		}
-		// Ensure player is registered to an active game and retrieve that game
-		socket.currentGame = activeGames.findGame(socket.username);		/* Session game for player */
-		if (socket.currentGame) {
-			var gameID = socket.currentGame.GameID;		/* ID of the current game session */
-			socket.join(gameID);
-			console.log('User connected to game room ' + gameID + '. ' + activeGames.sessions.length + ' active games.');
-			socket.emit('createGameSession', { ID: socket.username, gameID: gameID });
-
-			// Event handler for when game instance relays data via server to players
-			socket.currentGame.eventEmitter.on('dataFromGame', function (dataOut) {
-				// Broadcast data to players in the current game room
-
-				socket.broadcast.to(gameID).emit('serverToClient', dataOut);
-				//console.log('server: Received data from game.');
-			});
-
-			// Socket.io event handler for session destruction/removal
-			socket.on('disconnectGameSession', function () {
-				activeGames.removeGame(socket.currentGame);
-				socket.currentGame = null;
-				console.log('User has disconnected from game room. ' + activeGames.sessions.length + ' active games.');
-			});
-
-			// Socket.io event handler for session creation
-			socket.on('clientToServer', function (dataIn, serverAckCB) {
-				if (dataIn.PlayerReady) {
-					console.log('server: Received "PlayerReady" message from client.');
-					socket.currentGame.onPlayerReady(dataIn.PlayerReady);
-				}
-				if (dataIn.Input) {
-					console.log('server: Received "Input" message from client.');
-					socket.currentGame.onInput(dataIn.Input);
-				}
-				if (dataIn.ResetRequest) {
-					console.log('server: Received "ResetRequest" message from client.');
-					socket.currentGame.onResetRequest(dataIn.ResetRequest);
-				}
-			});
-		}
-	}
-
-	// Broadcast to players in a given room
-	//grio.sockets.in('gameID').emit('dataToClient', dataOut);
-
+	RoomSocket(socket, nlUsers, activeGames);
 });
 
 // -- End socket.io code --

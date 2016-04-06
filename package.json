@@ -14,25 +14,25 @@
   "repository": "git@github.com:krkc/nlobby.git",
   "license": "MIT",
   "dependencies": {
-    "bower": "^1.7.2",
+    "bower": "^1.7.7",
     "cookie": "^0.2.0",
     "express": "^4.13.3",
     "express-session": "^1.13.0",
     "hashids": "^1.0.2",
     "jade": "^1.11.0",
-    "redis": "^2.4.2",
-    "socket.io": "^1.3.6",
+    "redis": "^2.5.3",
+    "socket.io": "^1.4.5",
     "socket.io-cookie-parser": "^1.0.0"
   },
   "devDependencies": {
-    "chai": "^3.4.1",
-    "karma": "^0.13.19",
-    "karma-browserify": "^5.0.1",
+    "chai": "^3.5.0",
+    "karma": "^0.13.22",
+    "karma-browserify": "^5.0.3",
     "karma-chai": "^0.1.0",
     "karma-firefox-launcher": "^0.1.7",
-    "karma-mocha": "^0.2.1",
-    "karma-mocha-reporter": "^1.1.5",
-    "mocha": "^2.3.4",
+    "karma-mocha": "^0.2.2",
+    "karma-mocha-reporter": "^1.3.0",
+    "mocha": "^2.4.5",
     "typescript": "^1.7.5"
   }
 }
