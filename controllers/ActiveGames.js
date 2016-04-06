@@ -105,5 +105,15 @@ ActiveGames.prototype.removeGame = function (game) {
   }
 };
 
+/**
+ * @function listGames
+ */
+ActiveGames.prototype.listGames = function () {
+  var gameList = [];
+  for (var game of this.sessions) {
+    gameList.push(game.GameID);
+  }
+};
+
 // Make class available to server.js
 module.exports = new ActiveGames();

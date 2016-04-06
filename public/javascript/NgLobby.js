@@ -176,10 +176,15 @@ function NgLobby (conn)
   	}
   });
 
+  // Chat message received
+  socket.on('chatMessageIn', function(msg) {
+    _chatTextDiv.innerHTML += msg + '<br />';
+  });
+
   // When page loads, register all popover elements in JQuery
   $(document).ready(function(){
+      // User id buttons
       $('[data-toggle="popover"]').popover({ html: true });
-
       $('body').on('click', function (e) {
         //did not click a popover toggle or popover
         if ($(e.target).data('toggle') !== 'popover' &&
@@ -188,6 +193,14 @@ function NgLobby (conn)
         } else {
           e.preventDefault();
         }
+      });
+
+      // Chat 'send' button
+      $('.chatSend').on('click', function (e) {
+        _chatTextDiv.innerHTML += $('.chatInput').val() + '<br />';
+        socket.emit('chatMessageOut', $('.chatInput').val());
+        $('.chatInput').val("");
+        this.blur();
       });
   });
 }

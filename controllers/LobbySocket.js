@@ -10,7 +10,18 @@ var LobbyUser = function (socket, nlUsers) {
     socket.broadcast.emit('userJoined', socket.username);
   });
 
-	// Socket.io handler for client browser 'unload' event
+	// Socket.io handler for client browser 'userReport' event
+	socket.on('userReport', function (uid) {
+		// Add reporting user to the list of reported users
+		nlUsers.usersReportedArr.push(uid);
+	});
+
+  // Socket.io handler for client 'chatMessageOut' event
+  socket.on('chatMessageOut', function(msg) {
+    socket.broadcast.emit('chatMessageIn', msg);
+  });
+
+  // Socket.io handler for client browser 'unload' event
 	socket.on('sessionDisconnect', function () {
 		// Remove the disconnecting user from the list and broadcast update
 		nlUsers.removeUser(socket.username, function (err, status) {
@@ -18,12 +29,6 @@ var LobbyUser = function (socket, nlUsers) {
 		});
 
 		socket.broadcast.emit('userLeft', socket.username);
-	});
-
-	// Socket.io handler for client browser 'userReport' event
-	socket.on('userReport', function (uid) {
-		// Add reporting user to the list of reported users
-		nlUsers.usersReportedArr.push(uid);
 	});
 }
 
